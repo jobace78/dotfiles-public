@@ -1,0 +1,64 @@
+#!/usr/bin/env bash
+
+# shellcheck source=../etc/bash44.conf
+if [ -f "$(dirname "${0}")"/../etc/bash44.conf ]; then
+  . "$(dirname "${0}")"/../etc/bash44.conf || exit 1
+else
+  . "${HOME:?}"/.etc/bash44.conf || exit 1
+fi
+
+# shellcheck source=../etc/constants.conf
+if [ -f "$(dirname "${0}")"/../etc/constants.conf ]; then
+  . "$(dirname "${0}")"/../etc/constants.conf
+else
+  . "${HOME:?}"/.etc/constants.conf
+fi
+
+# shellcheck source=../etc/functions.conf
+if [ -f "$(dirname "${0}")"/../etc/functions.conf ]; then
+  . "$(dirname "${0}")"/../etc/functions.conf
+else
+  . "${HOME:?}"/.etc/functions.conf
+fi
+
+_help() {
+  local exit_code
+  exit_code="${1:-1}"
+  cat << EOT
+
+  Usage: $(basename "${0}") [OPTION...] FILE
+
+  Help options:
+    -H Show this help message
+    -U Display brief usage
+    -V Print version
+
+EOT
+  exit "${exit_code}"
+}
+
+trap '_catch_all ${?}' ERR SIGHUP SIGINT SIGQUIT SIGTERM
+
+OPTIND=1
+while getopts 'HUV' ARGS; do
+  case "${ARGS}" in
+    H | U)
+      _help 0
+      ;;
+    V)
+      _exit 0 'v3'
+      ;;
+    ?)
+      _help 1
+      ;;
+  esac
+done
+shift $((OPTIND - 1))
+
+[ $# -ge 1 ] || _help 1
+
+if [ -r "${1:?}" ]; then
+  perl -e 's/\r\n|\n|\r/\n/g' -p "${1:?}"
+else
+  _exit 1 "'${1:?}' was NOT readable, exiting."
+fi

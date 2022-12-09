@@ -1,0 +1,6 @@
+# ssh/config
+
+Host *
+  LogLevel error
+  StrictHostKeyChecking no
+  UserKnownHostsFile /dev/null

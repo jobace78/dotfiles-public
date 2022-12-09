@@ -1,0 +1,20 @@
+# gitconfig
+
+[alias]
+  h = log --cherry-pick --graph --left-right --oneline
+  ha = log --all --cherry-pick --graph --left-right --oneline
+  l = log --graph
+  la = log --all --graph
+  s = ! "git log|awk '$1~/git-subtree-dir/{print $2}'"
+
+[core]
+  abbrev = 7
+
+[init]
+  defaultBranch = master
+
+[log]
+  abbrevcommit = yes
+
+[pull]
+  rebase = false

@@ -1,0 +1,130 @@
+#!/usr/bin/env bash
+
+# shellcheck source=../etc/bash44.conf
+if [ -f "$(dirname "${0}")"/../etc/bash44.conf ]; then
+  . "$(dirname "${0}")"/../etc/bash44.conf || exit 1
+else
+  . "${HOME:?}"/.etc/bash44.conf || exit 1
+fi
+
+# shellcheck source=../etc/constants.conf
+if [ -f "$(dirname "${0}")"/../etc/constants.conf ]; then
+  . "$(dirname "${0}")"/../etc/constants.conf
+else
+  . "${HOME:?}"/.etc/constants.conf
+fi
+
+# shellcheck source=../etc/functions.conf
+if [ -f "$(dirname "${0}")"/../etc/functions.conf ]; then
+  . "$(dirname "${0}")"/../etc/functions.conf
+else
+  . "${HOME:?}"/.etc/functions.conf
+fi
+
+_help() {
+  local exit_code
+  exit_code="${1:-1}"
+  cat << EOT
+
+  Usage: $(basename "${0}") [OPTION...] <CONTEXT ALIAS>
+
+  Options:
+    -n <namespace>       Set the specified namespace, defaults to 'default'
+    -t <token>           Set the specified token
+    -u                   Unset current-context and exit
+
+  Help options:
+    -H Show this help message
+    -U Display brief usage
+    -V Print version
+
+  Configuration file example:
+  [...]
+  <context alias>_name=ocp-on-arm
+  <context alias>_server=https://<api address>
+  <context alias>_user=example@example.invalid
+  <context alias>_name=ocp-on-aws
+  <context alias>_server=https://<api address>
+  <context alias>_user=example@example.invalid
+  [...]
+
+EOT
+  exit "${exit_code}"
+}
+
+trap '_catch_all ${?}' ERR SIGHUP SIGINT SIGQUIT SIGTERM
+
+if [ -f "${HOME:?}"/.occ.conf ]; then
+  # shellcheck disable=SC2034
+  while IFS='=' read -r key value; do
+    eval "${key}=\${value}"
+  done < <(grep -E -v '^\s*\#|^\s*$' "${HOME:?}"/.occ.conf)
+else
+  _exit 1 "'${HOME:?}/.occ.conf' was NOT found, exiting."
+fi
+
+# save current context for further reference
+#
+if oc config current-context 1> /dev/null 2> /dev/null; then
+  current_context="$(oc config current-context 2> /dev/null)"
+fi
+
+OPTIND=1
+while getopts 'n:t:uHUV' ARGS; do
+  case "${ARGS}" in
+    n)
+      namespace="${OPTARG}"
+      ;;
+    t)
+      token="${OPTARG}"
+      ;;
+    u)
+      if [ -n "${current_context}" ]; then
+        oc config unset current-context
+      else
+        _exit 1 "current-context is NOT set, exiting."
+      fi
+      _exit 0
+      ;;
+    H | U)
+      _help 0
+      ;;
+    V)
+      _exit 0 'v3'
+      ;;
+    ?)
+      _help 1
+      ;;
+  esac
+done
+shift $((OPTIND - 1))
+
+[ $# -ge 1 ] || _help 1
+
+current_context_name="${1:?}_name"
+current_context_server="${1:?}_server"
+current_context_user="${1:?}_user"
+
+[[ "${!current_context_name}" ]] || _exit 1 "current context name is not set, exiting."
+[[ "${!current_context_server}" ]] || _exit 1 "current context server is not set, exiting."
+[[ "${!current_context_user}" ]] || _exit 1 "current context user is not set, exiting."
+
+# set-cluster
+#
+oc config set-cluster "${!current_context_name}" \
+  --server="${!current_context_server}" 1> /dev/null
+# set-context
+#
+oc config set-context "${!current_context_name}/${!current_context_user}" \
+  --cluster="${!current_context_name}" \
+  --namespace="${namespace:-default}" \
+  --user="${!current_context_user}-at-${!current_context_name}" 1> /dev/null
+# set-credentials
+#
+if [ -n "${token}" ]; then
+  oc config set-credentials "${!current_context_user}-at-${!current_context_name}" \
+    --token="${token}" 1> /dev/null
+fi
+# use-context
+#
+oc config use-context "${!current_context_name}/${!current_context_user}"

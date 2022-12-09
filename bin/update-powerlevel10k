@@ -1,0 +1,83 @@
+#!/usr/bin/env bash
+
+# shellcheck source=../etc/bash44.conf
+if [ -f "$(dirname "${0}")"/../etc/bash44.conf ]; then
+  . "$(dirname "${0}")"/../etc/bash44.conf || exit 1
+else
+  . "${HOME:?}"/.etc/bash44.conf || exit 1
+fi
+
+# shellcheck source=../etc/constants.conf
+if [ -f "$(dirname "${0}")"/../etc/constants.conf ]; then
+  . "$(dirname "${0}")"/../etc/constants.conf
+else
+  . "${HOME:?}"/.etc/constants.conf
+fi
+
+# shellcheck source=../etc/functions.conf
+if [ -f "$(dirname "${0}")"/../etc/functions.conf ]; then
+  . "$(dirname "${0}")"/../etc/functions.conf
+else
+  . "${HOME:?}"/.etc/functions.conf
+fi
+
+# Notes:
+#   - https://github.com/romkatv/powerlevel10k
+#
+_download_and_install() {
+  git clone --depth 1 https://github.com/romkatv/powerlevel10k.git --quiet "${HOME:?}"/.powerlevel10k
+  # shellcheck disable=SC2038
+  find "${HOME:?}"/.powerlevel10k/config -name "*.zsh" -type f 2> /dev/null |
+    xargs sed -i '' 's/branch > 32/branch > 64/g'
+}
+
+_help() {
+  local exit_code
+  exit_code="${1:-1}"
+  cat << EOT
+
+  Usage: $(basename "${0}") [OPTION...]
+
+  Options:
+    -f Force
+
+  Help options:
+    -H Show this help message
+    -U Display brief usage
+    -V Print version
+
+EOT
+  exit "${exit_code}"
+}
+
+trap '_catch_all ${?}' ERR SIGHUP SIGINT SIGQUIT SIGTERM
+
+OPTIND=1
+while getopts 'fHUV' ARGS; do
+  case "${ARGS}" in
+    f)
+      force='true'
+      ;;
+    H | U)
+      _help 0
+      ;;
+    V)
+      _exit 0 'v3'
+      ;;
+    ?)
+      _help 1
+      ;;
+  esac
+done
+shift $((OPTIND - 1))
+
+if [ -d "${HOME:?}"/.powerlevel10k ]; then
+  if [ "${force}" = 'true' ]; then
+    rm -f -r -v "${HOME:?}"/.powerlevel10k
+    echo "downloading '${HOME:?}/.powerlevel10k'..."
+    _download_and_install
+  fi
+else
+  echo "downloading '${HOME:?}/.powerlevel10k'..."
+  _download_and_install
+fi
