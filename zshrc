@@ -1,13 +1,13 @@
 # zshrc
+#
+# Notes:
+#   - values found here may be overriden by values found in ~/.zshrc
+#   - this zshrc should be loaded BEFORE your own zshrc...
+#
 
-##########################################################
-# alias                                                  #
-#                                                        #
-# Notes:                                                 #
-#   - this may be overriden by alias defined in ~/.zshrc #
-#   - this should be loaded BEFORE your own zshrc...     #
-#                                                        #
-##########################################################
+#########
+# alias #
+#########
 
 alias df='df -P -h'
 alias grep='grep --color=auto'
@@ -16,15 +16,9 @@ alias la='ls -A -G'
 alias ll='ls -G -h -l'
 alias ls='ls -G'
 
-###############################################################
-# completion                                                  #
-#                                                             #
-# Notes:                                                      #
-#   - this may be overriden by completion defined in ~/.zshrc #
-#   - this should be loaded BEFORE your own zshrc...          #
-#                                                             #
-###############################################################
-
+##############
+# completion #
+##############
 #
 # index:
 #   - system : <homebrew root>/share/zsh/site-functions
@@ -37,8 +31,8 @@ if [ "${commands[brew]}" ]; then
   fi
 fi
 
-if [ -d "${HOME:?}"/.local/share/zsh/site-functions ]; then
-  fpath=("${HOME:?}"/.local/share/zsh/site-functions ${fpath})
+if [ -d "${HOME:?}/.local/share/zsh/site-functions" ]; then
+  fpath=("${HOME:?}/.local/share/zsh/site-functions" ${fpath})
 fi
 
 if type compinit 1> /dev/null; then
@@ -58,14 +52,9 @@ fi
 zstyle ':completion:*' matcher-list '' 'm:{a-zA-Z}={A-Za-z}'
 zstyle ':completion:*' special-dirs true
 
-##################################################################
-# configuration                                                  #
-#                                                                #
-# Notes:                                                         #
-#   - this may be overriden by configuration defined in ~/.zshrc #
-#   - this should be loaded BEFORE your own zshrc...             #
-#                                                                #
-##################################################################
+#################
+# configuration #
+#################
 
 setopt \
   extended_history \
@@ -78,14 +67,9 @@ setopt \
   promptsubst \
   shwordsplit
 
-###########################################################
-# prompt                                                  #
-#                                                         #
-# Notes:                                                  #
-#   - this may be overriden by prompt defined in ~/.zshrc #
-#   - this should be loaded BEFORE your own zshrc...      #
-#                                                         #
-###########################################################
+##########
+# prompt #
+##########
 
 function _update_ps1() {
   if [ -f /Library/Developer/CommandLineTools/usr/share/git-core/git-prompt.sh ]; then
@@ -118,7 +102,7 @@ else
   fi
 fi
 
-### include ###
+### include(s) ###
 
 if [ -s "${NVM_DIR:=${HOME:?}/.nvm}"/nvm.sh ]; then
   . "${NVM_DIR}"/nvm.sh

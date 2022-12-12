@@ -1,14 +1,13 @@
 # zprofile
+#
+# Notes:
+#   - values found here may be overriden by values found in ~/.zshenv
+#   - this zprofile should be loaded BEFORE your own zprofile...
+#
 
-###########################################################
-# paths                                                   #
-#                                                         #
-# Notes:                                                  #
-#   - this may be overriden by paths defined in ~/.zshenv #
-#   - this should be loaded BEFORE your own zprofile...   #
-#                                                         #
-###########################################################
-
+#########
+# paths #
+#########
 #
 # index:
 #   - system : /opt/dotnet
@@ -63,14 +62,9 @@ fi
 
 export PATH
 
-###############################################################
-# variables                                                   #
-#                                                             #
-# Notes:                                                      #
-#   - this may be overriden by variables defined in ~/.zshenv #
-#   - this should be loaded BEFORE your own zprofile...       #
-#                                                             #
-###############################################################
+#############
+# variables #
+#############
 
 PIP_REQUIRE_VIRTUALENV="${PIP_REQUIRE_VIRTUALENV:-Y}"
 XDG_CACHE_HOME="${XDG_CACHE_HOME:-${HOME:?}/.cache}"
