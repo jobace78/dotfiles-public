@@ -86,7 +86,7 @@ while getopts 'fHUV' ARGS; do
       _help 0
       ;;
     V)
-      _exit 0 'v3'
+      _exit 0 'v20230203'
       ;;
     ?)
       _help 1
