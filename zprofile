@@ -66,9 +66,12 @@ export PATH
 # variables #
 #############
 
+CPPFLAGS="-I${HOMEBREW_ROOT}/opt/libffi/include -I${HOMEBREW_ROOT}/opt/openssl@1.1/include -I${HOMEBREW_ROOT}/opt/sqlite/include"
+LDFLAGS="-L${HOMEBREW_ROOT}/opt/libffi/lib -L${HOMEBREW_ROOT}/opt/openssl@1.1/lib -L${HOMEBREW_ROOT}/opt/sqlite/lib"
 PIP_REQUIRE_VIRTUALENV="${PIP_REQUIRE_VIRTUALENV:-Y}"
+PKG_CONFIG_PATH="${HOMEBREW_ROOT}/opt/libffi/lib/pkgconfig:${HOMEBREW_ROOT}/opt/openssl@1.1/lib/pkgconfig:${HOMEBREW_ROOT}/opt/sqlite/lib/pkgconfig"
 XDG_CACHE_HOME="${XDG_CACHE_HOME:-${HOME:?}/.cache}"
 XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-${HOME:?}/.config}"
 XDG_DATA_HOME="${XDG_DATA_HOME:-${HOME:?}/.local/share}"
 
-export PIP_REQUIRE_VIRTUALENV XDG_CACHE_HOME XDG_CONFIG_HOME XDG_DATA_HOME
+export CPPFLAGS LDFLAGS PIP_REQUIRE_VIRTUALENV PKG_CONFIG_PATH XDG_CACHE_HOME XDG_CONFIG_HOME XDG_DATA_HOME

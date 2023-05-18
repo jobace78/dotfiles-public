@@ -1,0 +1,50 @@
+# brewfile
+
+brew "awscli"
+brew "azure-cli"
+brew "bash"
+brew "coreutils"
+brew "gnu-sed"
+brew "gnu-tar"
+brew "gnupg"
+brew "helm"
+brew "jq"
+brew "kustomize"
+brew "lftp"
+brew "nmap"
+brew "pinentry-mac"
+brew "shellcheck"
+brew "shfmt"
+brew "telnet"
+brew "tmate"
+brew "tmux"
+brew "wrk"
+
+# dependencies
+
+brew "autoconf"
+brew "openssl@1.1"
+brew "pkg-config"
+
+# dependencies (phpenv)
+
+brew "autoconf@2.13"
+brew "bzip2"
+brew "icu4c"
+brew "jpeg-turbo"
+brew "libedit"
+brew "libiconv"
+brew "libpng"
+brew "libxml2"
+brew "libzip"
+brew "mcrypt"
+brew "oniguruma"
+brew "re2c"
+brew "tidy-html5"
+brew "zlib"
+
+# dependencies (pyenv)
+
+brew "libffi"
+brew "readline"
+brew "sqlite"

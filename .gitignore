@@ -1,5 +1,3 @@
-# ~/.gitignore
-
 *~
 .DS_Store
 .DS_Store?
@@ -10,3 +8,5 @@ Icon?
 Thumbs.db
 
 *.iml
+
+brewfile.lock.json
