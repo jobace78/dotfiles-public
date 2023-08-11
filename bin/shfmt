@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+
+# shellcheck source=../etc/bash44.conf
+if [ -f "$(dirname "${0}")"/../etc/bash44.conf ]; then
+  . "$(dirname "${0}")"/../etc/bash44.conf || exit 1
+else
+  . "${HOME:?}"/.etc/bash44.conf || exit 1
+fi
+
+# shellcheck source=../etc/constants.conf
+if [ -f "$(dirname "${0}")"/../etc/constants.conf ]; then
+  . "$(dirname "${0}")"/../etc/constants.conf
+else
+  . "${HOME:?}"/.etc/constants.conf
+fi
+
+# shellcheck source=../etc/functions.conf
+if [ -f "$(dirname "${0}")"/../etc/functions.conf ]; then
+  . "$(dirname "${0}")"/../etc/functions.conf
+else
+  . "${HOME:?}"/.etc/functions.conf
+fi
+
+# trap '_catch_all ${?}' ERR SIGHUP SIGINT SIGQUIT SIGTERM
+
+# shellcheck disable=SC2048
+# shellcheck disable=SC2086
+"${HOMEBREW_ROOT:-"$(brew --prefix 2> /dev/null)"}"/bin/shfmt --case-indent --indent 2 --space-redirects ${*}
