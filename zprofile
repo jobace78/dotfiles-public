@@ -10,21 +10,22 @@
 #########
 #
 # index:
-#   - system : /opt/dotnet
-#   - system : /opt/powershell
-#   - system : <homebrew root>/bin
-#   - system : <homebrew root>/sbin
-#   - user   : <home>/.local/bin
-#   - user   : <home>/.phpenv/bin
-#   - user   : <home>/.pyenv/bin
+#   - system          : <DOTNET_ROOT>
+#   - system          : <GOROOT>/bin
+#   - system          : <HOMEBREW_ROOT>/bin
+#   - system          : <HOMEBREW_ROOT>/sbin
+#   - system          : <POWERSHELL_ROOT>
+#   - user            : <PHPENV_ROOT>/bin
+#   - user            : <PYENV_ROOT>/bin
+#   - user (override) : <HOME>/.local/bin
 #
 
 if [ -d "${DOTNET_ROOT:=/opt/dotnet}" ]; then
   path=("${DOTNET_ROOT}" ${path})
 fi
 
-if [ -d "${POWERSHELL_ROOT:=/opt/powershell}" ]; then
-  path=("${POWERSHELL_ROOT}" ${path})
+if [ -d "${GOROOT:=/opt/go}/bin" ]; then
+  path=("${GOROOT}/bin" ${path})
 fi
 
 case "$(uname -m)" in
@@ -44,8 +45,8 @@ if [ -d "${HOMEBREW_ROOT}/sbin" ]; then
   path=("${HOMEBREW_ROOT}/sbin" ${path})
 fi
 
-if [ -d "${HOME:?}/.local/bin" ]; then
-  path=("${HOME:?}/.local/bin" ${path})
+if [ -d "${POWERSHELL_ROOT:=/opt/powershell}" ]; then
+  path=("${POWERSHELL_ROOT}" ${path})
 fi
 
 if [ -d "${PHPENV_ROOT:=${HOME:?}/.phpenv}/bin" ]; then
@@ -58,6 +59,10 @@ fi
 
 if [ "${commands[pyenv]}" ]; then
   eval "$(pyenv init --path)"
+fi
+
+if [ -d "${HOME:?}/.local/bin" ]; then
+  path=("${HOME:?}/.local/bin" ${path})
 fi
 
 export PATH

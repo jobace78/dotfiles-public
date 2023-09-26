@@ -21,8 +21,8 @@ alias ls='ls -G'
 ##############
 #
 # index:
-#   - system : <homebrew root>/share/zsh/site-functions
-#   - user   : <home>/.local/share/zsh/site-functions
+#   - system : <HOMEBREW_ROOT>/share/zsh/site-functions
+#   - user   : <HOME>/.local/share/zsh/site-functions
 #
 
 if [ "${commands[brew]}" ]; then
