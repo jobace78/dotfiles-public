@@ -1,0 +1,15 @@
+#compdef _sshop sshop
+
+sshopl="$(sshop -l 2> /dev/null)"
+
+function _sshop {
+  local line
+  _arguments -C \
+  "-d[Debug]" \
+  "-l[List available accounts and exit]" \
+  "-H[Show this help message]" \
+  "-U[Display brief usage]" \
+  "-V[Print version]" \
+  ":1 :(${sshopl})" \
+  "*::arg:->args"
+}

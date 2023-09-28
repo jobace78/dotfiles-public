@@ -1,0 +1,126 @@
+#!/usr/bin/env bash
+
+# shellcheck source=../etc/bash44.conf
+if [ -f "$(dirname "${0}")"/../etc/bash44.conf ]; then
+  . "$(dirname "${0}")"/../etc/bash44.conf || exit 1
+else
+  . "${HOME:?}"/.etc/bash44.conf || exit 1
+fi
+
+# shellcheck source=../etc/constants.conf
+if [ -f "$(dirname "${0}")"/../etc/constants.conf ]; then
+  . "$(dirname "${0}")"/../etc/constants.conf
+else
+  . "${HOME:?}"/.etc/constants.conf
+fi
+
+# shellcheck source=../etc/functions.conf
+if [ -f "$(dirname "${0}")"/../etc/functions.conf ]; then
+  . "$(dirname "${0}")"/../etc/functions.conf
+else
+  . "${HOME:?}"/.etc/functions.conf
+fi
+
+_help() {
+  local exit_code
+  exit_code="${1:-1}"
+  cat << EOT
+
+  Usage: $(basename "${0}") [OPTION...] <ACCOUNT> <ARGS>
+
+  Options:
+    -d Debug
+    -l List available accounts and exit
+
+  Help options:
+    -H Show this help message
+    -U Display brief usage
+    -V Print version
+
+  Notes:
+    - https://developer.1password.com/docs/ssh/agent/config
+
+EOT
+  exit "${exit_code}"
+}
+
+_ssh() {
+  # INFO : local variables
+  local account
+  local args
+  account="${1:?}"
+  # shellcheck disable=SC2206
+  args=(${@:2})
+  if [ -f "${HOME:?}"/.config/1Password/ssh/agent.toml.default ]; then
+    if [ -f "${HOME:?}"/.config/1Password/ssh/"${account}".toml ]; then
+      cp "${HOME:?}"/.config/1Password/ssh/"${account}".toml "${HOME:?}"/.config/1Password/ssh/agent.toml
+      if [ "${DEBUG}" = 'true' ]; then
+        if [ -n "${SSH_AUTH_SOCK}" ]; then
+          :
+        else
+          if [ -S "${HOME:?}"/.1password/agent.sock ]; then
+            SSH_AUTH_SOCK="${HOME:?}"/.1password/agent.sock
+            export SSH_AUTH_SOCK
+          elif [ -S "${HOME:?}"/Library/Group\ Containers/2BUA8C4S2C.com.1password/t/agent.sock ]; then
+            SSH_AUTH_SOCK="${HOME:?}"/Library/Group\ Containers/2BUA8C4S2C.com.1password/t/agent.sock
+            export SSH_AUTH_SOCK
+          fi
+        fi
+        #
+        # Notes:
+        #   - man ssh-add
+        #
+        echo "listing fingerprints of all identities currently represented by the agent..."
+        ssh-add -l
+      fi
+      ssh "${args[@]}"
+      cp "${HOME:?}"/.config/1Password/ssh/agent.toml.default "${HOME:?}"/.config/1Password/ssh/agent.toml
+    else
+      _exit 1 "'${HOME:?}/.config/1Password/ssh/${account}.toml' was NOT found, exiting."
+    fi
+  else
+    _exit 1 "'${HOME:?}/.config/1Password/ssh/agent.toml.default' was NOT found, exiting."
+  fi
+}
+
+trap '_catch_all ${?}' ERR SIGHUP SIGINT SIGQUIT SIGTERM
+
+OPTIND=1
+while getopts 'dlHUV' ARGS; do
+  case "${ARGS}" in
+    d)
+      DEBUG=true
+      ;;
+    l)
+      if [ -d "${HOME:?}"/.config/1Password/ssh ]; then
+        accounts=()
+        for file_path in "${HOME:?}"/.config/1Password/ssh/*.toml; do
+          account_file="$(basename -- "${file_path}")"
+          if [ "${account_file}" = 'agent.toml' ]; then
+            :
+          else
+            accounts+=("${account_file%.toml}")
+          fi
+        done
+        echo "${accounts[@]}"
+        _exit 0
+      else
+        _exit 1 "'${HOME:?}/.config/1Password/ssh' was NOT found, exiting."
+      fi
+      ;;
+    H | U)
+      _help 0
+      ;;
+    V)
+      _exit 0 'v20230928'
+      ;;
+    ?)
+      _help 1
+      ;;
+  esac
+done
+shift $((OPTIND - 1))
+
+[ $# -ge 2 ] || _help 1
+
+_ssh "${@}"
