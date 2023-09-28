@@ -77,8 +77,6 @@ _tmux() {
 
 trap '_catch_all ${?}' ERR SIGHUP SIGINT SIGQUIT SIGTERM
 
-[ $# -ge 2 ] || _help 1
-
 OPTIND=1
 while getopts 'HUV' ARGS; do
   case "${ARGS}" in
@@ -94,6 +92,8 @@ while getopts 'HUV' ARGS; do
   esac
 done
 shift $((OPTIND - 1))
+
+[ $# -ge 2 ] || _help 1
 
 _tmux "${@}"
 
