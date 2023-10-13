@@ -24,6 +24,7 @@ brew "telnet"
 brew "tmate"
 brew "tmux"
 brew "wrk"
+brew "yq"
 
 # dependencies
 
