@@ -31,6 +31,7 @@ _help() {
   Options:
     -d Debug
     -l List available accounts and exit
+    -r Restore default configuration and exit
 
   Help options:
     -H Show this help message
@@ -86,7 +87,7 @@ _ssh() {
 trap '_catch_all ${?}' ERR SIGHUP SIGINT SIGQUIT SIGTERM
 
 OPTIND=1
-while getopts 'dlHUV' ARGS; do
+while getopts 'dlrHUV' ARGS; do
   case "${ARGS}" in
     d)
       DEBUG=true
@@ -108,11 +109,19 @@ while getopts 'dlHUV' ARGS; do
         _exit 1 "'${HOME:?}/.config/1Password/ssh' was NOT found, exiting."
       fi
       ;;
+    r)
+      if [ -f "${HOME:?}"/.config/1Password/ssh/agent.toml.default ]; then
+        cp -v "${HOME:?}"/.config/1Password/ssh/agent.toml.default "${HOME:?}"/.config/1Password/ssh/agent.toml
+        _exit 0
+      else
+        _exit 1 "'${HOME:?}/.config/1Password/ssh/agent.toml.default' was NOT found, exiting."
+      fi
+      ;;
     H | U)
       _help 0
       ;;
     V)
-      _exit 0 'v20230928'
+      _exit 0 'v20231018'
       ;;
     ?)
       _help 1

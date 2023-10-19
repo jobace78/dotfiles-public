@@ -1,6 +1,5 @@
 # brewfile
 
-brew "Azure/kubelogin/kubelogin"
 brew "awscli"
 brew "azure-cli"
 brew "bash"
@@ -21,36 +20,30 @@ brew "pinentry-mac"
 brew "shellcheck"
 brew "shfmt"
 brew "telnet"
+brew "terraform"
+brew "tflint"
 brew "tmate"
 brew "tmux"
 brew "wrk"
 brew "yq"
 
+cask "1password-cli"
+
 # dependencies
 
 brew "autoconf"
-brew "openssl@1.1"
+brew "openssl@1.1" # CPPFLAGS, LDFLAGS, PKG_CONFIG_PATH
 brew "pkg-config"
 
 # dependencies (phpenv)
 
-brew "autoconf@2.13"
 brew "bzip2"
-brew "icu4c"
-brew "jpeg-turbo"
-brew "libedit"
 brew "libiconv"
-brew "libpng"
-brew "libxml2"
 brew "libzip"
-brew "mcrypt"
-brew "oniguruma"
-brew "re2c"
 brew "tidy-html5"
-brew "zlib"
 
 # dependencies (pyenv)
 
-brew "libffi"
+brew "libffi" # CPPFLAGS, LDFLAGS, PKG_CONFIG_PATH
 brew "readline"
-brew "sqlite"
+brew "sqlite" # CPPFLAGS, LDFLAGS, PKG_CONFIG_PATH
