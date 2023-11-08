@@ -21,6 +21,9 @@ else
   . "${HOME:?}"/.etc/functions.conf
 fi
 
+TMUX_SSH_SESSION_NAME="${TMUX_SSH_SESSION_NAME:-default}"
+TMUX_SSH_WINDOW_NAME="${TMUX_SSH_WINDOW_NAME:-default}"
+
 _help() {
   local exit_code
   exit_code="${1:-1}"
@@ -40,6 +43,8 @@ _help() {
 
   Notes:
     - https://developer.1password.com/docs/ssh/agent/config
+    - Set TMUX_SSH_SESSION_NAME environment variable to overwrite default value, defaults to '${TMUX_SSH_SESSION_NAME}'
+    - Set TMUX_SSH_WINDOW_NAME environment variable to overwrite default value, defaults to '${TMUX_SSH_WINDOW_NAME}'
 
 EOT
   exit "${exit_code}"
@@ -81,6 +86,35 @@ _op() {
   else
     _exit 1 "'${HOME:?}/.config/1Password/ssh/agent.toml.default' was NOT found, exiting."
   fi
+}
+
+_tmux() {
+  # INFO : local variables
+  local args
+  local hosts
+  # shellcheck disable=SC2206
+  args=(${@})
+  hosts=()
+  if tmux has-session -t "${TMUX_SSH_SESSION_NAME}" 2> /dev/null; then
+    _exit 1 "session name already exists, exiting."
+  else
+    tmux new-session -d -n "${TMUX_SSH_WINDOW_NAME}" -s "${TMUX_SSH_SESSION_NAME}" "ssh ${args[0]}"
+  fi
+  unset 'args[0]'
+  for i in "${args[@]}"; do
+    hosts+=("${i}")
+    if [ "${#hosts[@]}" -le 2 ]; then
+      tmux split-window -t :"${TMUX_SSH_WINDOW_NAME}" "ssh ${i}"
+      tmux select-layout even-vertical
+    else
+      tmux split-window -t :"${TMUX_SSH_WINDOW_NAME}" "ssh ${i}"
+      tmux select-layout tiled
+    fi
+    tmux select-pane -t :.+
+    tmux set-window-option -t :"${TMUX_SSH_WINDOW_NAME}" synchronize-panes on
+  done
+  tmux select-window -t "${TMUX_SSH_SESSION_NAME}":"${TMUX_SSH_WINDOW_NAME}"
+  tmux attach-session -t "${TMUX_SSH_SESSION_NAME}"
 }
 
 trap '_catch_all ${?}' ERR SIGHUP SIGINT SIGQUIT SIGTERM
@@ -130,6 +164,6 @@ shift $((OPTIND - 1))
 
 _op "${1}"
 
-ssh "${@:2}"
+_tmux "${@:2}"
 
 _op default
