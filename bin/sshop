@@ -31,7 +31,7 @@ _help() {
   Options:
     -d Debug
     -l List available accounts and exit
-    -r Restore default configuration and exit
+    -r Restore default account and exit
 
   Help options:
     -H Show this help message
@@ -121,7 +121,7 @@ while getopts 'dlrHUV' ARGS; do
       _help 0
       ;;
     V)
-      _exit 0 'v20231018'
+      _exit 0 'v20231108'
       ;;
     ?)
       _help 1
