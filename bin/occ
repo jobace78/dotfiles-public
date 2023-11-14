@@ -26,12 +26,13 @@ _help() {
   exit_code="${1:-1}"
   cat << EOT
 
-  Usage: $(basename "${0}") [OPTION...] <CONTEXT ALIAS>
+  Usage: $(basename "${0}") [OPTION...] <ALIAS>
 
   Options:
-    -n <namespace>       Set the specified namespace, defaults to 'default'
-    -t <token>           Set the specified token
-    -u                   Unset current-context and exit
+    -l             List available aliases and exit
+    -n <namespace> Set the specified namespace
+    -t <token>     Set the specified token
+    -u             Unset current context and exit
 
   Help options:
     -H Show this help message
@@ -40,12 +41,36 @@ _help() {
 
   Configuration file example:
   [...]
-  <context alias>_name=ocp-on-arm
-  <context alias>_server=https://<api address>
-  <context alias>_user=example@example.invalid
-  <context alias>_name=ocp-on-aws
-  <context alias>_server=https://<api address>
-  <context alias>_user=example@example.invalid
+  <alias>_aks_name=<aks1 name>
+  <alias>_aks_resource_group=<aks1 resource group>
+  <alias>_context_name=aks1
+  <alias>_kind=aks
+  <alias>_kubeconfig=/Users/jobace78/.kubeconfig.yaml
+
+  <alias>_aks_name=<aks2 name>
+  <alias>_aks_resource_group=<aks2 resource group>
+  <alias>_context_name=aks2
+  <alias>_kind=aks
+  <alias>_kubeconfig=/Users/jobace78/.kubeconfig.yaml
+
+  <alias>_cluster_api_url=https://<api address>
+  <alias>_cluster_name=<api address>
+  <alias>_context_name=ocp-on-aws
+  <alias>_kind=custom
+  <alias>_kubeconfig=/Users/jobace78/.kubeconfig-custom.yaml
+  <alias>_user_name=example@example.invalid
+
+  <alias>_cluster_api_url=https://<api address>
+  <alias>_cluster_name=<api address>
+  <alias>_context_name=ocp-on-az
+  <alias>_kind=custom
+  <alias>_kubeconfig=/Users/jobace78/.kubeconfig-custom.yaml
+  <alias>_user_name=example@example.invalid
+  [...]
+
+  Environment variable example:
+  [...]
+  KUBECONFIG=":/Users/jobace78/.kube/config:/Users/jobace78/.kubeconfig.yaml:/Users/jobace78/.kubeconfig-custom.yaml"
   [...]
 
 EOT
@@ -54,24 +79,27 @@ EOT
 
 trap '_catch_all ${?}' ERR SIGHUP SIGINT SIGQUIT SIGTERM
 
-if [ -f "${HOME:?}"/.occ.conf ]; then
-  # shellcheck disable=SC2034
-  while IFS='=' read -r key value; do
-    eval "${key}=\${value}"
-  done < <(grep -E -v '^\s*\#|^\s*$' "${HOME:?}"/.occ.conf)
-else
-  _exit 1 "'${HOME:?}/.occ.conf' was NOT found, exiting."
-fi
+touch "${HOME:?}"/.kube/config 1> /dev/null
 
-# save current context for further reference
-#
 if oc config current-context 1> /dev/null 2> /dev/null; then
   current_context="$(oc config current-context 2> /dev/null)"
 fi
 
 OPTIND=1
-while getopts 'n:t:uHUV' ARGS; do
+while getopts 'ln:t:uHUV' ARGS; do
   case "${ARGS}" in
+    l)
+      if [ -f "${HOME:?}"/.occ.conf ]; then
+        aliases=()
+        while read -r alias; do
+          aliases+=("${alias/_context_name/}")
+        done < <(awk -F '=' '$1 ~ /_context_name/ { print $1 }' "${HOME:?}"/.occ.conf 2> /dev/null)
+        echo "${aliases[@]}"
+        _exit 0
+      else
+        _exit 1 "'${HOME:?}/.occ.conf' was NOT found, exiting."
+      fi
+      ;;
     n)
       namespace="${OPTARG}"
       ;;
@@ -81,16 +109,16 @@ while getopts 'n:t:uHUV' ARGS; do
     u)
       if [ -n "${current_context}" ]; then
         oc config unset current-context
+        _exit 0
       else
         _exit 1 "current-context is NOT set, exiting."
       fi
-      _exit 0
       ;;
     H | U)
       _help 0
       ;;
     V)
-      _exit 0 'v20230203'
+      _exit 0 'v20231114'
       ;;
     ?)
       _help 1
@@ -101,30 +129,71 @@ shift $((OPTIND - 1))
 
 [ $# -ge 1 ] || _help 1
 
-current_context_name="${1:?}_name"
-current_context_server="${1:?}_server"
-current_context_user="${1:?}_user"
-
-[[ "${!current_context_name}" ]] || _exit 1 "current context name is not set, exiting."
-[[ "${!current_context_server}" ]] || _exit 1 "current context server is not set, exiting."
-[[ "${!current_context_user}" ]] || _exit 1 "current context user is not set, exiting."
-
-# set-cluster
-#
-oc config set-cluster "${!current_context_name}" \
-  --server="${!current_context_server}" 1> /dev/null
-# set-context
-#
-oc config set-context "${!current_context_name}/${!current_context_user}" \
-  --cluster="${!current_context_name}" \
-  --namespace="${namespace:-default}" \
-  --user="${!current_context_user}-at-${!current_context_name}" 1> /dev/null
-# set-credentials
-#
-if [ -n "${token}" ]; then
-  oc config set-credentials "${!current_context_user}-at-${!current_context_name}" \
-    --token="${token}" 1> /dev/null
+if [ -f "${HOME:?}"/.occ.conf ]; then
+  # common variables
+  #
+  current_context_name="$(awk -F '=' -v this="^${1:?}_context_name" '$1 ~ this { print $2 }' "${HOME:?}"/.occ.conf 2> /dev/null)"
+  current_kind="$(awk -F '=' -v this="^${1:?}_kind" '$1 ~ this { print $2 }' "${HOME:?}"/.occ.conf 2> /dev/null)"
+  current_kubeconfig="$(awk -F '=' -v this="^${1:?}_kubeconfig" '$1 ~ this { print $2 }' "${HOME:?}"/.occ.conf 2> /dev/null)"
+  case "${current_kind:?}" in
+    aks)
+      # aks variables
+      #
+      current_aks_name="$(awk -F '=' -v this="^${1:?}_aks_name" '$1 ~ this { print $2 }' "${HOME:?}"/.occ.conf 2> /dev/null)"
+      current_aks_resource_group="$(awk -F '=' -v this="^${1:?}_aks_resource_group" '$1 ~ this { print $2 }' "${HOME:?}"/.occ.conf 2> /dev/null)"
+      # aks (set-cluster, set-context, set-credentials)
+      #
+      az aks get-credentials \
+        --context "${current_context_name:?}" \
+        --file "${current_kubeconfig:?}" \
+        --name "${current_aks_name:?}" \
+        --overwrite-existing \
+        --resource-group "${current_aks_resource_group:?}" 1> /dev/null
+      # aks (set-context, use-context)
+      #
+      oc config set-context \
+        --kubeconfig="${current_kubeconfig:?}" \
+        --namespace="${namespace:-default}" \
+        "${current_context_name:?}" 1> /dev/null
+      oc config use-context \
+        "${current_context_name:?}"
+      ;;
+    custom)
+      # custom variables
+      #
+      current_cluster_api_url="$(awk -F '=' -v this="^${1:?}_cluster_api_url" '$1 ~ this { print $2 }' "${HOME:?}"/.occ.conf 2> /dev/null)"
+      current_cluster_name="$(awk -F '=' -v this="^${1:?}_cluster_name" '$1 ~ this { print $2 }' "${HOME:?}"/.occ.conf 2> /dev/null)"
+      current_user_name="$(awk -F '=' -v this="^${1:?}_user_name" '$1 ~ this { print $2 }' "${HOME:?}"/.occ.conf 2> /dev/null)"
+      # custom (set-cluster, set-context, set-credentials)
+      #
+      oc config set-cluster \
+        --kubeconfig="${current_kubeconfig:?}" \
+        --server="${current_cluster_api_url:?}" \
+        "${current_cluster_name:?}" 1> /dev/null
+      oc config set-context \
+        --cluster="${current_cluster_name:?}" \
+        --kubeconfig="${current_kubeconfig:?}" \
+        --user="${current_user_name:?}-at-${current_context_name:?}" \
+        "${current_context_name:?}/${current_user_name:?}" 1> /dev/null
+      if [ -n "${token}" ]; then
+        oc config set-credentials \
+          --kubeconfig="${current_kubeconfig:?}" \
+          --token="${token}" \
+          "${current_user_name:?}-at-${current_context_name:?}" 1> /dev/null
+      fi
+      # custom (set-context, use-context)
+      #
+      oc config set-context \
+        --kubeconfig="${current_kubeconfig:?}" \
+        --namespace="${namespace:-default}" \
+        "${current_context_name:?}/${current_user_name:?}" 1> /dev/null
+      oc config use-context \
+        "${current_context_name:?}/${current_user_name:?}"
+      ;;
+    *)
+      _exit 1 'Unsupported kind, exiting.'
+      ;;
+  esac
+else
+  _exit 1 "'${HOME:?}/.occ.conf' was NOT found, exiting."
 fi
-# use-context
-#
-oc config use-context "${!current_context_name}/${!current_context_user}"
