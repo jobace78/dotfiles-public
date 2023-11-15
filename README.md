@@ -4,6 +4,174 @@
 
 This is mine and mine alone...
 
+## Examples
+
+* ~/.brewfile
+
+```text
+# ~/.brewfile
+
+dotfiles_public_brewfile = File.join(ENV['HOME'], "/.dotfiles-public/brewfile")
+
+if File.exist?(dotfiles_public_brewfile)
+  instance_eval(File.read(dotfiles_public_brewfile))
+end
+
+brew "tree"
+```
+
+* ~/.gitconfig
+
+```text
+# ~/.gitconfig
+
+[commit]
+  gpgsign = true
+
+[credential]
+  helper = osxkeychain
+
+[filter "lfs"]
+  clean = git-lfs clean -- %f
+  process = git-lfs filter-process
+  required = true
+  smudge = git-lfs smudge -- %f
+
+[include]
+  path = ~/.dotfiles-public/gitconfig
+```
+
+* ~/.gnupg/gpg.conf
+
+```text
+# ~/.gnupg/gpg.conf
+
+keyserver hkps://keys.openpgp.org
+use-agent
+```
+
+* ~/.gnupg/gpg-agent.conf
+
+```text
+# ~/.gnupg/gpg-agent.conf
+
+default-cache-ttl 3600
+max-cache-ttl 86400
+pinentry-program /opt/homebrew/bin/pinentry-mac
+```
+
+* ~/.ssh/config
+
+```text
+# ~/.ssh/config
+
+Host *
+  IdentitiesOnly no
+  IdentityAgent ~/Library/Group\ Containers/2BUA8C4S2C.com.1password/t/agent.sock
+  IdentityFile none
+  LogLevel error
+  StrictHostKeyChecking no
+  UserKnownHostsFile /dev/null
+```
+
+* ~/.tmux.conf
+
+```text
+# ~/.tmux.conf
+
+source-file ~/.dotfiles-public/tmux.conf
+```
+
+* ~/.vimrc
+
+```text
+" ~/.vimrc
+
+source ~/.dotfiles-public/vimrc
+```
+
+* ~/.wgetrc
+
+```text
+# ~/.wgetrc
+
+check-certificate = off
+```
+
+* ~/.zprofile
+
+```shell
+# ~/.zprofile
+
+if [ -s "${HOME:?}"/.dotfiles-public/zprofile ]; then
+  . "${HOME:?}"/.dotfiles-public/zprofile
+fi
+
+#########
+# paths #
+#########
+
+if [ -d "${HOME:?}"/.dotfiles-public/bin ]; then
+  path=("${HOME:?}"/.dotfiles-public/bin ${path})
+fi
+
+if [ -d "${HOME:?}"/.bin ]; then
+  path=("${HOME:?}"/.bin ${path})
+fi
+
+export PATH
+
+#############
+# variables #
+#############
+
+HOMEBREW_BUNDLE_FILE="${HOME:?}"/.brewfile
+
+export HOMEBREW_BUNDLE_FILE
+```
+
+* ~/.zshrc
+
+```shell
+# ~/.zshrc
+
+if [ -s "${HOME:?}"/.dotfiles-public/zshrc ]; then
+  . "${HOME:?}"/.dotfiles-public/zshrc
+fi
+
+#########
+# alias #
+#########
+
+alias tree='tree -C'
+
+##############
+# completion #
+##############
+
+if [ -d "${HOME:?}"/.dotfiles-public/share/zsh/site-functions ]; then
+  fpath=("${HOME:?}"/.dotfiles-public/share/zsh/site-functions ${fpath})
+fi
+
+if [ -d "${HOME:?}"/.share/zsh/site-functions ]; then
+  fpath=("${HOME:?}"/.share/zsh/site-functions ${fpath})
+fi
+
+if type compinit 1> /dev/null; then
+  compinit
+else
+  autoload -U +X compinit && \
+  compinit
+fi
+
+if type bashcompinit 1> /dev/null; then
+  bashcompinit
+else
+  autoload -U +X bashcompinit && \
+  bashcompinit
+fi
+```
+
 ## License
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
