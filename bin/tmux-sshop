@@ -136,8 +136,12 @@ while getopts 'dlrHUV' ARGS; do
             accounts+=("${account_file%.toml}")
           fi
         done
-        echo "${accounts[@]}"
-        _exit 0
+        if [[ "${accounts[*]}" ]]; then
+          echo "${accounts[*]}"
+          _exit 0
+        else
+          _exit 1 "is '${HOME:?}/.config/1Password/ssh' empty ???"
+        fi
       else
         _exit 1 "'${HOME:?}/.config/1Password/ssh' was NOT found, exiting."
       fi
@@ -151,7 +155,7 @@ while getopts 'dlrHUV' ARGS; do
       _help 0
       ;;
     V)
-      _exit 0 'v20231108'
+      _exit 0 'v20231115'
       ;;
     ?)
       _help 1

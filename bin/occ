@@ -21,6 +21,15 @@ else
   . "${HOME:?}"/.etc/functions.shconf
 fi
 
+case "$(uname)" in
+  Darwin*)
+    sed='gsed'
+    ;;
+  *)
+    sed='sed'
+    ;;
+esac
+
 _help() {
   local exit_code
   exit_code="${1:-1}"
@@ -94,8 +103,12 @@ while getopts 'ln:t:uHUV' ARGS; do
         while read -r alias; do
           aliases+=("${alias/_context_name/}")
         done < <(awk -F '=' '$1 ~ /_context_name/ { print $1 }' "${HOME:?}"/.occ.conf 2> /dev/null)
-        echo "${aliases[@]}"
-        _exit 0
+        if [[ "${aliases[*]}" ]]; then
+          echo "${aliases[*]}"
+          _exit 0
+        else
+          _exit 1 "is '${HOME:?}/.occ.conf' empty ???"
+        fi
       else
         _exit 1 "'${HOME:?}/.occ.conf' was NOT found, exiting."
       fi
@@ -108,6 +121,15 @@ while getopts 'ln:t:uHUV' ARGS; do
       ;;
     u)
       if [ -n "${current_context}" ]; then
+        #
+        # Notes:
+        #   - https://github.com/lensapp/lens/issues/7826
+        #
+        if [ -f "${HOME:?}"/.occ.conf ]; then
+          while read -r kubeconfig; do
+            ${sed} -i '/^current-context:/d' "${kubeconfig}"
+          done < <(awk -F '=' '$1 ~ /_kubeconfig/ { print $2 }' "${HOME:?}"/.occ.conf 2> /dev/null)
+        fi
         oc config unset current-context
         _exit 0
       else
@@ -118,7 +140,7 @@ while getopts 'ln:t:uHUV' ARGS; do
       _help 0
       ;;
     V)
-      _exit 0 'v20231114'
+      _exit 0 'v20231115'
       ;;
     ?)
       _help 1
