@@ -1,24 +1,24 @@
 #!/usr/bin/env bash
 
-# shellcheck source=../etc/bash44.conf
-if [ -f "$(dirname "${0}")"/../etc/bash44.conf ]; then
-  . "$(dirname "${0}")"/../etc/bash44.conf || exit 1
+# shellcheck source=../etc/bash44.shconf
+if [ -f "$(dirname "${0}")"/../etc/bash44.shconf ]; then
+  . "$(dirname "${0}")"/../etc/bash44.shconf || exit 1
 else
-  . "${HOME:?}"/.etc/bash44.conf || exit 1
+  . "${HOME:?}"/.etc/bash44.shconf || exit 1
 fi
 
-# shellcheck source=../etc/constants.conf
-if [ -f "$(dirname "${0}")"/../etc/constants.conf ]; then
-  . "$(dirname "${0}")"/../etc/constants.conf
+# shellcheck source=../etc/constants.shconf
+if [ -f "$(dirname "${0}")"/../etc/constants.shconf ]; then
+  . "$(dirname "${0}")"/../etc/constants.shconf
 else
-  . "${HOME:?}"/.etc/constants.conf
+  . "${HOME:?}"/.etc/constants.shconf
 fi
 
-# shellcheck source=../etc/functions.conf
-if [ -f "$(dirname "${0}")"/../etc/functions.conf ]; then
-  . "$(dirname "${0}")"/../etc/functions.conf
+# shellcheck source=../etc/functions.shconf
+if [ -f "$(dirname "${0}")"/../etc/functions.shconf ]; then
+  . "$(dirname "${0}")"/../etc/functions.shconf
 else
-  . "${HOME:?}"/.etc/functions.conf
+  . "${HOME:?}"/.etc/functions.shconf
 fi
 
 # Notes:

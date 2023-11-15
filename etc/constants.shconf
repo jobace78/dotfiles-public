@@ -1,4 +1,4 @@
-# constants.conf
+# shellcheck shell=bash
 
 # shellcheck disable=SC2034
 

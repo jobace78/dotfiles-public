@@ -1,4 +1,5 @@
-# functions.conf
+# shellcheck shell=bash
+
 #
 # index:
 #   - _catch_all
