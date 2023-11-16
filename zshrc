@@ -104,6 +104,10 @@ fi
 
 ### include(s) ###
 
+if [ "${commands[direnv]}" ]; then
+  eval "$(direnv hook zsh)"
+fi
+
 if [ -s "${NVM_DIR:=${HOME:?}/.nvm}"/nvm.sh ]; then
   . "${NVM_DIR}"/nvm.sh
 fi
