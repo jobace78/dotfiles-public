@@ -2,7 +2,27 @@ root = true
 
 [*]
 charset = utf-8
-indent_size = 2
+end_of_line = lf
+indent_size = 4
 indent_style = space
 insert_final_newline = true
 trim_trailing_whitespace = false
+
+[*.json]
+indent_size = 2
+
+[*.md]
+indent_size = 2
+
+[{*.sh,*.shconf,bin/**,zprofile,zshrc}]
+binary_next_line = true # shfmt --binary-next-line
+indent_size = 2 # shfmt --indent 2
+indent_style = space # shfmt --indent 2
+space_redirects = true # shfmt --space-redirects
+switch_case_indent = true # shfmt --case-indent
+
+[*.toml]
+indent_size = 2
+
+[{*.yaml,*.yml}]
+indent_size = 2
