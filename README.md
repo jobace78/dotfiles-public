@@ -6,7 +6,7 @@ This is mine and mine alone...
 
 ## Examples
 
-* ~/.brewfile
+* `~/.brewfile`
 
 ```text
 # ~/.brewfile
@@ -20,7 +20,7 @@ end
 brew "tree"
 ```
 
-* ~/.gitconfig
+* `~/.gitconfig`
 
 ```text
 # ~/.gitconfig
@@ -39,9 +39,25 @@ brew "tree"
 
 [include]
   path = ~/.dotfiles-public/gitconfig
+  path = ~/.simple-git-feature-branch-workflow/gitconfig.d/auto.inc
+  path = ~/.simple-git-feature-branch-workflow/gitconfig.d/auto-staged-only.inc
+  path = ~/.simple-git-feature-branch-workflow/gitconfig.d/feature-abort.inc
+  path = ~/.simple-git-feature-branch-workflow/gitconfig.d/feature-begin.inc
+  path = ~/.simple-git-feature-branch-workflow/gitconfig.d/feature-clean.inc
+  path = ~/.simple-git-feature-branch-workflow/gitconfig.d/feature-continue.inc
+  path = ~/.simple-git-feature-branch-workflow/gitconfig.d/feature-list.inc
+  path = ~/.simple-git-feature-branch-workflow/gitconfig.d/feature-to-master.inc
+  path = ~/.simple-git-feature-branch-workflow/gitconfig.d/feature-to-next.inc
+  path = ~/.simple-git-feature-branch-workflow/gitconfig.d/feature-where-is.inc
+  path = ~/.simple-git-feature-branch-workflow/gitconfig.d/publish-feature.inc
+  path = ~/.simple-git-feature-branch-workflow/gitconfig.d/publish-master.inc
+  path = ~/.simple-git-feature-branch-workflow/gitconfig.d/publish-next.inc
+  path = ~/.simple-git-feature-branch-workflow/gitconfig.d/release.inc
+  path = ~/.simple-git-feature-branch-workflow/gitconfig.d/release-clean.inc
+  path = ~/.simple-git-feature-branch-workflow/gitconfig.d/release-status.inc
 ```
 
-* ~/.gnupg/gpg.conf
+* `~/.gnupg/gpg.conf`
 
 ```text
 # ~/.gnupg/gpg.conf
@@ -50,7 +66,7 @@ keyserver hkps://keys.openpgp.org
 use-agent
 ```
 
-* ~/.gnupg/gpg-agent.conf
+* `~/.gnupg/gpg-agent.conf`
 
 ```text
 # ~/.gnupg/gpg-agent.conf
@@ -60,7 +76,7 @@ max-cache-ttl 86400
 pinentry-program /opt/homebrew/bin/pinentry-mac
 ```
 
-* ~/.ssh/config
+* `~/.ssh/config`
 
 ```text
 # ~/.ssh/config
@@ -74,7 +90,7 @@ Host *
   UserKnownHostsFile /dev/null
 ```
 
-* ~/.tmux.conf
+* `~/.tmux.conf`
 
 ```text
 # ~/.tmux.conf
@@ -82,7 +98,7 @@ Host *
 source-file ~/.dotfiles-public/tmux.conf
 ```
 
-* ~/.vimrc
+* `~/.vimrc`
 
 ```text
 " ~/.vimrc
@@ -90,7 +106,7 @@ source-file ~/.dotfiles-public/tmux.conf
 source ~/.dotfiles-public/vimrc
 ```
 
-* ~/.wgetrc
+* `~/.wgetrc`
 
 ```text
 # ~/.wgetrc
@@ -98,7 +114,7 @@ source ~/.dotfiles-public/vimrc
 check-certificate = off
 ```
 
-* ~/.zprofile
+* `~/.zprofile`
 
 ```shell
 # ~/.zprofile
@@ -130,7 +146,7 @@ HOMEBREW_BUNDLE_FILE="${HOME:?}"/.brewfile
 export HOMEBREW_BUNDLE_FILE
 ```
 
-* ~/.zshrc
+* `~/.zshrc`
 
 ```shell
 # ~/.zshrc
