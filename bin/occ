@@ -52,12 +52,14 @@ _help() {
   [...]
   <alias>_aks_name=<aks1 name>
   <alias>_aks_resource_group=<aks1 resource group>
+  <alias>_aks_subscription=<aks1 subscription>
   <alias>_context_name=aks1
   <alias>_kind=aks
   <alias>_kubeconfig=/Users/jobace78/.kubeconfig.yaml
 
   <alias>_aks_name=<aks2 name>
   <alias>_aks_resource_group=<aks2 resource group>
+  <alias>_aks_subscription=<aks2 subscription>
   <alias>_context_name=aks2
   <alias>_kind=aks
   <alias>_kubeconfig=/Users/jobace78/.kubeconfig.yaml
@@ -140,7 +142,7 @@ while getopts 'ln:t:uHUV' ARGS; do
       _help 0
       ;;
     V)
-      _exit 0 'v20231115'
+      _exit 0 'v20231120'
       ;;
     ?)
       _help 1
@@ -151,18 +153,21 @@ shift $((OPTIND - 1))
 
 [ $# -ge 1 ] || _help 1
 
+alias="${1:?}"
+
 if [ -f "${HOME:?}"/.occ.conf ]; then
   # common variables
   #
-  current_context_name="$(awk -F '=' -v this="^${1:?}_context_name" '$1 ~ this { print $2 }' "${HOME:?}"/.occ.conf 2> /dev/null)"
-  current_kind="$(awk -F '=' -v this="^${1:?}_kind" '$1 ~ this { print $2 }' "${HOME:?}"/.occ.conf 2> /dev/null)"
-  current_kubeconfig="$(awk -F '=' -v this="^${1:?}_kubeconfig" '$1 ~ this { print $2 }' "${HOME:?}"/.occ.conf 2> /dev/null)"
+  current_context_name="$(awk -F '=' -v this="^${alias}_context_name" '$1 ~ this { print $2 }' "${HOME:?}"/.occ.conf 2> /dev/null)"
+  current_kind="$(awk -F '=' -v this="^${alias}_kind" '$1 ~ this { print $2 }' "${HOME:?}"/.occ.conf 2> /dev/null)"
+  current_kubeconfig="$(awk -F '=' -v this="^${alias}_kubeconfig" '$1 ~ this { print $2 }' "${HOME:?}"/.occ.conf 2> /dev/null)"
   case "${current_kind:?}" in
     aks)
       # aks variables
       #
-      current_aks_name="$(awk -F '=' -v this="^${1:?}_aks_name" '$1 ~ this { print $2 }' "${HOME:?}"/.occ.conf 2> /dev/null)"
-      current_aks_resource_group="$(awk -F '=' -v this="^${1:?}_aks_resource_group" '$1 ~ this { print $2 }' "${HOME:?}"/.occ.conf 2> /dev/null)"
+      current_aks_name="$(awk -F '=' -v this="^${alias}_aks_name" '$1 ~ this { print $2 }' "${HOME:?}"/.occ.conf 2> /dev/null)"
+      current_aks_resource_group="$(awk -F '=' -v this="^${alias}_aks_resource_group" '$1 ~ this { print $2 }' "${HOME:?}"/.occ.conf 2> /dev/null)"
+      current_aks_subscription="$(awk -F '=' -v this="^${alias}_aks_subscription" '$1 ~ this { print $2 }' "${HOME:?}"/.occ.conf 2> /dev/null)"
       # aks (set-cluster, set-context, set-credentials)
       #
       az aks get-credentials \
@@ -170,7 +175,8 @@ if [ -f "${HOME:?}"/.occ.conf ]; then
         --file "${current_kubeconfig:?}" \
         --name "${current_aks_name:?}" \
         --overwrite-existing \
-        --resource-group "${current_aks_resource_group:?}" 1> /dev/null
+        --resource-group "${current_aks_resource_group:?}" \
+        --subscription "${current_aks_subscription:?}" 1> /dev/null
       # aks (set-context, use-context)
       #
       oc config set-context \
@@ -183,9 +189,9 @@ if [ -f "${HOME:?}"/.occ.conf ]; then
     custom)
       # custom variables
       #
-      current_cluster_api_url="$(awk -F '=' -v this="^${1:?}_cluster_api_url" '$1 ~ this { print $2 }' "${HOME:?}"/.occ.conf 2> /dev/null)"
-      current_cluster_name="$(awk -F '=' -v this="^${1:?}_cluster_name" '$1 ~ this { print $2 }' "${HOME:?}"/.occ.conf 2> /dev/null)"
-      current_user_name="$(awk -F '=' -v this="^${1:?}_user_name" '$1 ~ this { print $2 }' "${HOME:?}"/.occ.conf 2> /dev/null)"
+      current_cluster_api_url="$(awk -F '=' -v this="^${alias}_cluster_api_url" '$1 ~ this { print $2 }' "${HOME:?}"/.occ.conf 2> /dev/null)"
+      current_cluster_name="$(awk -F '=' -v this="^${alias}_cluster_name" '$1 ~ this { print $2 }' "${HOME:?}"/.occ.conf 2> /dev/null)"
+      current_user_name="$(awk -F '=' -v this="^${alias}_user_name" '$1 ~ this { print $2 }' "${HOME:?}"/.occ.conf 2> /dev/null)"
       # custom (set-cluster, set-context, set-credentials)
       #
       oc config set-cluster \
