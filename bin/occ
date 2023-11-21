@@ -30,6 +30,8 @@ case "$(uname)" in
     ;;
 esac
 
+AKS_GET_CLUSTER_ADMINISTRATOR_CREDENTIALS="${AKS_GET_CLUSTER_ADMINISTRATOR_CREDENTIALS:-false}"
+
 _help() {
   local exit_code
   exit_code="${1:-1}"
@@ -40,6 +42,7 @@ _help() {
   Options:
     -l             List available aliases and exit
     -n <namespace> Set the specified namespace
+    -r             Restore default kubeconfig files and exit
     -t <token>     Set the specified token
     -u             Unset current context and exit
 
@@ -48,56 +51,70 @@ _help() {
     -U Display brief usage
     -V Print version
 
+  Notes:
+    - Set AKS_GET_CLUSTER_ADMINISTRATOR_CREDENTIALS environment variable to overwrite default value, defaults to '${AKS_GET_CLUSTER_ADMINISTRATOR_CREDENTIALS}'
+
   Configuration file example:
-  [...]
-  <alias>_aks_name=<aks1 name>
-  <alias>_aks_resource_group=<aks1 resource group>
-  <alias>_aks_subscription=<aks1 subscription>
-  <alias>_context_name=aks1
-  <alias>_kind=aks
-  <alias>_kubeconfig=/Users/jobace78/.kubeconfig.yaml
+    [...]
+    <alias>_aks_name=<aks1 name>
+    <alias>_aks_resource_group=<aks1 resource group>
+    <alias>_aks_subscription=<aks1 subscription>
+    <alias>_context_name=aks1
+    <alias>_kind=aks
+    <alias>_kubeconfig=/Users/jobace78/.kubeconfig.yaml
 
-  <alias>_aks_name=<aks2 name>
-  <alias>_aks_resource_group=<aks2 resource group>
-  <alias>_aks_subscription=<aks2 subscription>
-  <alias>_context_name=aks2
-  <alias>_kind=aks
-  <alias>_kubeconfig=/Users/jobace78/.kubeconfig.yaml
+    <alias>_aks_name=<aks2 name>
+    <alias>_aks_resource_group=<aks2 resource group>
+    <alias>_aks_subscription=<aks2 subscription>
+    <alias>_context_name=aks2
+    <alias>_kind=aks
+    <alias>_kubeconfig=/Users/jobace78/.kubeconfig.yaml
 
-  <alias>_cluster_api_url=https://<api address>
-  <alias>_cluster_name=<api address>
-  <alias>_context_name=ocp-on-aws
-  <alias>_kind=custom
-  <alias>_kubeconfig=/Users/jobace78/.kubeconfig-custom.yaml
-  <alias>_user_name=example@example.invalid
+    <alias>_cluster_api_url=https://<api address>
+    <alias>_cluster_name=<api address or name>
+    <alias>_context_name=ocp1
+    <alias>_kind=custom
+    <alias>_kubeconfig=/Users/jobace78/.kubeconfig-custom.yaml
+    <alias>_user_name=<mail or user name>
 
-  <alias>_cluster_api_url=https://<api address>
-  <alias>_cluster_name=<api address>
-  <alias>_context_name=ocp-on-az
-  <alias>_kind=custom
-  <alias>_kubeconfig=/Users/jobace78/.kubeconfig-custom.yaml
-  <alias>_user_name=example@example.invalid
-  [...]
+    <alias>_cluster_api_url=https://<api address>
+    <alias>_cluster_name=<api address or name>
+    <alias>_context_name=ocp2
+    <alias>_kind=custom
+    <alias>_kubeconfig=/Users/jobace78/.kubeconfig-custom.yaml
+    <alias>_user_name=<mail or user name>
+    [...]
 
   Environment variable example:
-  [...]
-  KUBECONFIG=":/Users/jobace78/.kube/config:/Users/jobace78/.kubeconfig.yaml:/Users/jobace78/.kubeconfig-custom.yaml"
-  [...]
+    [...]
+    KUBECONFIG=":/Users/jobace78/.kube/config:/Users/jobace78/.kubeconfig.yaml:/Users/jobace78/.kubeconfig-custom.yaml"
+    [...]
 
 EOT
   exit "${exit_code}"
+}
+
+_print_default_kubeconfig() {
+  # INFO : local variables
+  local path
+  path="${1:?}"
+  [ -d "$(dirname "${path}")" ] || mkdir -p "$(dirname "${path}")"
+  cat << 'EOT' > "${path}"
+apiVersion: v1
+clusters: null
+contexts: null
+kind: Config
+preferences: {}
+users: null
+EOT
 }
 
 trap '_catch_all ${?}' ERR SIGHUP SIGINT SIGQUIT SIGTERM
 
 touch "${HOME:?}"/.kube/config 1> /dev/null
 
-if oc config current-context 1> /dev/null 2> /dev/null; then
-  current_context="$(oc config current-context 2> /dev/null)"
-fi
-
 OPTIND=1
-while getopts 'ln:t:uHUV' ARGS; do
+while getopts 'ln:rt:uHUV' ARGS; do
   case "${ARGS}" in
     l)
       if [ -f "${HOME:?}"/.occ.conf ]; then
@@ -118,31 +135,40 @@ while getopts 'ln:t:uHUV' ARGS; do
     n)
       namespace="${OPTARG}"
       ;;
+    r)
+      if [ -f "${HOME:?}"/.occ.conf ]; then
+        while read -r kubeconfig; do
+          if [ -f "${kubeconfig}" ]; then
+            _print_default_kubeconfig "${kubeconfig}"
+          fi
+        done < <(awk -F '=' '$1 ~ /_kubeconfig/ { print $2 }' "${HOME:?}"/.occ.conf 2> /dev/null)
+      fi
+      _print_default_kubeconfig "${HOME:?}"/.kube/config
+      _exit 0
+      ;;
     t)
       token="${OPTARG}"
       ;;
     u)
-      if [ -n "${current_context}" ]; then
-        #
-        # Notes:
-        #   - https://github.com/lensapp/lens/issues/7826
-        #
-        if [ -f "${HOME:?}"/.occ.conf ]; then
-          while read -r kubeconfig; do
+      #
+      # Notes:
+      #   - https://github.com/lensapp/lens/issues/7826
+      #
+      if [ -f "${HOME:?}"/.occ.conf ]; then
+        while read -r kubeconfig; do
+          if [ -f "${kubeconfig}" ]; then
             ${sed} -i '/^current-context:/d' "${kubeconfig}"
-          done < <(awk -F '=' '$1 ~ /_kubeconfig/ { print $2 }' "${HOME:?}"/.occ.conf 2> /dev/null)
-        fi
-        oc config unset current-context
-        _exit 0
-      else
-        _exit 1 "current-context is NOT set, exiting."
+          fi
+        done < <(awk -F '=' '$1 ~ /_kubeconfig/ { print $2 }' "${HOME:?}"/.occ.conf 2> /dev/null)
       fi
+      ${sed} -i '/^current-context:/d' "${HOME:?}"/.kube/config
+      _exit 0
       ;;
     H | U)
       _help 0
       ;;
     V)
-      _exit 0 'v20231120'
+      _exit 0 'v20231121'
       ;;
     ?)
       _help 1
@@ -168,23 +194,48 @@ if [ -f "${HOME:?}"/.occ.conf ]; then
       current_aks_name="$(awk -F '=' -v this="^${alias}_aks_name" '$1 ~ this { print $2 }' "${HOME:?}"/.occ.conf 2> /dev/null)"
       current_aks_resource_group="$(awk -F '=' -v this="^${alias}_aks_resource_group" '$1 ~ this { print $2 }' "${HOME:?}"/.occ.conf 2> /dev/null)"
       current_aks_subscription="$(awk -F '=' -v this="^${alias}_aks_subscription" '$1 ~ this { print $2 }' "${HOME:?}"/.occ.conf 2> /dev/null)"
-      # aks (set-cluster, set-context, set-credentials)
-      #
-      az aks get-credentials \
-        --context "${current_context_name:?}" \
-        --file "${current_kubeconfig:?}" \
-        --name "${current_aks_name:?}" \
-        --overwrite-existing \
-        --resource-group "${current_aks_resource_group:?}" \
-        --subscription "${current_aks_subscription:?}" 1> /dev/null
-      # aks (set-context, use-context)
-      #
-      oc config set-context \
-        --kubeconfig="${current_kubeconfig:?}" \
-        --namespace="${namespace:-default}" \
-        "${current_context_name:?}" 1> /dev/null
-      oc config use-context \
-        "${current_context_name:?}"
+      if [ "${AKS_GET_CLUSTER_ADMINISTRATOR_CREDENTIALS}" = 'true' ]; then
+        # aks (set-cluster, set-context, set-credentials)
+        #
+        az aks get-credentials \
+          --admin \
+          --context "${current_context_name:?}" \
+          --file "${current_kubeconfig:?}" \
+          --name "${current_aks_name:?}" \
+          --overwrite-existing \
+          --resource-group "${current_aks_resource_group:?}" \
+          --subscription "${current_aks_subscription:?}" 1> /dev/null
+        # aks (set-context)
+        #
+        oc config set-context \
+          --kubeconfig="${current_kubeconfig:?}" \
+          --namespace="${namespace:-default}" \
+          "${current_context_name:?}"-admin 1> /dev/null
+        # aks (use-context)
+        #
+        oc config use-context \
+          "${current_context_name:?}"-admin
+      else
+        # aks (set-cluster, set-context, set-credentials)
+        #
+        az aks get-credentials \
+          --context "${current_context_name:?}" \
+          --file "${current_kubeconfig:?}" \
+          --name "${current_aks_name:?}" \
+          --overwrite-existing \
+          --resource-group "${current_aks_resource_group:?}" \
+          --subscription "${current_aks_subscription:?}" 1> /dev/null
+        # aks (set-context)
+        #
+        oc config set-context \
+          --kubeconfig="${current_kubeconfig:?}" \
+          --namespace="${namespace:-default}" \
+          "${current_context_name:?}" 1> /dev/null
+        # aks (use-context)
+        #
+        oc config use-context \
+          "${current_context_name:?}"
+      fi
       ;;
     custom)
       # custom variables
@@ -202,21 +253,23 @@ if [ -f "${HOME:?}"/.occ.conf ]; then
         --cluster="${current_cluster_name:?}" \
         --kubeconfig="${current_kubeconfig:?}" \
         --user="${current_user_name:?}-at-${current_context_name:?}" \
-        "${current_context_name:?}/${current_user_name:?}" 1> /dev/null
+        "${current_context_name:?}-as-${current_user_name:?}" 1> /dev/null
       if [ -n "${token}" ]; then
         oc config set-credentials \
           --kubeconfig="${current_kubeconfig:?}" \
           --token="${token}" \
           "${current_user_name:?}-at-${current_context_name:?}" 1> /dev/null
       fi
-      # custom (set-context, use-context)
+      # custom (set-context)
       #
       oc config set-context \
         --kubeconfig="${current_kubeconfig:?}" \
         --namespace="${namespace:-default}" \
-        "${current_context_name:?}/${current_user_name:?}" 1> /dev/null
+        "${current_context_name:?}-as-${current_user_name:?}" 1> /dev/null
+      # custom (use-context)
+      #
       oc config use-context \
-        "${current_context_name:?}/${current_user_name:?}"
+        "${current_context_name:?}-as-${current_user_name:?}"
       ;;
     *)
       _exit 1 'Unsupported kind, exiting.'
