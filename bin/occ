@@ -59,27 +59,23 @@ _help() {
     <alias>_aks_name=<aks1 name>
     <alias>_aks_resource_group=<aks1 resource group>
     <alias>_aks_subscription=<aks1 subscription>
-    <alias>_context_name=aks1
     <alias>_kind=aks
     <alias>_kubeconfig=/Users/jobace78/.kubeconfig.yaml
 
     <alias>_aks_name=<aks2 name>
     <alias>_aks_resource_group=<aks2 resource group>
     <alias>_aks_subscription=<aks2 subscription>
-    <alias>_context_name=aks2
     <alias>_kind=aks
     <alias>_kubeconfig=/Users/jobace78/.kubeconfig.yaml
 
     <alias>_cluster_api_url=https://<api address>
-    <alias>_cluster_name=<api address or name>
-    <alias>_context_name=ocp1
+    <alias>_cluster_name=<custom1 name>
     <alias>_kind=custom
     <alias>_kubeconfig=/Users/jobace78/.kubeconfig-custom.yaml
     <alias>_user_name=<mail or user name>
 
     <alias>_cluster_api_url=https://<api address>
-    <alias>_cluster_name=<api address or name>
-    <alias>_context_name=ocp2
+    <alias>_cluster_name=<custom2 name>
     <alias>_kind=custom
     <alias>_kubeconfig=/Users/jobace78/.kubeconfig-custom.yaml
     <alias>_user_name=<mail or user name>
@@ -119,9 +115,18 @@ while getopts 'ln:rt:uHUV' ARGS; do
     l)
       if [ -f "${HOME:?}"/.occ.conf ]; then
         aliases=()
+        # aliases (aks)
+        #
         while read -r alias; do
-          aliases+=("${alias/_context_name/}")
-        done < <(awk -F '=' '$1 ~ /_context_name/ { print $1 }' "${HOME:?}"/.occ.conf 2> /dev/null)
+          aliases+=("${alias/_aks_name/}")
+        done < <(awk -F '=' '$1 ~ /_aks_name/ { print $1 }' "${HOME:?}"/.occ.conf 2> /dev/null)
+        # aliases (custom)
+        #
+        while read -r alias; do
+          aliases+=("${alias/_cluster_name/}")
+        done < <(awk -F '=' '$1 ~ /_cluster_name/ { print $1 }' "${HOME:?}"/.occ.conf 2> /dev/null)
+        # aliases
+        #
         if [[ "${aliases[*]}" ]]; then
           echo "${aliases[*]}"
           _exit 0
@@ -168,7 +173,7 @@ while getopts 'ln:rt:uHUV' ARGS; do
       _help 0
       ;;
     V)
-      _exit 0 'v20231121'
+      _exit 0 'v20231210'
       ;;
     ?)
       _help 1
@@ -184,7 +189,6 @@ alias="${1:?}"
 if [ -f "${HOME:?}"/.occ.conf ]; then
   # common variables
   #
-  current_context_name="$(awk -F '=' -v this="^${alias}_context_name" '$1 ~ this { print $2 }' "${HOME:?}"/.occ.conf 2> /dev/null)"
   current_kind="$(awk -F '=' -v this="^${alias}_kind" '$1 ~ this { print $2 }' "${HOME:?}"/.occ.conf 2> /dev/null)"
   current_kubeconfig="$(awk -F '=' -v this="^${alias}_kubeconfig" '$1 ~ this { print $2 }' "${HOME:?}"/.occ.conf 2> /dev/null)"
   case "${current_kind:?}" in
@@ -199,7 +203,7 @@ if [ -f "${HOME:?}"/.occ.conf ]; then
         #
         az aks get-credentials \
           --admin \
-          --context "${current_context_name:?}" \
+          --context "${current_aks_name:?}" \
           --file "${current_kubeconfig:?}" \
           --name "${current_aks_name:?}" \
           --overwrite-existing \
@@ -210,16 +214,16 @@ if [ -f "${HOME:?}"/.occ.conf ]; then
         oc config set-context \
           --kubeconfig="${current_kubeconfig:?}" \
           --namespace="${namespace:-default}" \
-          "${current_context_name:?}"-admin 1> /dev/null
+          "${current_aks_name:?}"-admin 1> /dev/null
         # aks (use-context)
         #
         oc config use-context \
-          "${current_context_name:?}"-admin
+          "${current_aks_name:?}"-admin
       else
         # aks (set-cluster, set-context, set-credentials)
         #
         az aks get-credentials \
-          --context "${current_context_name:?}" \
+          --context "${current_aks_name:?}" \
           --file "${current_kubeconfig:?}" \
           --name "${current_aks_name:?}" \
           --overwrite-existing \
@@ -230,11 +234,11 @@ if [ -f "${HOME:?}"/.occ.conf ]; then
         oc config set-context \
           --kubeconfig="${current_kubeconfig:?}" \
           --namespace="${namespace:-default}" \
-          "${current_context_name:?}" 1> /dev/null
+          "${current_aks_name:?}" 1> /dev/null
         # aks (use-context)
         #
         oc config use-context \
-          "${current_context_name:?}"
+          "${current_aks_name:?}"
       fi
       ;;
     custom)
@@ -252,24 +256,24 @@ if [ -f "${HOME:?}"/.occ.conf ]; then
       oc config set-context \
         --cluster="${current_cluster_name:?}" \
         --kubeconfig="${current_kubeconfig:?}" \
-        --user="${current_user_name:?}-at-${current_context_name:?}" \
-        "${current_context_name:?}-as-${current_user_name:?}" 1> /dev/null
+        --user="${current_user_name:?}-at-${current_cluster_name:?}" \
+        "${current_cluster_name:?}-as-${current_user_name:?}" 1> /dev/null
       if [ -n "${token}" ]; then
         oc config set-credentials \
           --kubeconfig="${current_kubeconfig:?}" \
           --token="${token}" \
-          "${current_user_name:?}-at-${current_context_name:?}" 1> /dev/null
+          "${current_user_name:?}-at-${current_cluster_name:?}" 1> /dev/null
       fi
       # custom (set-context)
       #
       oc config set-context \
         --kubeconfig="${current_kubeconfig:?}" \
         --namespace="${namespace:-default}" \
-        "${current_context_name:?}-as-${current_user_name:?}" 1> /dev/null
+        "${current_cluster_name:?}-as-${current_user_name:?}" 1> /dev/null
       # custom (use-context)
       #
       oc config use-context \
-        "${current_context_name:?}-as-${current_user_name:?}"
+        "${current_cluster_name:?}-as-${current_user_name:?}"
       ;;
     *)
       _exit 1 'Unsupported kind, exiting.'

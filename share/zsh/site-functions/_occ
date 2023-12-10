@@ -7,6 +7,7 @@ function _occ {
   _arguments -C \
   "-l[List available aliases and exit]" \
   "-n[Set the specified namespace]:Set the specified namespace:_message" \
+  "-r[Restore default kubeconfig files and exit]" \
   "-t[Set the specified token]:Set the specified token:_message" \
   "-u[Unset current context and exit]" \
   "-H[Show this help message]" \

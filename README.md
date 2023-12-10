@@ -6,7 +6,7 @@ This is mine and mine alone...
 
 ## Examples
 
-* `~/.brewfile`
+- `~/.brewfile`
 
 ```text
 # ~/.brewfile
@@ -20,7 +20,7 @@ end
 brew "tree"
 ```
 
-* `~/.gitconfig`
+- `~/.gitconfig`
 
 ```text
 # ~/.gitconfig
@@ -57,7 +57,7 @@ brew "tree"
   path = ~/.simple-git-feature-branch-workflow/gitconfig.d/release-status.inc
 ```
 
-* `~/.gnupg/gpg.conf`
+- `~/.gnupg/gpg.conf`
 
 ```text
 # ~/.gnupg/gpg.conf
@@ -66,7 +66,7 @@ keyserver hkps://keys.openpgp.org
 use-agent
 ```
 
-* `~/.gnupg/gpg-agent.conf`
+- `~/.gnupg/gpg-agent.conf`
 
 ```text
 # ~/.gnupg/gpg-agent.conf
@@ -76,7 +76,7 @@ max-cache-ttl 86400
 pinentry-program /opt/homebrew/bin/pinentry-mac
 ```
 
-* `~/.ssh/config`
+- `~/.ssh/config`
 
 ```text
 # ~/.ssh/config
@@ -90,7 +90,7 @@ Host *
   UserKnownHostsFile /dev/null
 ```
 
-* `~/.tmux.conf`
+- `~/.tmux.conf`
 
 ```text
 # ~/.tmux.conf
@@ -98,7 +98,7 @@ Host *
 source-file ~/.dotfiles-public/tmux.conf
 ```
 
-* `~/.vimrc`
+- `~/.vimrc`
 
 ```text
 " ~/.vimrc
@@ -106,7 +106,7 @@ source-file ~/.dotfiles-public/tmux.conf
 source ~/.dotfiles-public/vimrc
 ```
 
-* `~/.wgetrc`
+- `~/.wgetrc`
 
 ```text
 # ~/.wgetrc
@@ -114,7 +114,7 @@ source ~/.dotfiles-public/vimrc
 check-certificate = off
 ```
 
-* `~/.zprofile`
+- `~/.zprofile`
 
 ```shell
 # ~/.zprofile
@@ -146,7 +146,7 @@ HOMEBREW_BUNDLE_FILE="${HOME:?}"/.brewfile
 export HOMEBREW_BUNDLE_FILE
 ```
 
-* `~/.zshrc`
+- `~/.zshrc`
 
 ```shell
 # ~/.zshrc
