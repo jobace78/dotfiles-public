@@ -148,7 +148,11 @@ while getopts 'ln:rt:uHUV' ARGS; do
           fi
         done < <(awk -F '=' '$1 ~ /_kubeconfig/ { print $2 }' "${HOME:?}"/.occ.conf 2> /dev/null)
       fi
-      _print_default_kubeconfig "${HOME:?}"/.kube/config
+      if [ -f "${HOME:?}"/.kube/config.default ]; then
+        cp "${HOME:?}"/.kube/config.default "${HOME:?}"/.kube/config
+      else
+        _print_default_kubeconfig "${HOME:?}"/.kube/config
+      fi
       _exit 0
       ;;
     t)
@@ -173,7 +177,7 @@ while getopts 'ln:rt:uHUV' ARGS; do
       _help 0
       ;;
     V)
-      _exit 0 'v20231210'
+      _exit 0 'v20240416'
       ;;
     ?)
       _help 1
