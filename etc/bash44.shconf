@@ -1,10 +1,15 @@
 # shellcheck shell=bash
 
+#
+# Notes:
+#   - https://www.gnu.org/software/bash/manual/html_node/Shell-Compatibility-Mode.html
+#
 if [ -n "${BASH_VERSINFO[*]}" ]; then
-  if [ "${BASH_VERSINFO[0]}" -ge 4 ] && [ "${BASH_VERSINFO[1]}" -ge 4 ]; then
-    :
+  if [ "${BASH_VERSINFO[0]}" -eq 4 ] && [ "${BASH_VERSINFO[1]}" -ge 4 ]; then
+    shopt -s compat44
   elif [ "${BASH_VERSINFO[0]}" -ge 5 ]; then
-    :
+    BASH_COMPAT=44
+    export BASH_COMPAT
   else
     echo 'Unsupported bash version, exiting.'
     exit 1
@@ -14,34 +19,61 @@ else
   exit 1
 fi
 
-if [ "${SCRIPT_DEBUG}" = 'true' ]; then
+if [ "${SCRIPT_DEBUG:-false}" = 'true' ]; then
   echo 'Script debugging is enabled, allowing bash commands and their arguments to be printed as they are executed.'
   set -x
 fi
 
-BASH_COMPAT=44
-export BASH_COMPAT
-
 #
 # Notes:
+#   - BASH_CONF_SET_BUILTIN_DISABLED and BASH_CONF_SET_BUILTIN_PERMISSIVE are deprecated, use BASH_CONF_SET_BUILTIN instead...
 #   - https://www.gnu.org/software/bash/manual/html_node/The-Set-Builtin.html
 #
-if [ "${BASH_CONF_SET_BUILTIN_DISABLED}" = 'true' ]; then
-  :
-elif [ "${BASH_CONF_SET_BUILTIN_PERMISSIVE}" = 'true' ]; then
-  set -e
+if [ -n "${BASH_CONF_SET_BUILTIN:-}" ]; then
+  case "${BASH_CONF_SET_BUILTIN}" in
+    disabled) ;;
+    permissive)
+      set -e
+      ;;
+    strict)
+      #
+      # Notes:
+      #   - this option is in "alpha" state, use at your own risk...
+      #
+      set -e -o pipefail -u
+      ;;
+    *)
+      set -e
+      ;;
+  esac
 else
-  set -e -o pipefail
+  if [ "${BASH_CONF_SET_BUILTIN_DISABLED:-false}" = 'true' ]; then
+    :
+  elif [ "${BASH_CONF_SET_BUILTIN_PERMISSIVE:-false}" = 'true' ]; then
+    set -e
+  else
+    set -e -o pipefail
+  fi
 fi
 
 #
 # Notes:
+#   - BASH_CONF_SHOPT_BUILTIN_DISABLED is deprecated, use BASH_CONF_SHOPT_BUILTIN instead...
 #   - https://www.gnu.org/software/bash/manual/html_node/The-Shopt-Builtin.html
 #
-if [ "${BASH_CONF_SHOPT_BUILTIN_DISABLED}" = 'true' ]; then
-  :
+if [ -n "${BASH_CONF_SHOPT_BUILTIN:-}" ]; then
+  case "${BASH_CONF_SHOPT_BUILTIN}" in
+    disabled) ;;
+    *)
+      shopt -s dotglob extglob
+      ;;
+  esac
 else
-  shopt -s dotglob extglob
+  if [ "${BASH_CONF_SHOPT_BUILTIN_DISABLED:-false}" = 'true' ]; then
+    :
+  else
+    shopt -s dotglob extglob
+  fi
 fi
 
 #

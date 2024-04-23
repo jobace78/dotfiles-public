@@ -144,10 +144,12 @@ while getopts 'ln:rt:uHUV' ARGS; do
       if [ -f "${HOME:?}"/.occ.conf ]; then
         while read -r kubeconfig; do
           if [ -f "${kubeconfig}" ]; then
+            echo "restoring [${kubeconfig}]..."
             _print_default_kubeconfig "${kubeconfig}"
           fi
         done < <(awk -F '=' '$1 ~ /_kubeconfig/ { print $2 }' "${HOME:?}"/.occ.conf 2> /dev/null)
       fi
+      echo "restoring [${HOME:?}/.kube/config]..."
       if [ -f "${HOME:?}"/.kube/config.default ]; then
         cp "${HOME:?}"/.kube/config.default "${HOME:?}"/.kube/config
       else
@@ -177,7 +179,7 @@ while getopts 'ln:rt:uHUV' ARGS; do
       _help 0
       ;;
     V)
-      _exit 0 'v20240416'
+      _exit 0 'v20240422'
       ;;
     ?)
       _help 1

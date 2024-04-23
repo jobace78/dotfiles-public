@@ -8,21 +8,45 @@ indent_style = space
 insert_final_newline = true
 trim_trailing_whitespace = false
 
+[*.sh]
+indent_size = 2
+
+[{*.yaml,*.yml}]
+indent_size = 2
+
+[Dockerfile]
+indent_size = 2
+
+### DO NOT MODIFY ABOVE THIS LINE ###
+
+[*.conf]
+indent_size = 2
+
 [*.json]
 indent_size = 2
 
 [*.md]
 indent_size = 2
 
-[{*.sh,*.shconf,bin/**,zprofile,zshrc}]
+[{*.ps1,*.psd1,*.psm1}]
+ij_powershell_block_brace_style = next_line # allman: 'next_line', otbs: 'end_of_line', defaults to 'next_line'
+ij_powershell_catch_on_new_line = true # allman: 'true', otbs: 'false', defaults to 'true'
+ij_powershell_class_brace_style = next_line # allman: 'next_line', otbs: 'end_of_line', defaults to 'next_line'
+ij_powershell_else_on_new_line = true # allman: 'true', otbs: 'false', defaults to 'true'
+ij_powershell_finally_on_new_line = true # allman: 'true', otbs: 'false', defaults to 'true'
+ij_powershell_method_brace_style = next_line # allman: 'next_line', otbs: 'end_of_line', defaults to 'next_line'
+ij_powershell_special_else_if_treatment = true # allman: 'true', otbs: 'false', defaults to 'true'
+max_line_length = 115
+
+[*.shconf]
+indent_size = 2
+
+[*.toml]
+indent_size = 2
+
+[{bin/**,share/**,zprofile,zshrc}]
 binary_next_line = true # shfmt --binary-next-line
 indent_size = 2 # shfmt --indent 2
 indent_style = space # shfmt --indent 2
 space_redirects = true # shfmt --space-redirects
 switch_case_indent = true # shfmt --case-indent
-
-[*.toml]
-indent_size = 2
-
-[{*.yaml,*.yml}]
-indent_size = 2
