@@ -43,7 +43,7 @@ if [ -n "${BASH_CONF_SET_BUILTIN:-}" ]; then
       set -e -o pipefail -u
       ;;
     *)
-      set -e
+      set -e -o pipefail
       ;;
   esac
 else
