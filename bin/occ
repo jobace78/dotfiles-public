@@ -179,7 +179,7 @@ while getopts 'ln:rt:uHUV' ARGS; do
       _help 0
       ;;
     V)
-      _exit 0 'v20240422'
+      _exit 0 'v20240503'
       ;;
     ?)
       _help 1
@@ -221,6 +221,17 @@ if [ -f "${HOME:?}"/.occ.conf ]; then
           --kubeconfig="${current_kubeconfig:?}" \
           --namespace="${namespace:-default}" \
           "${current_aks_name:?}"-admin 1> /dev/null
+        # aks (set-context)
+        #
+        # Notes:
+        #   - workaround to docker desktop provided kubectl...
+        #
+        if [ -x "$(command -v kubectl)" ]; then
+          kubectl config set-context \
+            --kubeconfig="${current_kubeconfig:?}" \
+            --namespace="${namespace:-default}" \
+            "${current_aks_name:?}"-admin 1> /dev/null
+        fi
         # aks (use-context)
         #
         oc config use-context \
@@ -241,6 +252,17 @@ if [ -f "${HOME:?}"/.occ.conf ]; then
           --kubeconfig="${current_kubeconfig:?}" \
           --namespace="${namespace:-default}" \
           "${current_aks_name:?}" 1> /dev/null
+        # aks (set-context)
+        #
+        # Notes:
+        #   - workaround to docker desktop provided kubectl...
+        #
+        if [ -x "$(command -v kubectl)" ]; then
+          kubectl config set-context \
+            --kubeconfig="${current_kubeconfig:?}" \
+            --namespace="${namespace:-default}" \
+            "${current_aks_name:?}" 1> /dev/null
+        fi
         # aks (use-context)
         #
         oc config use-context \
@@ -276,6 +298,17 @@ if [ -f "${HOME:?}"/.occ.conf ]; then
         --kubeconfig="${current_kubeconfig:?}" \
         --namespace="${namespace:-default}" \
         "${current_cluster_name:?}-as-${current_user_name:?}" 1> /dev/null
+      # custom (set-context)
+      #
+      # Notes:
+      #   - workaround to docker desktop provided kubectl...
+      #
+      if [ -x "$(command -v kubectl)" ]; then
+        kubectl config set-context \
+          --kubeconfig="${current_kubeconfig:?}" \
+          --namespace="${namespace:-default}" \
+          "${current_cluster_name:?}-as-${current_user_name:?}" 1> /dev/null
+      fi
       # custom (use-context)
       #
       oc config use-context \
