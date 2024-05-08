@@ -1,23 +1,28 @@
 #!/usr/bin/env bash
+#
+# bashsupport disable=BP5004,BP5006,BP5007
 
-# shellcheck source=../etc/bash44.shconf
 if [ -f "$(dirname "${0}")"/../etc/bash44.shconf ]; then
+  # shellcheck source=../etc/bash44.shconf
   . "$(dirname "${0}")"/../etc/bash44.shconf || exit 1
 else
+  # shellcheck source=/dev/null
   . "${HOME:?}"/.etc/bash44.shconf || exit 1
 fi
 
-# shellcheck source=../etc/constants.shconf
 if [ -f "$(dirname "${0}")"/../etc/constants.shconf ]; then
+  # shellcheck source=../etc/constants.shconf
   . "$(dirname "${0}")"/../etc/constants.shconf
 else
+  # shellcheck source=/dev/null
   . "${HOME:?}"/.etc/constants.shconf
 fi
 
-# shellcheck source=../etc/functions.shconf
 if [ -f "$(dirname "${0}")"/../etc/functions.shconf ]; then
+  # shellcheck source=../etc/functions.shconf
   . "$(dirname "${0}")"/../etc/functions.shconf
 else
+  # shellcheck source=/dev/null
   . "${HOME:?}"/.etc/functions.shconf
 fi
 
@@ -62,7 +67,7 @@ while getopts 'fHUV' ARGS; do
       _help 0
       ;;
     V)
-      _exit 0 'v20230203'
+      _exit 0 'v20240507'
       ;;
     ?)
       _help 1

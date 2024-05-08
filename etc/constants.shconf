@@ -1,5 +1,7 @@
 # shellcheck shell=bash
-
+#
+# bashsupport disable=BP5007
+#
 # shellcheck disable=SC2034
 
 readonly CURL_OPTIONS='-L -S -s'
