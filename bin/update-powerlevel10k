@@ -52,7 +52,7 @@ _help() {
     -V Print version
 
 EOT
-  exit "${exit_code}"
+  functions::exit "${exit_code}"
 }
 
 trap '_catch_all ${?}' ERR SIGHUP SIGINT SIGQUIT SIGTERM
@@ -67,7 +67,7 @@ while getopts 'fHUV' ARGS; do
       _help 0
       ;;
     V)
-      _exit 0 'v20240507'
+      functions::exit 0 'v20240507'
       ;;
     ?)
       _help 1
@@ -79,10 +79,10 @@ shift $((OPTIND - 1))
 if [ -d "${HOME:?}"/.powerlevel10k ]; then
   if [ "${force}" = 'true' ]; then
     rm -f -r -v "${HOME:?}"/.powerlevel10k
-    echo "downloading '${HOME:?}/.powerlevel10k'..."
+    functions::stdout "downloading '${HOME:?}/.powerlevel10k'..."
     _download_and_install
   fi
 else
-  echo "downloading '${HOME:?}/.powerlevel10k'..."
+  functions::stdout "downloading '${HOME:?}/.powerlevel10k'..."
   _download_and_install
 fi

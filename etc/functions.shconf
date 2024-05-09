@@ -6,7 +6,25 @@
 # index:
 #   - _catch_all
 #   - _exit
+#   - functions::catch_all
+#   - functions::exit
+#   - functions::log_to_stderr
+#   - functions::log_to_stdout
+#   - functions::print_to_stderr
+#   - functions::print_to_stdout
+#   - functions::stderr
+#   - functions::stdout
 #
+
+# bashsupport disable=BP5008
+_catch_all() {
+  functions::catch_all "${@}"
+}
+
+# bashsupport disable=BP5008
+_exit() {
+  functions::exit "${@}"
+}
 
 #######################################
 # No description.
@@ -15,10 +33,10 @@
 # Returns:
 #   None, String
 #######################################
-_catch_all() {
+functions::catch_all() {
   trap - ERR SIGHUP SIGINT SIGQUIT SIGTERM
   if [ "${1}" != '0' ]; then
-    echo "*** exit code << ${1} >> on line $(caller) ***"
+    printf '%s\n' "*** exit code << ${1} >> on line $(caller) ***" >&2
   fi
   # kill "${!}" 2> /dev/null
   exit "${1:?}"
@@ -32,18 +50,100 @@ _catch_all() {
 # Returns:
 #   None, String
 #######################################
-_exit() {
+functions::exit() {
   # INFO : local variables
   local exit_code
   local message
   exit_code="${1:-1}"
   message="${2}"
   if [ -n "${message}" ]; then
-    echo "${message}"
+    printf '%s\n' "${message}"
   fi
   if [[ "${exit_code}" =~ ^[0-9]+$ ]]; then
     exit "${exit_code}"
   else
     exit 1
   fi
+}
+
+#######################################
+# No description.
+# Arguments:
+#   * - message (required, string)
+# Returns:
+#   String
+#######################################
+functions::log_to_stderr() {
+  # INFO : local variables
+  local date
+  local message
+  date="$(date --rfc-3339=seconds 2> /dev/null)"
+  message="${*:?}"
+  printf '%s\n' "[${date:-1970-01-01 01:00:00+01:00}] ${message}" >&2
+}
+
+#######################################
+# No description.
+# Arguments:
+#   * - message (required, string)
+# Returns:
+#   String
+#######################################
+functions::log_to_stdout() {
+  # INFO : local variables
+  local date
+  local message
+  date="$(date --rfc-3339=seconds 2> /dev/null)"
+  message="${*:?}"
+  printf '%s\n' "[${date:-1970-01-01 01:00:00+01:00}] ${message}"
+}
+
+#######################################
+# No description.
+# Arguments:
+#   * - message (optional, string)
+# Returns:
+#   String
+#######################################
+functions::print_to_stderr() {
+  # INFO : local variables
+  local message
+  message="${*}"
+  printf '%s\n' "${message}" >&2
+}
+
+#######################################
+# No description.
+# Arguments:
+#   * - message (optional, string)
+# Returns:
+#   String
+#######################################
+functions::print_to_stdout() {
+  # INFO : local variables
+  local message
+  message="${*}"
+  printf '%s\n' "${message}"
+}
+
+#######################################
+# Alias to functions::print_to_stderr.
+# Arguments:
+#   * - message (optional, string)
+# Returns:
+#   String
+#######################################
+functions::stderr() {
+  functions::print_to_stderr "${*}"
+}
+
+#######################################
+# Alias to functions::print_to_stdout.
+# Arguments:
+#   * - message (optional, string)
+# Returns:
+#   String
+#######################################
+functions::stdout() {
+  functions::print_to_stdout "${*}"
 }

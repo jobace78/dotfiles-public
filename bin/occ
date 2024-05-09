@@ -92,7 +92,7 @@ _help() {
     [...]
 
 EOT
-  exit "${exit_code}"
+  functions::exit "${exit_code}"
 }
 
 _print_default_kubeconfig() {
@@ -133,13 +133,13 @@ while getopts 'ln:rt:uHUV' ARGS; do
         # aliases
         #
         if [[ "${aliases[*]}" ]]; then
-          echo "${aliases[*]}"
-          _exit 0
+          functions::stdout "${aliases[*]}"
+          functions::exit 0
         else
-          _exit 1 "is '${HOME:?}/.occ.conf' empty ???"
+          functions::exit 1 "is '${HOME:?}/.occ.conf' empty ???"
         fi
       else
-        _exit 1 "'${HOME:?}/.occ.conf' was NOT found, exiting."
+        functions::exit 1 "'${HOME:?}/.occ.conf' was NOT found, exiting."
       fi
       ;;
     n)
@@ -149,18 +149,18 @@ while getopts 'ln:rt:uHUV' ARGS; do
       if [ -f "${HOME:?}"/.occ.conf ]; then
         while read -r kubeconfig; do
           if [ -f "${kubeconfig}" ]; then
-            echo "restoring [${kubeconfig}]..."
+            functions::stdout "restoring [${kubeconfig}]..."
             _print_default_kubeconfig "${kubeconfig}"
           fi
         done < <(awk -F '=' '$1 ~ /_kubeconfig/ { print $2 }' "${HOME:?}"/.occ.conf 2> /dev/null)
       fi
-      echo "restoring [${HOME:?}/.kube/config]..."
+      functions::stdout "restoring [${HOME:?}/.kube/config]..."
       if [ -f "${HOME:?}"/.kube/config.default ]; then
         cp "${HOME:?}"/.kube/config.default "${HOME:?}"/.kube/config
       else
         _print_default_kubeconfig "${HOME:?}"/.kube/config
       fi
-      _exit 0
+      functions::exit 0
       ;;
     t)
       token="${OPTARG}"
@@ -178,13 +178,13 @@ while getopts 'ln:rt:uHUV' ARGS; do
         done < <(awk -F '=' '$1 ~ /_kubeconfig/ { print $2 }' "${HOME:?}"/.occ.conf 2> /dev/null)
       fi
       ${sed} -i '/^current-context:/d' "${HOME:?}"/.kube/config
-      _exit 0
+      functions::exit 0
       ;;
     H | U)
       _help 0
       ;;
     V)
-      _exit 0 'v20240507'
+      functions::exit 0 'v20240507'
       ;;
     ?)
       _help 1
@@ -320,9 +320,9 @@ if [ -f "${HOME:?}"/.occ.conf ]; then
         "${current_cluster_name:?}-as-${current_user_name:?}"
       ;;
     *)
-      _exit 1 'Unsupported kind, exiting.'
+      functions::exit 1 'Unsupported kind, exiting.'
       ;;
   esac
 else
-  _exit 1 "'${HOME:?}/.occ.conf' was NOT found, exiting."
+  functions::exit 1 "'${HOME:?}/.occ.conf' was NOT found, exiting."
 fi

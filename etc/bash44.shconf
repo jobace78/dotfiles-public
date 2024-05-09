@@ -13,16 +13,16 @@ if [ -n "${BASH_VERSINFO[*]}" ]; then
     BASH_COMPAT=44
     export BASH_COMPAT
   else
-    echo 'Unsupported bash version, exiting.'
+    printf '%s\n' 'Unsupported bash version, exiting.' >&2
     exit 1
   fi
 else
-  echo 'Unsupported shell, exiting.'
+  printf '%s\n' 'Unsupported shell, exiting.' >&2
   exit 1
 fi
 
 if [ "${SCRIPT_DEBUG:-false}" = 'true' ]; then
-  echo 'Script debugging is enabled, allowing bash commands and their arguments to be printed as they are executed.'
+  printf '%s\n' 'Script debugging is enabled, allowing bash commands and their arguments to be printed as they are executed.'
   set -x
 fi
 

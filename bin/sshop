@@ -47,7 +47,7 @@ _help() {
     - https://developer.1password.com/docs/ssh/agent/config
 
 EOT
-  exit "${exit_code}"
+  functions::exit "${exit_code}"
 }
 
 _op() {
@@ -76,15 +76,15 @@ _op() {
           # Notes:
           #   - man ssh-add
           #
-          echo "listing fingerprints of all identities currently represented by the agent..."
+          functions::stdout "listing fingerprints of all identities currently represented by the agent..."
           ssh-add -l
         fi
       else
-        _exit 1 "'${HOME:?}/.config/1Password/ssh/${account}.toml' was NOT found, exiting."
+        functions::exit 1 "'${HOME:?}/.config/1Password/ssh/${account}.toml' was NOT found, exiting."
       fi
     fi
   else
-    _exit 1 "'${HOME:?}/.config/1Password/ssh/agent.toml.default' was NOT found, exiting."
+    functions::exit 1 "'${HOME:?}/.config/1Password/ssh/agent.toml.default' was NOT found, exiting."
   fi
 }
 
@@ -108,25 +108,25 @@ while getopts 'dlrHUV' ARGS; do
           fi
         done
         if [[ "${accounts[*]}" ]]; then
-          echo "${accounts[*]}"
-          _exit 0
+          functions::stdout "${accounts[*]}"
+          functions::exit 0
         else
-          _exit 1 "is '${HOME:?}/.config/1Password/ssh' empty ???"
+          functions::exit 1 "is '${HOME:?}/.config/1Password/ssh' empty ???"
         fi
       else
-        _exit 1 "'${HOME:?}/.config/1Password/ssh' was NOT found, exiting."
+        functions::exit 1 "'${HOME:?}/.config/1Password/ssh' was NOT found, exiting."
       fi
       ;;
     r)
-      echo 'restoring default account...'
+      functions::stdout 'restoring default account...'
       _op default
-      _exit 0
+      functions::exit 0
       ;;
     H | U)
       _help 0
       ;;
     V)
-      _exit 0 'v20240507'
+      functions::exit 0 'v20240507'
       ;;
     ?)
       _help 1

@@ -39,7 +39,7 @@ _help() {
     -V Print version
 
 EOT
-  exit "${exit_code}"
+  functions::exit "${exit_code}"
 }
 
 trap '_catch_all ${?}' ERR SIGHUP SIGINT SIGQUIT SIGTERM
@@ -51,7 +51,7 @@ while getopts 'HUV' ARGS; do
       _help 0
       ;;
     V)
-      _exit 0 'v20240507'
+      functions::exit 0 'v20240507'
       ;;
     ?)
       _help 1
@@ -65,5 +65,5 @@ shift $((OPTIND - 1))
 if [ -r "${1:?}" ]; then
   perl -e 's/\r\n|\n|\r/\n/g' -p "${1:?}"
 else
-  _exit 1 "'${1:?}' was NOT readable, exiting."
+  functions::exit 1 "'${1:?}' was NOT readable, exiting."
 fi
