@@ -55,7 +55,7 @@ functions::exit() {
   local exit_code
   local message
   exit_code="${1:-1}"
-  message="${2}"
+  message="${2:-}"
   if [ -n "${message}" ]; then
     printf '%s\n' "${message}"
   fi
@@ -108,7 +108,7 @@ functions::log_to_stdout() {
 functions::print_to_stderr() {
   # INFO : local variables
   local message
-  message="${*}"
+  message="${*:-}"
   printf '%s\n' "${message}" >&2
 }
 
@@ -122,7 +122,7 @@ functions::print_to_stderr() {
 functions::print_to_stdout() {
   # INFO : local variables
   local message
-  message="${*}"
+  message="${*:-}"
   printf '%s\n' "${message}"
 }
 
@@ -134,7 +134,7 @@ functions::print_to_stdout() {
 #   String
 #######################################
 functions::stderr() {
-  functions::print_to_stderr "${*}"
+  functions::print_to_stderr "${*:-}"
 }
 
 #######################################
@@ -145,5 +145,5 @@ functions::stderr() {
 #   String
 #######################################
 functions::stdout() {
-  functions::print_to_stdout "${*}"
+  functions::print_to_stdout "${*:-}"
 }
