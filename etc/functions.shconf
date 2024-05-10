@@ -30,8 +30,6 @@ _exit() {
 # No description.
 # Arguments:
 #   1 - exit code (required, integer)
-# Returns:
-#   None, String
 #######################################
 functions::catch_all() {
   trap - ERR SIGHUP SIGINT SIGQUIT SIGTERM
@@ -47,8 +45,6 @@ functions::catch_all() {
 # Arguments:
 #   1 - exit code (optional, integer, defaults to '1')
 #   2 - message (optional, string)
-# Returns:
-#   None, String
 #######################################
 functions::exit() {
   # INFO : local variables
@@ -70,8 +66,8 @@ functions::exit() {
 # No description.
 # Arguments:
 #   * - message (required, string)
-# Returns:
-#   String
+# Outputs:
+#   Message with date to stderr.
 #######################################
 functions::log_to_stderr() {
   # INFO : local variables
@@ -86,8 +82,8 @@ functions::log_to_stderr() {
 # No description.
 # Arguments:
 #   * - message (required, string)
-# Returns:
-#   String
+# Outputs:
+#   Message with date to stdout.
 #######################################
 functions::log_to_stdout() {
   # INFO : local variables
@@ -102,8 +98,8 @@ functions::log_to_stdout() {
 # No description.
 # Arguments:
 #   * - message (optional, string)
-# Returns:
-#   String
+# Outputs:
+#   Message to stderr.
 #######################################
 functions::print_to_stderr() {
   # INFO : local variables
@@ -116,8 +112,8 @@ functions::print_to_stderr() {
 # No description.
 # Arguments:
 #   * - message (optional, string)
-# Returns:
-#   String
+# Outputs:
+#   Message to stdout.
 #######################################
 functions::print_to_stdout() {
   # INFO : local variables
@@ -130,8 +126,8 @@ functions::print_to_stdout() {
 # Alias to functions::print_to_stderr.
 # Arguments:
 #   * - message (optional, string)
-# Returns:
-#   String
+# Outputs:
+#   Message to stderr.
 #######################################
 functions::stderr() {
   functions::print_to_stderr "${*:-}"
@@ -141,8 +137,8 @@ functions::stderr() {
 # Alias to functions::print_to_stdout.
 # Arguments:
 #   * - message (optional, string)
-# Returns:
-#   String
+# Outputs:
+#   Message to stdout.
 #######################################
 functions::stdout() {
   functions::print_to_stdout "${*:-}"
