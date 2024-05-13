@@ -37,6 +37,13 @@ esac
 
 AKS_GET_CLUSTER_ADMINISTRATOR_CREDENTIALS="${AKS_GET_CLUSTER_ADMINISTRATOR_CREDENTIALS:-false}"
 
+#######################################
+# No description.
+# Arguments:
+#   1 - exit code (optional, integer)
+# Outputs:
+#   Help message to stdout.
+#######################################
 _help() {
   local exit_code
   exit_code="${1:-1}"

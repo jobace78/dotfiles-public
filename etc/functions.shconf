@@ -6,6 +6,8 @@
 # index:
 #   - _catch_all
 #   - _exit
+#   - _print_to_stderr
+#   - _print_to_stdout
 #   - functions::catch_all
 #   - functions::exit
 #   - functions::log_to_stderr
@@ -16,22 +18,14 @@
 #   - functions::stdout
 #
 
-# bashsupport disable=BP5008
-_catch_all() {
-  functions::catch_all "${@}"
-}
-
-# bashsupport disable=BP5008
-_exit() {
-  functions::exit "${@}"
-}
-
 #######################################
 # No description.
 # Arguments:
 #   1 - exit code (required, integer)
+# Returns:
+#   Exists from shell.
 #######################################
-functions::catch_all() {
+_catch_all() {
   trap - ERR SIGHUP SIGINT SIGQUIT SIGTERM
   if [ "${1}" != '0' ]; then
     printf '%s\n' "*** exit code << ${1} >> on line $(caller) ***" >&2
@@ -45,8 +39,10 @@ functions::catch_all() {
 # Arguments:
 #   1 - exit code (optional, integer, defaults to '1')
 #   2 - message (optional, string)
+# Returns:
+#   Exists from shell.
 #######################################
-functions::exit() {
+_exit() {
   # INFO : local variables
   local exit_code
   local message
@@ -60,6 +56,44 @@ functions::exit() {
   else
     exit 1
   fi
+}
+
+#######################################
+# No description.
+# Arguments:
+#   * - message (optional, string)
+# Outputs:
+#   Message to stderr.
+#######################################
+_print_to_stderr() {
+  # INFO : local variables
+  local message
+  message="${*:-}"
+  printf '%s\n' "${message}" >&2
+}
+
+#######################################
+# No description.
+# Arguments:
+#   * - message (optional, string)
+# Outputs:
+#   Message to stdout.
+#######################################
+_print_to_stdout() {
+  # INFO : local variables
+  local message
+  message="${*:-}"
+  printf '%s\n' "${message}"
+}
+
+# bashsupport disable=BP5008
+functions::catch_all() {
+  _catch_all "${@}"
+}
+
+# bashsupport disable=BP5008
+functions::exit() {
+  _exit "${@}"
 }
 
 #######################################
@@ -94,52 +128,34 @@ functions::log_to_stdout() {
   printf '%s\n' "[${date:-1970-01-01 01:00:00+01:00}] ${message}"
 }
 
-#######################################
-# No description.
-# Arguments:
-#   * - message (optional, string)
-# Outputs:
-#   Message to stderr.
-#######################################
+# bashsupport disable=BP5008
 functions::print_to_stderr() {
-  # INFO : local variables
-  local message
-  message="${*:-}"
-  printf '%s\n' "${message}" >&2
+  _print_to_stderr "${*:-}"
 }
 
-#######################################
-# No description.
-# Arguments:
-#   * - message (optional, string)
-# Outputs:
-#   Message to stdout.
-#######################################
+# bashsupport disable=BP5008
 functions::print_to_stdout() {
-  # INFO : local variables
-  local message
-  message="${*:-}"
-  printf '%s\n' "${message}"
+  _print_to_stdout "${*:-}"
 }
 
 #######################################
-# Alias to functions::print_to_stderr.
+# Alias to _print_to_stderr.
 # Arguments:
 #   * - message (optional, string)
 # Outputs:
 #   Message to stderr.
 #######################################
 functions::stderr() {
-  functions::print_to_stderr "${*:-}"
+  _print_to_stderr "${*:-}"
 }
 
 #######################################
-# Alias to functions::print_to_stdout.
+# Alias to _print_to_stdout.
 # Arguments:
 #   * - message (optional, string)
 # Outputs:
 #   Message to stdout.
 #######################################
 functions::stdout() {
-  functions::print_to_stdout "${*:-}"
+  _print_to_stdout "${*:-}"
 }

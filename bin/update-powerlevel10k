@@ -36,6 +36,13 @@ _download_and_install() {
     xargs sed -i '' 's/branch > 32/branch > 64/g'
 }
 
+#######################################
+# No description.
+# Arguments:
+#   1 - exit code (optional, integer)
+# Outputs:
+#   Help message to stdout.
+#######################################
 _help() {
   local exit_code
   exit_code="${1:-1}"
