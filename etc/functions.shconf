@@ -26,12 +26,17 @@
 #   Exists from shell.
 #######################################
 _catch_all() {
+  # INFO : local variables
+  local exit_code
+  exit_code="${1:?}"
   trap - ERR SIGHUP SIGINT SIGQUIT SIGTERM
-  if [ "${1}" != '0' ]; then
-    printf '%s\n' "*** exit code << ${1} >> on line $(caller) ***" >&2
+  if [[ ${exit_code} == 0 ]]; then
+    :
+  else
+    printf '%s\n' "*** exit code << ${exit_code} >> on line $(caller) ***" >&2
   fi
   # kill "${!}" 2> /dev/null
-  exit "${1:?}"
+  exit "${exit_code}"
 }
 
 #######################################
@@ -51,7 +56,7 @@ _exit() {
   if [ -n "${message}" ]; then
     printf '%s\n' "${message}"
   fi
-  if [[ "${exit_code}" =~ ^[0-9]+$ ]]; then
+  if [[ ${exit_code} =~ ^[0-9]+$ ]]; then
     exit "${exit_code}"
   else
     exit 1
@@ -69,7 +74,7 @@ _print_to_stderr() {
   # INFO : local variables
   local message
   message="${*:-}"
-  printf '%s\n' "${message}" >&2
+  printf '%b\\n' "${message}" >&2
 }
 
 #######################################
@@ -83,7 +88,7 @@ _print_to_stdout() {
   # INFO : local variables
   local message
   message="${*:-}"
-  printf '%s\n' "${message}"
+  printf '%b\\n' "${message}"
 }
 
 # bashsupport disable=BP5008
