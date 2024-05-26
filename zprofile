@@ -10,11 +10,11 @@
 #########
 #
 # index:
-#   - system          : <HOMEBREW_ROOT>/bin
-#   - system          : <HOMEBREW_ROOT>/sbin
-#   - user            : <PHPENV_ROOT>/bin
-#   - user            : <PYENV_ROOT>/bin
-#   - user (override) : <HOME>/.local/bin
+#   - system-wide          : <HOMEBREW_ROOT>/bin
+#   - system-wide          : <HOMEBREW_ROOT>/sbin
+#   - user-wide            : <PHPENV_ROOT>/bin
+#   - user-wide            : <PYENV_ROOT>/bin
+#   - user-wide (override) : <HOME>/.local/bin
 #
 
 case "$(uname -m)" in
