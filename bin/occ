@@ -49,8 +49,7 @@ esac
 
 OCC_CONF="${OCC_CONF:-"${HOME:?}"/.occ.conf}"
 
-namespace='default'
-token='CHANGEME'
+default_namespace='default'
 
 #######################################
 # No description.
@@ -96,6 +95,7 @@ _config_aks() {
 # No description.
 # Globals:
 #   admin
+#   default_namespace
 #   namespace
 # Arguments:
 #   1
@@ -110,12 +110,12 @@ _config_aks_set_context() {
   if [ "${admin:-}" = 'true' ]; then
     oc config set-context \
       --kubeconfig="${local_current_kubeconfig}" \
-      --namespace="${namespace}" \
+      --namespace="${namespace:-"${default_namespace}"}" \
       "${local_current_aks_name}"-admin 1> /dev/null
   else
     oc config set-context \
       --kubeconfig="${local_current_kubeconfig}" \
-      --namespace="${namespace}" \
+      --namespace="${namespace:-"${default_namespace}"}" \
       "${local_current_aks_name}" 1> /dev/null
   fi
 }
@@ -169,15 +169,18 @@ _config_custom() {
     --kubeconfig="${local_current_kubeconfig}" \
     --user="${local_current_user_name}-at-${local_current_cluster_name}" \
     "${local_current_cluster_name}-as-${local_current_user_name}" 1> /dev/null
-  oc config set-credentials \
-    --kubeconfig="${local_current_kubeconfig}" \
-    --token="${token}" \
-    "${local_current_user_name}-at-${local_current_cluster_name}" 1> /dev/null
+  if [ -n "${token:-}" ]; then
+    oc config set-credentials \
+      --kubeconfig="${local_current_kubeconfig}" \
+      --token="${token}" \
+      "${local_current_user_name}-at-${local_current_cluster_name}" 1> /dev/null
+  fi
 }
 
 #######################################
 # No description.
 # Globals:
+#   default_namespace
 #   namespace
 # Arguments:
 #   1
@@ -194,7 +197,7 @@ _config_custom_set_context() {
   local_current_user_name="${3:?}"
   oc config set-context \
     --kubeconfig="${local_current_kubeconfig}" \
-    --namespace="${namespace}" \
+    --namespace="${namespace:-"${default_namespace}"}" \
     "${local_current_cluster_name}-as-${local_current_user_name}" 1> /dev/null
 }
 
@@ -294,9 +297,9 @@ _help() {
   Options:
     -a             Configure as (cluster) admin
     -l             List available aliases and exit
-    -n <namespace> Set the specified namespace, defaults to '${namespace}'
+    -n <namespace> Set the specified namespace
     -r             Restore default kubeconfig files and exit
-    -t <token>     Set the specified token, defaults to '${token}'
+    -t <token>     Set the specified token
     -u             Unset current context and exit
 
   Help options:
