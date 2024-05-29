@@ -5,6 +5,7 @@ _occ_list="$(occ -l 2> /dev/null)"
 function _occ {
   local line
   _arguments -C \
+  "-a[Configure as (cluster) admin]" \
   "-l[List available aliases and exit]" \
   "-n[Set the specified namespace]:Set the specified namespace:_message" \
   "-r[Restore default kubeconfig files and exit]" \
