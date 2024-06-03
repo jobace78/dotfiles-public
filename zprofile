@@ -11,7 +11,6 @@
 #
 # index:
 #   - system-wide          : <HOMEBREW_ROOT>/bin
-#   - system-wide          : <HOMEBREW_ROOT>/sbin
 #   - user-wide            : <PHPENV_ROOT>/bin
 #   - user-wide            : <PYENV_ROOT>/bin
 #   - user-wide (override) : <HOME>/.local/bin
@@ -28,10 +27,6 @@ esac
 
 if [ -d "${HOMEBREW_ROOT}/bin" ]; then
   path=("${HOMEBREW_ROOT}/bin" ${path})
-fi
-
-if [ -d "${HOMEBREW_ROOT}/sbin" ]; then
-  path=("${HOMEBREW_ROOT}/sbin" ${path})
 fi
 
 if [ -d "${PHPENV_ROOT:=${HOME:?}/.phpenv}/bin" ]; then

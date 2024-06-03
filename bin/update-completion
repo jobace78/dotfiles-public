@@ -74,12 +74,26 @@ _update() {
     functions::stdout "creating '${HOME:?}/.local/share/zsh/site-functions/_docker-compose'..."
     ln -s /Applications/Docker.app/Contents/Resources/etc/docker-compose.zsh-completion "${HOME:?}"/.local/share/zsh/site-functions/_docker-compose
   fi
+  # _git-lfs
+  #
+  rm -f "${HOME:?}"/.local/share/zsh/site-functions/_git-lfs
+  if [ -x "$(command -v git-lfs)" ]; then
+    functions::stdout "creating '${HOME:?}/.local/share/zsh/site-functions/_git-lfs'..."
+    git-lfs completion zsh > "${HOME:?}"/.local/share/zsh/site-functions/_git-lfs
+  fi
   # _op
   #
   rm -f "${HOME:?}"/.local/share/zsh/site-functions/_op
   if [ -x "$(command -v op)" ]; then
     functions::stdout "creating '${HOME:?}/.local/share/zsh/site-functions/_op'..."
     op completion zsh > "${HOME:?}"/.local/share/zsh/site-functions/_op
+  fi
+  # _orbctl
+  #
+  rm -f "${HOME:?}"/.local/share/zsh/site-functions/_orbctl
+  if [ -x "$(command -v orbctl)" ]; then
+    functions::stdout "creating '${HOME:?}/.local/share/zsh/site-functions/_orbctl'..."
+    orbctl completion zsh > "${HOME:?}"/.local/share/zsh/site-functions/_orbctl
   fi
   # git-completion.bash
   #
@@ -95,13 +109,6 @@ _update() {
     functions::stdout "creating '${HOME:?}/.local/share/zsh/site-functions/git-completion.zsh'..."
     ln -s /Library/Developer/CommandLineTools/usr/share/git-core/git-completion.zsh "${HOME:?}"/.local/share/zsh/site-functions/git-completion.zsh
   fi
-  # _git-lfs
-  #
-  rm -f "${HOME:?}"/.local/share/zsh/site-functions/_git-lfs
-  if [ -x "$(command -v git-lfs)" ]; then
-    functions::stdout "creating '${HOME:?}/.local/share/zsh/site-functions/_git-lfs'..."
-    git-lfs completion zsh > "${HOME:?}"/.local/share/zsh/site-functions/_git-lfs
-  fi
 }
 
 trap '_catch_all ${?}' ERR SIGHUP SIGINT SIGQUIT SIGTERM
@@ -113,7 +120,7 @@ while getopts 'HUV' ARGS; do
       _help 0
       ;;
     V)
-      functions::exit 0 'v20240507'
+      functions::exit 0 'v20240603'
       ;;
     ?)
       _help 1

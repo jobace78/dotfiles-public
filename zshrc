@@ -94,6 +94,8 @@ function _install_update_ps1() {
   precmd_functions+=(_update_ps1)
 }
 
+### include(s) ###
+
 if [ -f "${HOME:?}"/.powerlevel10k/powerlevel10k.zsh-theme ]; then
   . "${HOME:?}"/.powerlevel10k/powerlevel10k.zsh-theme
 else
@@ -102,29 +104,39 @@ else
   fi
 fi
 
-### include(s) ###
-
+# direnv
+#
 if [ "${commands[direnv]}" ]; then
   eval "$(direnv hook zsh)"
 fi
 
+# nvm
+#
 if [ -s "${NVM_DIR:=${HOME:?}/.nvm}"/nvm.sh ]; then
   . "${NVM_DIR}"/nvm.sh
 fi
 
+# perlbrew
+#
 if [ -s "${PERLBREW_ROOT:=${HOME:?}/.perlbrew}"/etc/bashrc ]; then
   . "${PERLBREW_ROOT}"/etc/bashrc
 fi
 
+# phpenv
+#
 if [ "${commands[phpenv]}" ]; then
   eval "$(phpenv init -)"
 fi
 
+# pyenv
+#
 if [ "${commands[pyenv]}" ]; then
   eval "$(pyenv init -)"
   eval "$(pyenv virtualenv-init -)"
 fi
 
+# sdkman
+#
 if [ -s "${SDKMAN_DIR:=${HOME:?}/.sdkman}"/bin/sdkman-init.sh ]; then
   . "${SDKMAN_DIR}"/bin/sdkman-init.sh
 fi
