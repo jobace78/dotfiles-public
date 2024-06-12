@@ -94,8 +94,6 @@ function _install_update_ps1() {
   precmd_functions+=(_update_ps1)
 }
 
-### include(s) ###
-
 if [ -f "${HOME:?}"/.powerlevel10k/powerlevel10k.zsh-theme ]; then
   . "${HOME:?}"/.powerlevel10k/powerlevel10k.zsh-theme
 else
@@ -103,6 +101,17 @@ else
     _install_update_ps1
   fi
 fi
+
+#
+# index:
+#   - direnv
+#   - nvm
+#   - perlbrew
+#   - phpenv
+#   - pyenv
+#   - sdkman
+#   - terraform
+#
 
 # direnv
 #
@@ -139,4 +148,10 @@ fi
 #
 if [ -s "${SDKMAN_DIR:=${HOME:?}/.sdkman}"/bin/sdkman-init.sh ]; then
   . "${SDKMAN_DIR}"/bin/sdkman-init.sh
+fi
+
+# terraform
+#
+if [ "${commands[terraform]}" ]; then
+  complete -C terraform -o nospace terraform
 fi
