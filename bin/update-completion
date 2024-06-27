@@ -95,6 +95,13 @@ _update() {
     functions::stdout "creating '${HOME:?}/.local/share/zsh/site-functions/_orbctl'..."
     orbctl completion zsh > "${HOME:?}"/.local/share/zsh/site-functions/_orbctl
   fi
+  # _rdctl
+  #
+  rm -f "${HOME:?}"/.local/share/zsh/site-functions/_rdctl
+  if [ -x "$(command -v rdctl)" ]; then
+    functions::stdout "creating '${HOME:?}/.local/share/zsh/site-functions/_rdctl'..."
+    rdctl completion zsh > "${HOME:?}"/.local/share/zsh/site-functions/_rdctl
+  fi
   # git-completion.bash
   #
   rm -f "${HOME:?}"/.local/share/zsh/site-functions/git-completion.bash
