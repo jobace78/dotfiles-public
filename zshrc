@@ -67,10 +67,6 @@ setopt \
   promptsubst \
   shwordsplit
 
-##########
-# prompt #
-##########
-
 function _update_ps1() {
   if [ -f /Library/Developer/CommandLineTools/usr/share/git-core/git-prompt.sh ]; then
     GIT_PS1_SHOWCOLORHINTS=Y
@@ -85,7 +81,7 @@ function _update_ps1() {
   fi
 }
 
-function _install_update_ps1() {
+function _update_ps1_install() {
   for i in "${precmd_functions[@]}"; do
     if [ "${i}" = '_update_ps1' ]; then
       return
@@ -96,9 +92,11 @@ function _install_update_ps1() {
 
 if [ -f "${HOME:?}"/.powerlevel10k/powerlevel10k.zsh-theme ]; then
   . "${HOME:?}"/.powerlevel10k/powerlevel10k.zsh-theme
+elif [ "${commands[starship]}" ]; then
+  eval "$(starship init zsh)"
 else
   if [ "${TERM}" != "linux" ]; then
-    _install_update_ps1
+    _update_ps1_install
   fi
 fi
 
