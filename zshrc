@@ -90,26 +90,13 @@ function _update_ps1_install() {
   precmd_functions+=(_update_ps1)
 }
 
-if [ -f "${HOME:?}"/.powerlevel10k/powerlevel10k.zsh-theme ]; then
-  . "${HOME:?}"/.powerlevel10k/powerlevel10k.zsh-theme
-elif [ "${commands[starship]}" ]; then
+if [ "${commands[starship]}" ]; then
   eval "$(starship init zsh)"
 else
   if [ "${TERM}" != "linux" ]; then
     _update_ps1_install
   fi
 fi
-
-#
-# index:
-#   - direnv
-#   - nvm
-#   - perlbrew
-#   - phpenv
-#   - pyenv
-#   - sdkman
-#   - terraform
-#
 
 # direnv
 #
