@@ -6,6 +6,30 @@ This is mine and mine alone...
 
 ## Examples
 
+- `~/.bashrc`
+
+```shell
+# ~/.bashrc
+
+if [ -s "${HOME:?}"/.dotfiles-public/bashrc ]; then
+  . "${HOME:?}"/.dotfiles-public/bashrc
+fi
+
+#########
+# alias #
+#########
+
+alias tree='tree -C'
+
+##############
+# completion #
+##############
+
+#################
+# configuration #
+#################
+```
+
 - `~/.brewfile`
 
 ```text
@@ -131,19 +155,14 @@ if [ -d "${HOME:?}"/.dotfiles-public/bin ]; then
   path=("${HOME:?}"/.dotfiles-public/bin ${path})
 fi
 
-if [ -d "${HOME:?}"/.bin ]; then
-  path=("${HOME:?}"/.bin ${path})
-fi
-
-export PATH
-
 #############
 # variables #
 #############
 
 HOMEBREW_BUNDLE_FILE="${HOME:?}"/.brewfile
+HOMEBREW_BUNDLE_NO_LOCK=1
 
-export HOMEBREW_BUNDLE_FILE
+export HOMEBREW_BUNDLE_FILE HOMEBREW_BUNDLE_NO_LOCK
 ```
 
 - `~/.zshrc`
@@ -169,10 +188,6 @@ if [ -d "${HOME:?}"/.dotfiles-public/share/zsh/site-functions ]; then
   fpath=("${HOME:?}"/.dotfiles-public/share/zsh/site-functions ${fpath})
 fi
 
-if [ -d "${HOME:?}"/.share/zsh/site-functions ]; then
-  fpath=("${HOME:?}"/.share/zsh/site-functions ${fpath})
-fi
-
 if type compinit 1> /dev/null; then
   compinit
 else
@@ -186,6 +201,10 @@ else
   autoload -U +X bashcompinit && \
   bashcompinit
 fi
+
+#################
+# configuration #
+#################
 ```
 
 ## License

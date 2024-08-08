@@ -11,7 +11,7 @@
 
 alias df='df -P -h'
 alias grep='grep --color=auto'
-alias history='fc -E -l 1'
+alias history='fc -i -l 1'
 alias la='ls -A -G'
 alias ll='ls -G -h -l'
 alias ls='ls -G'
