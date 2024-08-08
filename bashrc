@@ -46,7 +46,7 @@ function _update_ps1_install() {
   precmd_functions+=(_update_ps1)
 }
 
-if [ "${commands[starship]}" ]; then
+if [ -x "$(command -v starship)" ]; then
   eval "$(starship init bash)"
 else
   if [ "${TERM}" != "linux" ]; then
