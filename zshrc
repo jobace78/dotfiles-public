@@ -110,6 +110,12 @@ if [ -s "${NVM_DIR:=${HOME:?}/.nvm}"/nvm.sh ]; then
   . "${NVM_DIR}"/nvm.sh
 fi
 
+# packer
+#
+if [ "${commands[packer]}" ]; then
+  complete -C packer -o nospace packer
+fi
+
 # perlbrew
 #
 if [ -s "${PERLBREW_ROOT:=${HOME:?}/.perlbrew}"/etc/bashrc ]; then
