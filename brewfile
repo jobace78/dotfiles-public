@@ -1,5 +1,10 @@
 # brewfile
 
+tap "azure/kubelogin"
+tap "hashicorp/tap"
+
+cask "1password-cli"
+
 brew "awscli"
 brew "azure-cli"
 brew "azure/kubelogin/kubelogin"
@@ -10,6 +15,7 @@ brew "git-lfs"
 brew "gnu-sed"
 brew "gnu-tar"
 brew "gnupg"
+brew "hashicorp/tap/packer"
 brew "helm"
 brew "jq"
 brew "kubernetes-cli"
@@ -27,8 +33,6 @@ brew "tmate"
 brew "tmux"
 brew "wrk"
 brew "yq"
-
-cask "1password-cli"
 
 # dependencies
 
