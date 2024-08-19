@@ -1,7 +1,7 @@
 # zprofile
 #
 # Notes:
-#   - values found here may be overriden by values found in ~/.zshenv
+#   - values found here may be overriden by values found in ~/.zprofile
 #   - this zprofile should be loaded BEFORE your own zprofile...
 #
 

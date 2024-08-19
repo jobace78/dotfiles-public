@@ -1,30 +1,6 @@
 #!/usr/bin/env bash
 #
-# bashsupport disable=BP5006,BP5007
-
-if [ -f "$(dirname "${0}")"/../etc/bash44.shconf ]; then
-  # shellcheck source=../etc/bash44.shconf
-  . "$(dirname "${0}")"/../etc/bash44.shconf || exit 1
-else
-  # shellcheck source=/dev/null
-  . "${HOME:?}"/.etc/bash44.shconf || exit 1
-fi
-
-if [ -f "$(dirname "${0}")"/../etc/constants.shconf ]; then
-  # shellcheck source=../etc/constants.shconf
-  . "$(dirname "${0}")"/../etc/constants.shconf
-else
-  # shellcheck source=/dev/null
-  . "${HOME:?}"/.etc/constants.shconf
-fi
-
-if [ -f "$(dirname "${0}")"/../etc/functions.shconf ]; then
-  # shellcheck source=../etc/functions.shconf
-  . "$(dirname "${0}")"/../etc/functions.shconf
-else
-  # shellcheck source=/dev/null
-  . "${HOME:?}"/.etc/functions.shconf
-fi
+# bashsupport disable=BP5007
 
 #######################################
 # No description.
@@ -33,7 +9,7 @@ fi
 # Outputs:
 #   Help message to stdout.
 #######################################
-_help() {
+this::help() {
   local exit_code
   exit_code="${1:-1}"
   cat << EOT
@@ -49,28 +25,72 @@ EOT
   functions::exit "${exit_code}"
 }
 
-trap '_catch_all ${?}' ERR SIGHUP SIGINT SIGQUIT SIGTERM
+#######################################
+# No description.
+# Globals:
+#   HOME
+#   OPTIND
+# Arguments:
+#  None
+#######################################
+main() {
+  if [ -f "$(dirname "${0}")"/../etc/bash44.shconf ]; then
+    # shellcheck source=../etc/bash44.shconf
+    . "$(dirname "${0}")"/../etc/bash44.shconf || exit 1
+  else
+    # shellcheck source=/dev/null
+    . "${HOME:?}"/.etc/bash44.shconf || exit 1
+  fi
 
-OPTIND=1
-while getopts 'HUV' ARGS; do
-  case "${ARGS}" in
-    H | U)
-      _help 0
-      ;;
-    V)
-      functions::exit 0 'v20240507'
-      ;;
-    ?)
-      _help 1
-      ;;
-  esac
-done
-shift $((OPTIND - 1))
+  if [ -f "$(dirname "${0}")"/../etc/constants.shconf ]; then
+    # shellcheck source=../etc/constants.shconf
+    . "$(dirname "${0}")"/../etc/constants.shconf
+  else
+    # shellcheck source=/dev/null
+    . "${HOME:?}"/.etc/constants.shconf
+  fi
 
-[ $# -ge 1 ] || _help 1
+  if [ -f "$(dirname "${0}")"/../etc/functions.shconf ]; then
+    # shellcheck source=../etc/functions.shconf
+    . "$(dirname "${0}")"/../etc/functions.shconf
+  else
+    # shellcheck source=/dev/null
+    . "${HOME:?}"/.etc/functions.shconf
+  fi
 
-if [ -r "${1:?}" ]; then
-  perl -e 's/\r\n|\n|\r/\r\n/g' -p "${1:?}"
-else
-  functions::exit 1 "'${1:?}' was NOT readable, exiting."
+  local getopts_args
+  local getopts_version
+  getopts_args=''
+  getopts_version='v20240819'
+
+  trap 'functions::catch_all ${?}' ERR SIGHUP SIGINT SIGQUIT SIGTERM
+
+  OPTIND=1
+  while getopts 'HUV' getopts_args; do
+    case "${getopts_args}" in
+      H | U)
+        this::help 0
+        ;;
+      V)
+        functions::exit 0 "${getopts_version}"
+        ;;
+      ?)
+        this::help 1
+        ;;
+    esac
+  done
+  shift $((OPTIND - 1))
+
+  [ $# -ge 1 ] || this::help 1
+
+  if [ -r "${1:?}" ]; then
+    perl -e 's/\r\n|\n|\r/\r\n/g' -p "${1:?}"
+  else
+    functions::exit 1 "'${1:?}' was NOT readable, exiting."
+  fi
+}
+
+# bashsupport disable=BP5001
+if [[ ${BASH_SOURCE[0]} == "${0}" ]]; then
+  main "${@}"
 fi

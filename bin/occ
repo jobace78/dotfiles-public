@@ -1,55 +1,18 @@
 #!/usr/bin/env bash
 #
-# bashsupport disable=BP5006,BP5007
+# bashsupport disable=BP5007
 #
 # index:
-#   - _config_aks
-#   - _config_aks_set_context
-#   - _config_aks_use_context
-#   - _config_custom
-#   - _config_custom_set_context
-#   - _config_custom_use_context
-#   - _extension_aptakube
-#   - _help
-#   - _print_default_kubeconfig
+#   - this::config_aks
+#   - this::config_aks_set_context
+#   - this::config_aks_use_context
+#   - this::config_custom
+#   - this::config_custom_set_context
+#   - this::config_custom_use_context
+#   - this::extension_aptakube
+#   - this::help
+#   - this::print_default_kubeconfig
 #
-
-if [ -f "$(dirname "${0}")"/../etc/bash44.shconf ]; then
-  # shellcheck source=../etc/bash44.shconf
-  . "$(dirname "${0}")"/../etc/bash44.shconf || exit 1
-else
-  # shellcheck source=/dev/null
-  . "${HOME:?}"/.etc/bash44.shconf || exit 1
-fi
-
-if [ -f "$(dirname "${0}")"/../etc/constants.shconf ]; then
-  # shellcheck source=../etc/constants.shconf
-  . "$(dirname "${0}")"/../etc/constants.shconf
-else
-  # shellcheck source=/dev/null
-  . "${HOME:?}"/.etc/constants.shconf
-fi
-
-if [ -f "$(dirname "${0}")"/../etc/functions.shconf ]; then
-  # shellcheck source=../etc/functions.shconf
-  . "$(dirname "${0}")"/../etc/functions.shconf
-else
-  # shellcheck source=/dev/null
-  . "${HOME:?}"/.etc/functions.shconf
-fi
-
-case "$(uname)" in
-  Darwin*)
-    sed='gsed'
-    ;;
-  *)
-    sed='sed'
-    ;;
-esac
-
-OCC_CONF="${OCC_CONF:-"${HOME:?}"/.occ.conf}"
-
-default_namespace='default'
 
 #######################################
 # No description.
@@ -61,7 +24,7 @@ default_namespace='default'
 #   3
 #   4
 #######################################
-_config_aks() {
+this::config_aks() {
   # INFO : local variables with "local" prefix to avoid "collisions"...
   local local_current_kubeconfig
   local local_current_aks_name
@@ -95,13 +58,12 @@ _config_aks() {
 # No description.
 # Globals:
 #   admin
-#   default_namespace
 #   namespace
 # Arguments:
 #   1
 #   2
 #######################################
-_config_aks_set_context() {
+this::config_aks_set_context() {
   # INFO : local variables with "local" prefix to avoid "collisions"...
   local local_current_kubeconfig
   local local_current_aks_name
@@ -110,12 +72,12 @@ _config_aks_set_context() {
   if [ "${admin:-}" = 'true' ]; then
     oc config set-context \
       --kubeconfig="${local_current_kubeconfig}" \
-      --namespace="${namespace:-"${default_namespace}"}" \
+      --namespace="${namespace:?}" \
       "${local_current_aks_name}"-admin 1> /dev/null
   else
     oc config set-context \
       --kubeconfig="${local_current_kubeconfig}" \
-      --namespace="${namespace:-"${default_namespace}"}" \
+      --namespace="${namespace:?}" \
       "${local_current_aks_name}" 1> /dev/null
   fi
 }
@@ -127,7 +89,7 @@ _config_aks_set_context() {
 # Arguments:
 #   1
 #######################################
-_config_aks_use_context() {
+this::config_aks_use_context() {
   # INFO : local variables with "local" prefix to avoid "collisions"...
   local local_current_aks_name
   local_current_aks_name="${1:?}"
@@ -150,7 +112,7 @@ _config_aks_use_context() {
 #   3
 #   4
 #######################################
-_config_custom() {
+this::config_custom() {
   # INFO : local variables with "local" prefix to avoid "collisions"...
   local local_current_kubeconfig
   local local_current_cluster_api_url
@@ -180,14 +142,13 @@ _config_custom() {
 #######################################
 # No description.
 # Globals:
-#   default_namespace
 #   namespace
 # Arguments:
 #   1
 #   2
 #   3
 #######################################
-_config_custom_set_context() {
+this::config_custom_set_context() {
   # INFO : local variables with "local" prefix to avoid "collisions"...
   local local_current_kubeconfig
   local local_current_cluster_name
@@ -197,7 +158,7 @@ _config_custom_set_context() {
   local_current_user_name="${3:?}"
   oc config set-context \
     --kubeconfig="${local_current_kubeconfig}" \
-    --namespace="${namespace:-"${default_namespace}"}" \
+    --namespace="${namespace:?}" \
     "${local_current_cluster_name}-as-${local_current_user_name}" 1> /dev/null
 }
 
@@ -207,7 +168,7 @@ _config_custom_set_context() {
 #   1
 #   2
 #######################################
-_config_custom_use_context() {
+this::config_custom_use_context() {
   # INFO : local variables with "local" prefix to avoid "collisions"...
   local local_current_cluster_name
   local local_current_user_name
@@ -226,7 +187,7 @@ _config_custom_use_context() {
 #   4
 #   5
 #######################################
-_extension_aptakube() {
+this::extension_aptakube() {
   local cluster_name
   local tag_index
   cluster_name="${2:?}"
@@ -287,7 +248,7 @@ _extension_aptakube() {
 # Outputs:
 #   Help message to stdout.
 #######################################
-_help() {
+this::help() {
   local exit_code
   exit_code="${1:-1}"
   cat << EOT
@@ -358,7 +319,7 @@ EOT
 # Arguments:
 #   1
 #######################################
-_print_default_kubeconfig() {
+this::print_default_kubeconfig() {
   local path
   path="${1:?}"
   [ -d "$(dirname "${path}")" ] || mkdir -p "$(dirname "${path}")"
@@ -372,153 +333,258 @@ users: null
 EOT
 }
 
-trap '_catch_all ${?}' ERR SIGHUP SIGINT SIGQUIT SIGTERM
+#######################################
+# No description.
+# Globals:
+#   HOME
+#   OCC_CONF
+#   OPTARG
+#   OPTIND
+#   admin
+#   namespace
+#   sed
+#   token
+# Arguments:
+#  None
+#######################################
+main() {
+  if [ -f "$(dirname "${0}")"/../etc/bash44.shconf ]; then
+    # shellcheck source=../etc/bash44.shconf
+    . "$(dirname "${0}")"/../etc/bash44.shconf || exit 1
+  else
+    # shellcheck source=/dev/null
+    . "${HOME:?}"/.etc/bash44.shconf || exit 1
+  fi
 
-touch "${HOME:?}"/.kube/config 1> /dev/null
+  if [ -f "$(dirname "${0}")"/../etc/constants.shconf ]; then
+    # shellcheck source=../etc/constants.shconf
+    . "$(dirname "${0}")"/../etc/constants.shconf
+  else
+    # shellcheck source=/dev/null
+    . "${HOME:?}"/.etc/constants.shconf
+  fi
 
-OPTIND=1
-while getopts 'aln:rt:uHUV' ARGS; do
-  case "${ARGS}" in
-    a)
-      admin='true'
+  if [ -f "$(dirname "${0}")"/../etc/functions.shconf ]; then
+    # shellcheck source=../etc/functions.shconf
+    . "$(dirname "${0}")"/../etc/functions.shconf
+  else
+    # shellcheck source=/dev/null
+    . "${HOME:?}"/.etc/functions.shconf
+  fi
+
+  OCC_CONF="${OCC_CONF:-"${HOME:?}"/.occ.conf}"
+  admin='false'
+  namespace='default'
+  sed='sed'
+  token=''
+
+  local current_aks_name
+  local current_aks_resource_group
+  local current_aks_subscription
+  local current_cluster_api_url
+  local current_cluster_name
+  local current_extension_aptakube_icon_url
+  local current_extension_aptakube_order
+  local current_extension_aptakube_tags
+  local current_kind
+  local current_kubeconfig
+  local current_user_name
+  local getopts_alias
+  local getopts_aliases
+  local getopts_args
+  local getopts_kubeconfig
+  local getopts_response
+  local getopts_version
+  current_aks_name=''
+  current_aks_resource_group=''
+  current_aks_subscription=''
+  current_cluster_api_url=''
+  current_cluster_name=''
+  current_extension_aptakube_icon_url=''
+  current_extension_aptakube_order=''
+  current_extension_aptakube_tags=''
+  current_kind=''
+  current_kubeconfig=''
+  current_user_name=''
+  getopts_alias=''
+  getopts_aliases=()
+  getopts_args=''
+  getopts_kubeconfig=''
+  getopts_response=''
+  getopts_version='v20240818'
+
+  trap 'functions::catch_all ${?}' ERR SIGHUP SIGINT SIGQUIT SIGTERM
+
+  case "$(uname)" in
+    Darwin*)
+      sed='gsed'
       ;;
-    l)
-      if [ -f "${OCC_CONF}" ]; then
-        aliases=()
-        # aliases (aks)
-        #
-        while read -r alias; do
-          aliases+=("${alias/_aks_name/}")
-        done < <(awk -F '=' '$1 ~ /_aks_name/ { print $1 }' "${OCC_CONF}" 2> /dev/null)
-        # aliases (custom)
-        #
-        while read -r alias; do
-          aliases+=("${alias/_cluster_name/}")
-        done < <(awk -F '=' '$1 ~ /_cluster_name/ { print $1 }' "${OCC_CONF}" 2> /dev/null)
-        # aliases
-        #
-        if [[ "${aliases[*]}" ]]; then
-          functions::stdout "${aliases[*]}"
-          functions::exit 0
+  esac
+
+  touch "${HOME:?}"/.kube/config 1> /dev/null
+
+  OPTIND=1
+  while getopts 'aln:rt:uHUV' getopts_args; do
+    case "${getopts_args}" in
+      a)
+        admin='true'
+        ;;
+      l)
+        if [ -f "${OCC_CONF}" ]; then
+          # aliases (aks)
+          #
+          while read -r getopts_alias; do
+            getopts_aliases+=("${getopts_alias/_aks_name/}")
+          done < <(awk -F '=' '$1 ~ /_aks_name/ { print $1 }' "${OCC_CONF}" 2> /dev/null)
+          # aliases (custom)
+          #
+          while read -r getopts_alias; do
+            getopts_aliases+=("${getopts_alias/_cluster_name/}")
+          done < <(awk -F '=' '$1 ~ /_cluster_name/ { print $1 }' "${OCC_CONF}" 2> /dev/null)
+          # aliases
+          #
+          if [[ "${getopts_aliases[*]}" ]]; then
+            functions::stdout "${getopts_aliases[*]}"
+            functions::exit 0
+          else
+            functions::exit 1 "is '${OCC_CONF}' empty ???"
+          fi
         else
-          functions::exit 1 "is '${OCC_CONF}' empty ???"
+          functions::exit 1 "'${OCC_CONF}' was NOT found, exiting."
         fi
-      else
-        functions::exit 1 "'${OCC_CONF}' was NOT found, exiting."
-      fi
-      ;;
-    n)
-      namespace="${OPTARG}"
-      ;;
-    r)
-      if [ -f "${OCC_CONF}" ]; then
-        while read -r kubeconfig; do
-          if [ -f "${kubeconfig}" ]; then
-            functions::stdout "restoring [${kubeconfig}]..."
-            _print_default_kubeconfig "${kubeconfig}"
-          fi
-        done < <(awk -F '=' '$1 ~ /_kubeconfig/ { print $2 }' "${OCC_CONF}" 2> /dev/null)
-      fi
-      functions::stdout "restoring [${HOME:?}/.kube/config]..."
-      _print_default_kubeconfig "${HOME:?}"/.kube/config
-      functions::exit 0
-      ;;
-    t)
-      token="${OPTARG}"
-      ;;
-    u)
-      if [ -f "${OCC_CONF}" ]; then
-        while read -r kubeconfig; do
-          if [ -f "${kubeconfig}" ]; then
-            ${sed} -i '/^current-context:/d' "${kubeconfig}"
-          fi
-        done < <(awk -F '=' '$1 ~ /_kubeconfig/ { print $2 }' "${OCC_CONF}" 2> /dev/null)
-      fi
-      ${sed} -i '/^current-context:/d' "${HOME:?}"/.kube/config
-      functions::exit 0
-      ;;
-    H | U)
-      _help 0
-      ;;
-    V)
-      functions::exit 0 'v20240507'
-      ;;
-    ?)
-      _help 1
-      ;;
-  esac
-done
-shift $((OPTIND - 1))
+        ;;
+      n)
+        namespace="${OPTARG}"
+        ;;
+      r)
+        if [ -f "${OCC_CONF}" ]; then
+          while read -r getopts_kubeconfig; do
+            if [ -f "${getopts_kubeconfig}" ]; then
+              read -p "Do you want to restore [${getopts_kubeconfig}]? (y/N) " -r getopts_response < /dev/tty
+              case "${getopts_response}" in
+                Y | y)
+                  this::print_default_kubeconfig "${getopts_kubeconfig}"
+                  ;;
+                *)
+                  functions::stdout 'skipped, continuing.'
+                  ;;
+              esac
+            fi
+          done < <(awk -F '=' '$1 ~ /_kubeconfig/ { print $2 }' "${OCC_CONF}" 2> /dev/null | sort -u)
+        fi
+        read -p "Do you want to restore [${HOME:?}/.kube/config]? (Y/n) " -r getopts_response < /dev/tty
+        case "${getopts_response}" in
+          N | n)
+            functions::stdout 'skipped, continuing.'
+            ;;
+          *)
+            this::print_default_kubeconfig "${HOME:?}"/.kube/config
+            ;;
+        esac
+        functions::exit 0
+        ;;
+      t)
+        token="${OPTARG}"
+        ;;
+      u)
+        if [ -f "${OCC_CONF}" ]; then
+          while read -r getopts_kubeconfig; do
+            if [ -f "${getopts_kubeconfig}" ]; then
+              ${sed} -i '/^current-context:/d' "${getopts_kubeconfig}"
+            fi
+          done < <(awk -F '=' '$1 ~ /_kubeconfig/ { print $2 }' "${OCC_CONF}" 2> /dev/null)
+        fi
+        ${sed} -i '/^current-context:/d' "${HOME:?}"/.kube/config
+        functions::exit 0
+        ;;
+      H | U)
+        this::help 0
+        ;;
+      V)
+        functions::exit 0 "${getopts_version}"
+        ;;
+      ?)
+        this::help 1
+        ;;
+    esac
+  done
+  shift $((OPTIND - 1))
 
-[ $# -ge 1 ] || _help 1
+  [ $# -ge 1 ] || this::help 1
 
-alias="${1:?}"
+  getopts_alias="${1:?}"
 
-if [ -f "${OCC_CONF}" ]; then
-  # common variables
-  #
-  current_extension_aptakube_icon_url="$(awk -F '=' -v this="^${alias}_extension_aptakube_icon_url" '$1 ~ this { print $2 }' "${OCC_CONF}" 2> /dev/null)"
-  current_extension_aptakube_order="$(awk -F '=' -v this="^${alias}_extension_aptakube_order" '$1 ~ this { print $2 }' "${OCC_CONF}" 2> /dev/null)"
-  current_extension_aptakube_tags="$(awk -F '=' -v this="^${alias}_extension_aptakube_tags" '$1 ~ this { print $2 }' "${OCC_CONF}" 2> /dev/null)"
-  current_kind="$(awk -F '=' -v this="^${alias}_kind" '$1 ~ this { print $2 }' "${OCC_CONF}" 2> /dev/null)"
-  current_kubeconfig="$(awk -F '=' -v this="^${alias}_kubeconfig" '$1 ~ this { print $2 }' "${OCC_CONF}" 2> /dev/null)"
-  case "${current_kind:?}" in
-    aks)
-      # aks variables
-      #
-      current_aks_name="$(awk -F '=' -v this="^${alias}_aks_name" '$1 ~ this { print $2 }' "${OCC_CONF}" 2> /dev/null)"
-      current_aks_resource_group="$(awk -F '=' -v this="^${alias}_aks_resource_group" '$1 ~ this { print $2 }' "${OCC_CONF}" 2> /dev/null)"
-      current_aks_subscription="$(awk -F '=' -v this="^${alias}_aks_subscription" '$1 ~ this { print $2 }' "${OCC_CONF}" 2> /dev/null)"
-      # aks
-      #
-      _config_aks \
-        "${current_kubeconfig:?}" \
-        "${current_aks_name:?}" \
-        "${current_aks_resource_group:?}" \
-        "${current_aks_subscription:?}"
-      _config_aks_set_context \
-        "${current_kubeconfig:?}" \
-        "${current_aks_name:?}"
-      _config_aks_use_context \
-        "${current_aks_name:?}"
-      _extension_aptakube \
-        "${current_kubeconfig:?}" \
-        "${current_aks_name:?}" \
-        "${current_extension_aptakube_icon_url:-}" \
-        "${current_extension_aptakube_order:-}" \
-        "${current_extension_aptakube_tags:-}"
-      ;;
-    custom)
-      # custom variables
-      #
-      current_cluster_api_url="$(awk -F '=' -v this="^${alias}_cluster_api_url" '$1 ~ this { print $2 }' "${OCC_CONF}" 2> /dev/null)"
-      current_cluster_name="$(awk -F '=' -v this="^${alias}_cluster_name" '$1 ~ this { print $2 }' "${OCC_CONF}" 2> /dev/null)"
-      current_user_name="$(awk -F '=' -v this="^${alias}_user_name" '$1 ~ this { print $2 }' "${OCC_CONF}" 2> /dev/null)"
-      # custom
-      #
-      _config_custom \
-        "${current_kubeconfig:?}" \
-        "${current_cluster_api_url:?}" \
-        "${current_cluster_name:?}" \
-        "${current_user_name:?}"
-      _config_custom_set_context \
-        "${current_kubeconfig:?}" \
-        "${current_cluster_name:?}" \
-        "${current_user_name:?}"
-      _config_custom_use_context \
-        "${current_cluster_name:?}" \
-        "${current_user_name:?}"
-      _extension_aptakube \
-        "${current_kubeconfig:?}" \
-        "${current_cluster_name:?}" \
-        "${current_extension_aptakube_icon_url:-}" \
-        "${current_extension_aptakube_order:-}" \
-        "${current_extension_aptakube_tags:-}"
-      ;;
-    *)
-      functions::exit 1 'Unsupported kind, exiting.'
-      ;;
-  esac
-else
-  functions::exit 1 "'${OCC_CONF}' was NOT found, exiting."
+  if [ -f "${OCC_CONF}" ]; then
+    # common variables
+    #
+    current_extension_aptakube_icon_url="$(awk -F '=' -v this="^${getopts_alias}_extension_aptakube_icon_url" '$1 ~ this { print $2 }' "${OCC_CONF}" 2> /dev/null)"
+    current_extension_aptakube_order="$(awk -F '=' -v this="^${getopts_alias}_extension_aptakube_order" '$1 ~ this { print $2 }' "${OCC_CONF}" 2> /dev/null)"
+    current_extension_aptakube_tags="$(awk -F '=' -v this="^${getopts_alias}_extension_aptakube_tags" '$1 ~ this { print $2 }' "${OCC_CONF}" 2> /dev/null)"
+    current_kind="$(awk -F '=' -v this="^${getopts_alias}_kind" '$1 ~ this { print $2 }' "${OCC_CONF}" 2> /dev/null)"
+    current_kubeconfig="$(awk -F '=' -v this="^${getopts_alias}_kubeconfig" '$1 ~ this { print $2 }' "${OCC_CONF}" 2> /dev/null)"
+    case "${current_kind:?}" in
+      aks)
+        # aks variables
+        #
+        current_aks_name="$(awk -F '=' -v this="^${getopts_alias}_aks_name" '$1 ~ this { print $2 }' "${OCC_CONF}" 2> /dev/null)"
+        current_aks_resource_group="$(awk -F '=' -v this="^${getopts_alias}_aks_resource_group" '$1 ~ this { print $2 }' "${OCC_CONF}" 2> /dev/null)"
+        current_aks_subscription="$(awk -F '=' -v this="^${getopts_alias}_aks_subscription" '$1 ~ this { print $2 }' "${OCC_CONF}" 2> /dev/null)"
+        # aks
+        #
+        this::config_aks \
+          "${current_kubeconfig:?}" \
+          "${current_aks_name:?}" \
+          "${current_aks_resource_group:?}" \
+          "${current_aks_subscription:?}"
+        this::config_aks_set_context \
+          "${current_kubeconfig:?}" \
+          "${current_aks_name:?}"
+        this::config_aks_use_context \
+          "${current_aks_name:?}"
+        this::extension_aptakube \
+          "${current_kubeconfig:?}" \
+          "${current_aks_name:?}" \
+          "${current_extension_aptakube_icon_url:-}" \
+          "${current_extension_aptakube_order:-}" \
+          "${current_extension_aptakube_tags:-}"
+        ;;
+      custom)
+        # custom variables
+        #
+        current_cluster_api_url="$(awk -F '=' -v this="^${getopts_alias}_cluster_api_url" '$1 ~ this { print $2 }' "${OCC_CONF}" 2> /dev/null)"
+        current_cluster_name="$(awk -F '=' -v this="^${getopts_alias}_cluster_name" '$1 ~ this { print $2 }' "${OCC_CONF}" 2> /dev/null)"
+        current_user_name="$(awk -F '=' -v this="^${getopts_alias}_user_name" '$1 ~ this { print $2 }' "${OCC_CONF}" 2> /dev/null)"
+        # custom
+        #
+        this::config_custom \
+          "${current_kubeconfig:?}" \
+          "${current_cluster_api_url:?}" \
+          "${current_cluster_name:?}" \
+          "${current_user_name:?}"
+        this::config_custom_set_context \
+          "${current_kubeconfig:?}" \
+          "${current_cluster_name:?}" \
+          "${current_user_name:?}"
+        this::config_custom_use_context \
+          "${current_cluster_name:?}" \
+          "${current_user_name:?}"
+        this::extension_aptakube \
+          "${current_kubeconfig:?}" \
+          "${current_cluster_name:?}" \
+          "${current_extension_aptakube_icon_url:-}" \
+          "${current_extension_aptakube_order:-}" \
+          "${current_extension_aptakube_tags:-}"
+        ;;
+      *)
+        functions::exit 1 'Unsupported kind, exiting.'
+        ;;
+    esac
+  else
+    functions::exit 1 "'${OCC_CONF}' was NOT found, exiting."
+  fi
+}
+
+# bashsupport disable=BP5001
+if [[ ${BASH_SOURCE[0]} == "${0}" ]]; then
+  main "${@}"
 fi

@@ -1,7 +1,6 @@
 # shellcheck shell=bash
 #
 # bashsupport disable=BP5007
-
 #
 # Notes:
 #   - https://www.gnu.org/software/bash/manual/html_node/Shell-Compatibility-Mode.html

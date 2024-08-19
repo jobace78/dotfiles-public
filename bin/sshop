@@ -1,30 +1,6 @@
 #!/usr/bin/env bash
 #
-# bashsupport disable=BP5006,BP5007
-
-if [ -f "$(dirname "${0}")"/../etc/bash44.shconf ]; then
-  # shellcheck source=../etc/bash44.shconf
-  . "$(dirname "${0}")"/../etc/bash44.shconf || exit 1
-else
-  # shellcheck source=/dev/null
-  . "${HOME:?}"/.etc/bash44.shconf || exit 1
-fi
-
-if [ -f "$(dirname "${0}")"/../etc/constants.shconf ]; then
-  # shellcheck source=../etc/constants.shconf
-  . "$(dirname "${0}")"/../etc/constants.shconf
-else
-  # shellcheck source=/dev/null
-  . "${HOME:?}"/.etc/constants.shconf
-fi
-
-if [ -f "$(dirname "${0}")"/../etc/functions.shconf ]; then
-  # shellcheck source=../etc/functions.shconf
-  . "$(dirname "${0}")"/../etc/functions.shconf
-else
-  # shellcheck source=/dev/null
-  . "${HOME:?}"/.etc/functions.shconf
-fi
+# bashsupport disable=BP5007
 
 #######################################
 # No description.
@@ -33,7 +9,7 @@ fi
 # Outputs:
 #   Help message to stdout.
 #######################################
-_help() {
+this::help() {
   local exit_code
   exit_code="${1:-1}"
   cat << EOT
@@ -57,25 +33,39 @@ EOT
   functions::exit "${exit_code}"
 }
 
-_op() {
-  # INFO : local variables
-  local account
-  account="${1:?}"
+#######################################
+# No description.
+# Globals:
+#   HOME
+#   SSH_AUTH_SOCK
+#   getopts_debug
+# Arguments:
+#   1
+#######################################
+#
+# bashsupport disable=BP2001
+this::op() {
+  local account_name
+  account_name="${1:?}"
   if [ -f "${HOME:?}"/.config/1Password/ssh/agent.toml.default ]; then
-    if [ "${account}" = 'default' ]; then
+    if [ "${account_name}" = 'default' ]; then
       cp "${HOME:?}"/.config/1Password/ssh/agent.toml.default "${HOME:?}"/.config/1Password/ssh/agent.toml
     else
-      if [ -f "${HOME:?}"/.config/1Password/ssh/"${account}".toml ]; then
-        cp "${HOME:?}"/.config/1Password/ssh/"${account}".toml "${HOME:?}"/.config/1Password/ssh/agent.toml
-        if [ "${DEBUG}" = 'true' ]; then
+      if [ -f "${HOME:?}"/.config/1Password/ssh/"${account_name}".toml ]; then
+        cp "${HOME:?}"/.config/1Password/ssh/"${account_name}".toml "${HOME:?}"/.config/1Password/ssh/agent.toml
+        if [ "${getopts_debug}" = 'true' ]; then
           if [ -n "${SSH_AUTH_SOCK}" ]; then
             :
           else
             if [ -S "${HOME:?}"/.1password/agent.sock ]; then
+              # bashsupport disable=BP5006
               SSH_AUTH_SOCK="${HOME:?}"/.1password/agent.sock
+              # bashsupport disable=BP5006
               export SSH_AUTH_SOCK
             elif [ -S "${HOME:?}"/Library/Group\ Containers/2BUA8C4S2C.com.1password/t/agent.sock ]; then
+              # bashsupport disable=BP5006
               SSH_AUTH_SOCK="${HOME:?}"/Library/Group\ Containers/2BUA8C4S2C.com.1password/t/agent.sock
+              # bashsupport disable=BP5006
               export SSH_AUTH_SOCK
             fi
           fi
@@ -87,7 +77,7 @@ _op() {
           ssh-add -l
         fi
       else
-        functions::exit 1 "'${HOME:?}/.config/1Password/ssh/${account}.toml' was NOT found, exiting."
+        functions::exit 1 "'${HOME:?}/.config/1Password/ssh/${account_name}.toml' was NOT found, exiting."
       fi
     fi
   else
@@ -95,57 +85,109 @@ _op() {
   fi
 }
 
-trap '_catch_all ${?}' ERR SIGHUP SIGINT SIGQUIT SIGTERM
+#######################################
+# No description.
+# Globals:
+#   HOME
+#   OPTIND
+#   getopts_debug
+# Arguments:
+#  None
+#######################################
+main() {
+  if [ -f "$(dirname "${0}")"/../etc/bash44.shconf ]; then
+    # shellcheck source=../etc/bash44.shconf
+    . "$(dirname "${0}")"/../etc/bash44.shconf || exit 1
+  else
+    # shellcheck source=/dev/null
+    . "${HOME:?}"/.etc/bash44.shconf || exit 1
+  fi
 
-OPTIND=1
-while getopts 'dlrHUV' ARGS; do
-  case "${ARGS}" in
-    d)
-      DEBUG=true
-      ;;
-    l)
-      if [ -d "${HOME:?}"/.config/1Password/ssh ]; then
-        accounts=()
-        for file_path in "${HOME:?}"/.config/1Password/ssh/*.toml; do
-          account_file="$(basename -- "${file_path}")"
-          if [ "${account_file}" = 'agent.toml' ]; then
-            :
+  if [ -f "$(dirname "${0}")"/../etc/constants.shconf ]; then
+    # shellcheck source=../etc/constants.shconf
+    . "$(dirname "${0}")"/../etc/constants.shconf
+  else
+    # shellcheck source=/dev/null
+    . "${HOME:?}"/.etc/constants.shconf
+  fi
+
+  if [ -f "$(dirname "${0}")"/../etc/functions.shconf ]; then
+    # shellcheck source=../etc/functions.shconf
+    . "$(dirname "${0}")"/../etc/functions.shconf
+  else
+    # shellcheck source=/dev/null
+    . "${HOME:?}"/.etc/functions.shconf
+  fi
+
+  getopts_debug='false'
+
+  local getopts_account_file_name
+  local getopts_account_file_path
+  local getopts_accounts
+  local getopts_args
+  local getopts_version
+  getopts_account_file_name=''
+  getopts_account_file_path=''
+  getopts_accounts=()
+  getopts_args=''
+  getopts_version='v20240819'
+
+  trap 'functions::catch_all ${?}' ERR SIGHUP SIGINT SIGQUIT SIGTERM
+
+  OPTIND=1
+  while getopts 'dlrHUV' getopts_args; do
+    case "${getopts_args}" in
+      d)
+        getopts_debug='true'
+        ;;
+      l)
+        if [ -d "${HOME:?}"/.config/1Password/ssh ]; then
+          for getopts_account_file_path in "${HOME:?}"/.config/1Password/ssh/*.toml; do
+            getopts_account_file_name="$(basename -- "${getopts_account_file_path}")"
+            if [ "${getopts_account_file_name}" = 'agent.toml' ]; then
+              :
+            else
+              getopts_accounts+=("${getopts_account_file_name%.toml}")
+            fi
+          done
+          if [[ "${getopts_accounts[*]}" ]]; then
+            functions::stdout "${getopts_accounts[*]}"
+            functions::exit 0
           else
-            accounts+=("${account_file%.toml}")
+            functions::exit 1 "is '${HOME:?}/.config/1Password/ssh' empty ???"
           fi
-        done
-        if [[ "${accounts[*]}" ]]; then
-          functions::stdout "${accounts[*]}"
-          functions::exit 0
         else
-          functions::exit 1 "is '${HOME:?}/.config/1Password/ssh' empty ???"
+          functions::exit 1 "'${HOME:?}/.config/1Password/ssh' was NOT found, exiting."
         fi
-      else
-        functions::exit 1 "'${HOME:?}/.config/1Password/ssh' was NOT found, exiting."
-      fi
-      ;;
-    r)
-      functions::stdout 'restoring default account...'
-      _op default
-      functions::exit 0
-      ;;
-    H | U)
-      _help 0
-      ;;
-    V)
-      functions::exit 0 'v20240507'
-      ;;
-    ?)
-      _help 1
-      ;;
-  esac
-done
-shift $((OPTIND - 1))
+        ;;
+      r)
+        functions::stdout 'restoring default account...'
+        this::op default
+        functions::exit 0
+        ;;
+      H | U)
+        this::help 0
+        ;;
+      V)
+        functions::exit 0 "${getopts_version}"
+        ;;
+      ?)
+        this::help 1
+        ;;
+    esac
+  done
+  shift $((OPTIND - 1))
 
-[ $# -ge 2 ] || _help 1
+  [ $# -ge 2 ] || this::help 1
 
-_op "${1}"
+  this::op "${1}"
 
-ssh "${@:2}"
+  ssh "${@:2}"
 
-_op default
+  this::op default
+}
+
+# bashsupport disable=BP5001
+if [[ ${BASH_SOURCE[0]} == "${0}" ]]; then
+  main "${@}"
+fi

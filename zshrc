@@ -60,6 +60,7 @@ setopt \
   extended_history \
   hist_expire_dups_first \
   hist_ignore_dups \
+  hist_ignore_space \
   inc_append_history \
   interactive_comments \
   noautomenu \
