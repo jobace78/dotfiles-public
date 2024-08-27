@@ -3,16 +3,99 @@
 # bashsupport disable=BP5007
 #
 # index:
-#   - this::config_aks
-#   - this::config_aks_set_context
-#   - this::config_aks_use_context
-#   - this::config_custom
-#   - this::config_custom_set_context
-#   - this::config_custom_use_context
-#   - this::extension_aptakube
 #   - this::help
+#   - this::init_aks
+#   - this::init_custom
 #   - this::print_default_kubeconfig
+#   - this::set_context_extension_aptakube
+#   - this::set_context_namespace_aks
+#   - this::set_context_namespace_custom
+#   - this::set_context_namespace_manual
+#   - this::use_context_aks
+#   - this::use_context_custom
+#   - this::use_context_manual
 #
+
+#######################################
+# No description.
+# Arguments:
+#   1 - exit code (optional, integer)
+# Outputs:
+#   Help message to stdout.
+#######################################
+this::help() {
+  local exit_code
+  exit_code="${1:-1}"
+  cat << EOT
+
+  Usage: $(basename "${0}") [OPTION...] <ALIAS>
+
+  Options:
+    -a             Configure as (cluster) admin
+    -l             List available aliases and exit
+    -n <namespace> Set the specified namespace
+    -r             Restore default kubeconfig files and exit
+    -t <token>     Set the specified token
+    -u             Unset current context and exit
+
+  Help options:
+    -H Show this help message
+    -U Display brief usage
+    -V Print version
+
+  Configuration file example:
+    [...]
+    <alias>_aks_name=<aks1 name>
+    <alias>_aks_resource_group=<aks1 resource group>
+    <alias>_aks_subscription=<aks1 subscription>
+    <alias>_extension_aptakube_order=3
+    <alias>_extension_aptakube_tags=AZ,AKS
+    <alias>_kind=aks
+    <alias>_kubeconfig=/Users/jobace78/.kubeconfig-occ.yaml
+
+    <alias>_aks_name=<aks2 name>
+    <alias>_aks_resource_group=<aks2 resource group>
+    <alias>_aks_subscription=<aks2 subscription>
+    <alias>_extension_aptakube_order=4
+    <alias>_extension_aptakube_tags=AZ,AKS
+    <alias>_kind=aks
+    <alias>_kubeconfig=/Users/jobace78/.kubeconfig-occ.yaml
+
+    <alias>_cluster_api_url=https://<api address>
+    <alias>_cluster_name=<custom1 name>
+    <alias>_extension_aptakube_icon_url=/Users/jobace78/icon_openshift_512x512.png
+    <alias>_extension_aptakube_order=1
+    <alias>_extension_aptakube_tags=AWS,OCP
+    <alias>_kind=custom
+    <alias>_kubeconfig=/Users/jobace78/.kubeconfig-occ.yaml
+    <alias>_user_name=<mail or user name>
+
+    <alias>_cluster_api_url=https://<api address>
+    <alias>_cluster_name=<custom2 name>
+    <alias>_extension_aptakube_icon_url=/Users/jobace78/icon_openshift_512x512.png
+    <alias>_extension_aptakube_order=2
+    <alias>_extension_aptakube_tags=AWS,OCP
+    <alias>_kind=custom
+    <alias>_kubeconfig=/Users/jobace78/.kubeconfig-occ.yaml
+    <alias>_user_name=<mail or user name>
+
+    <alias>_context_name=<manual1 name>
+    <alias>_kind=manual
+    <alias>_kubeconfig=/Users/jobace78/.kubeconfig-manual.yaml
+
+    <alias>_context_name=<manual2 name>
+    <alias>_kind=manual
+    <alias>_kubeconfig=/Users/jobace78/.kubeconfig-manual.yaml
+    [...]
+
+  Environment variable example:
+    [...]
+    KUBECONFIG=":/Users/jobace78/.kube/config:/Users/jobace78/.kubeconfig-aks.yaml:/Users/jobace78/.kubeconfig-custom.yaml"
+    [...]
+
+EOT
+  functions::exit "${exit_code}"
+}
 
 #######################################
 # No description.
@@ -24,7 +107,7 @@
 #   3
 #   4
 #######################################
-this::config_aks() {
+this::init_aks() {
   # INFO : local variables with "local" prefix to avoid "collisions"...
   local local_current_kubeconfig
   local local_current_aks_name
@@ -57,54 +140,6 @@ this::config_aks() {
 #######################################
 # No description.
 # Globals:
-#   admin
-#   namespace
-# Arguments:
-#   1
-#   2
-#######################################
-this::config_aks_set_context() {
-  # INFO : local variables with "local" prefix to avoid "collisions"...
-  local local_current_kubeconfig
-  local local_current_aks_name
-  local_current_kubeconfig="${1:?}"
-  local_current_aks_name="${2:?}"
-  if [ "${admin:-}" = 'true' ]; then
-    oc config set-context \
-      --kubeconfig="${local_current_kubeconfig}" \
-      --namespace="${namespace:?}" \
-      "${local_current_aks_name}"-admin 1> /dev/null
-  else
-    oc config set-context \
-      --kubeconfig="${local_current_kubeconfig}" \
-      --namespace="${namespace:?}" \
-      "${local_current_aks_name}" 1> /dev/null
-  fi
-}
-
-#######################################
-# No description.
-# Globals:
-#   admin
-# Arguments:
-#   1
-#######################################
-this::config_aks_use_context() {
-  # INFO : local variables with "local" prefix to avoid "collisions"...
-  local local_current_aks_name
-  local_current_aks_name="${1:?}"
-  if [ "${admin:-}" = 'true' ]; then
-    oc config use-context \
-      "${local_current_aks_name}"-admin
-  else
-    oc config use-context \
-      "${local_current_aks_name}"
-  fi
-}
-
-#######################################
-# No description.
-# Globals:
 #   token
 # Arguments:
 #   1
@@ -112,7 +147,7 @@ this::config_aks_use_context() {
 #   3
 #   4
 #######################################
-this::config_custom() {
+this::init_custom() {
   # INFO : local variables with "local" prefix to avoid "collisions"...
   local local_current_kubeconfig
   local local_current_cluster_api_url
@@ -141,41 +176,21 @@ this::config_custom() {
 
 #######################################
 # No description.
-# Globals:
-#   namespace
 # Arguments:
 #   1
-#   2
-#   3
 #######################################
-this::config_custom_set_context() {
-  # INFO : local variables with "local" prefix to avoid "collisions"...
-  local local_current_kubeconfig
-  local local_current_cluster_name
-  local local_current_user_name
-  local_current_kubeconfig="${1:?}"
-  local_current_cluster_name="${2:?}"
-  local_current_user_name="${3:?}"
-  oc config set-context \
-    --kubeconfig="${local_current_kubeconfig}" \
-    --namespace="${namespace:?}" \
-    "${local_current_cluster_name}-as-${local_current_user_name}" 1> /dev/null
-}
-
-#######################################
-# No description.
-# Arguments:
-#   1
-#   2
-#######################################
-this::config_custom_use_context() {
-  # INFO : local variables with "local" prefix to avoid "collisions"...
-  local local_current_cluster_name
-  local local_current_user_name
-  local_current_cluster_name="${1:?}"
-  local_current_user_name="${2:?}"
-  oc config use-context \
-    "${local_current_cluster_name}-as-${local_current_user_name}"
+this::print_default_kubeconfig() {
+  local path
+  path="${1:?}"
+  [ -d "$(dirname "${path}")" ] || mkdir -p "$(dirname "${path}")"
+  cat << 'EOT' > "${path}"
+apiVersion: v1
+clusters: null
+contexts: null
+kind: Config
+preferences: {}
+users: null
+EOT
 }
 
 #######################################
@@ -187,7 +202,7 @@ this::config_custom_use_context() {
 #   4
 #   5
 #######################################
-this::extension_aptakube() {
+this::set_context_extension_aptakube() {
   local cluster_name
   local tag_index
   cluster_name="${2:?}"
@@ -243,75 +258,109 @@ this::extension_aptakube() {
 
 #######################################
 # No description.
+# Globals:
+#   admin
+#   namespace
 # Arguments:
-#   1 - exit code (optional, integer)
-# Outputs:
-#   Help message to stdout.
+#   1
+#   2
 #######################################
-this::help() {
-  local exit_code
-  exit_code="${1:-1}"
-  cat << EOT
+this::set_context_namespace_aks() {
+  # INFO : local variables with "local" prefix to avoid "collisions"...
+  local local_current_kubeconfig
+  local local_current_aks_name
+  local_current_kubeconfig="${1:?}"
+  local_current_aks_name="${2:?}"
+  if [ "${admin:-}" = 'true' ]; then
+    oc config set-context \
+      --kubeconfig="${local_current_kubeconfig}" \
+      --namespace="${namespace:?}" \
+      "${local_current_aks_name}"-admin 1> /dev/null
+  else
+    oc config set-context \
+      --kubeconfig="${local_current_kubeconfig}" \
+      --namespace="${namespace:?}" \
+      "${local_current_aks_name}" 1> /dev/null
+  fi
+}
 
-  Usage: $(basename "${0}") [OPTION...] <ALIAS>
+#######################################
+# No description.
+# Globals:
+#   namespace
+# Arguments:
+#   1
+#   2
+#   3
+#######################################
+this::set_context_namespace_custom() {
+  # INFO : local variables with "local" prefix to avoid "collisions"...
+  local local_current_kubeconfig
+  local local_current_cluster_name
+  local local_current_user_name
+  local_current_kubeconfig="${1:?}"
+  local_current_cluster_name="${2:?}"
+  local_current_user_name="${3:?}"
+  oc config set-context \
+    --kubeconfig="${local_current_kubeconfig}" \
+    --namespace="${namespace:?}" \
+    "${local_current_cluster_name}-as-${local_current_user_name}" 1> /dev/null
+}
 
-  Options:
-    -a             Configure as (cluster) admin
-    -l             List available aliases and exit
-    -n <namespace> Set the specified namespace
-    -r             Restore default kubeconfig files and exit
-    -t <token>     Set the specified token
-    -u             Unset current context and exit
+#######################################
+# No description.
+# Globals:
+#   namespace
+# Arguments:
+#   1
+#   2
+#######################################
+this::set_context_namespace_manual() {
+  # INFO : local variables with "local" prefix to avoid "collisions"...
+  local local_current_kubeconfig
+  local local_current_context_name
+  local_current_kubeconfig="${1:?}"
+  local_current_context_name="${2:?}"
+  oc config set-context \
+    --kubeconfig="${local_current_kubeconfig}" \
+    --namespace="${namespace:?}" \
+    "${local_current_context_name}" 1> /dev/null
+}
 
-  Help options:
-    -H Show this help message
-    -U Display brief usage
-    -V Print version
+#######################################
+# No description.
+# Globals:
+#   admin
+# Arguments:
+#   1
+#######################################
+this::use_context_aks() {
+  # INFO : local variables with "local" prefix to avoid "collisions"...
+  local local_current_aks_name
+  local_current_aks_name="${1:?}"
+  if [ "${admin:-}" = 'true' ]; then
+    oc config use-context \
+      "${local_current_aks_name}"-admin
+  else
+    oc config use-context \
+      "${local_current_aks_name}"
+  fi
+}
 
-  Configuration file example:
-    [...]
-    <alias>_aks_name=<aks1 name>
-    <alias>_aks_resource_group=<aks1 resource group>
-    <alias>_aks_subscription=<aks1 subscription>
-    <alias>_extension_aptakube_order=3
-    <alias>_extension_aptakube_tags=AZ,AKS
-    <alias>_kind=aks
-    <alias>_kubeconfig=/Users/jobace78/.kubeconfig-aks.yaml
-
-    <alias>_aks_name=<aks2 name>
-    <alias>_aks_resource_group=<aks2 resource group>
-    <alias>_aks_subscription=<aks2 subscription>
-    <alias>_extension_aptakube_order=4
-    <alias>_extension_aptakube_tags=AZ,AKS
-    <alias>_kind=aks
-    <alias>_kubeconfig=/Users/jobace78/.kubeconfig-aks.yaml
-
-    <alias>_cluster_api_url=https://<api address>
-    <alias>_cluster_name=<custom1 name>
-    <alias>_extension_aptakube_icon_url=/Users/jobace78/icon_openshift_512x512.png
-    <alias>_extension_aptakube_order=1
-    <alias>_extension_aptakube_tags=AWS,OCP
-    <alias>_kind=custom
-    <alias>_kubeconfig=/Users/jobace78/.kubeconfig-custom.yaml
-    <alias>_user_name=<mail or user name>
-
-    <alias>_cluster_api_url=https://<api address>
-    <alias>_cluster_name=<custom2 name>
-    <alias>_extension_aptakube_icon_url=/Users/jobace78/icon_openshift_512x512.png
-    <alias>_extension_aptakube_order=2
-    <alias>_extension_aptakube_tags=AWS,OCP
-    <alias>_kind=custom
-    <alias>_kubeconfig=/Users/jobace78/.kubeconfig-custom.yaml
-    <alias>_user_name=<mail or user name>
-    [...]
-
-  Environment variable example:
-    [...]
-    KUBECONFIG=":/Users/jobace78/.kube/config:/Users/jobace78/.kubeconfig-aks.yaml:/Users/jobace78/.kubeconfig-custom.yaml"
-    [...]
-
-EOT
-  functions::exit "${exit_code}"
+#######################################
+# No description.
+# Arguments:
+#   1
+#   2
+#######################################
+this::use_context_custom() {
+  # INFO : local variables with "local" prefix to avoid "collisions"...
+  local local_current_cluster_name
+  local local_current_user_name
+  local_current_cluster_name="${1:?}"
+  local_current_user_name="${2:?}"
+  oc config use-context \
+    "${local_current_cluster_name}-as-${local_current_user_name}"
 }
 
 #######################################
@@ -319,18 +368,12 @@ EOT
 # Arguments:
 #   1
 #######################################
-this::print_default_kubeconfig() {
-  local path
-  path="${1:?}"
-  [ -d "$(dirname "${path}")" ] || mkdir -p "$(dirname "${path}")"
-  cat << 'EOT' > "${path}"
-apiVersion: v1
-clusters: null
-contexts: null
-kind: Config
-preferences: {}
-users: null
-EOT
+this::use_context_manual() {
+  # INFO : local variables with "local" prefix to avoid "collisions"...
+  local local_current_context_name
+  local_current_context_name="${1:?}"
+  oc config use-context \
+    "${local_current_context_name}"
 }
 
 #######################################
@@ -383,6 +426,7 @@ main() {
   local current_aks_subscription
   local current_cluster_api_url
   local current_cluster_name
+  local current_context_name
   local current_extension_aptakube_icon_url
   local current_extension_aptakube_order
   local current_extension_aptakube_tags
@@ -400,6 +444,7 @@ main() {
   current_aks_subscription=''
   current_cluster_api_url=''
   current_cluster_name=''
+  current_context_name=''
   current_extension_aptakube_icon_url=''
   current_extension_aptakube_order=''
   current_extension_aptakube_tags=''
@@ -411,7 +456,7 @@ main() {
   getopts_args=''
   getopts_kubeconfig=''
   getopts_response=''
-  getopts_version='v20240818'
+  getopts_version='v20240827'
 
   trap 'functions::catch_all ${?}' ERR SIGHUP SIGINT SIGQUIT SIGTERM
 
@@ -431,18 +476,9 @@ main() {
         ;;
       l)
         if [ -f "${OCC_CONF}" ]; then
-          # aliases (aks)
-          #
           while read -r getopts_alias; do
-            getopts_aliases+=("${getopts_alias/_aks_name/}")
-          done < <(awk -F '=' '$1 ~ /_aks_name/ { print $1 }' "${OCC_CONF}" 2> /dev/null)
-          # aliases (custom)
-          #
-          while read -r getopts_alias; do
-            getopts_aliases+=("${getopts_alias/_cluster_name/}")
-          done < <(awk -F '=' '$1 ~ /_cluster_name/ { print $1 }' "${OCC_CONF}" 2> /dev/null)
-          # aliases
-          #
+            getopts_aliases+=("${getopts_alias/_kubeconfig/}")
+          done < <(awk -F '=' '$1 ~ /_kubeconfig/ { print $1 }' "${OCC_CONF}" 2> /dev/null | sort -u)
           if [[ "${getopts_aliases[*]}" ]]; then
             functions::stdout "${getopts_aliases[*]}"
             functions::exit 0
@@ -492,7 +528,7 @@ main() {
             if [ -f "${getopts_kubeconfig}" ]; then
               ${sed} -i '/^current-context:/d' "${getopts_kubeconfig}"
             fi
-          done < <(awk -F '=' '$1 ~ /_kubeconfig/ { print $2 }' "${OCC_CONF}" 2> /dev/null)
+          done < <(awk -F '=' '$1 ~ /_kubeconfig/ { print $2 }' "${OCC_CONF}" 2> /dev/null | sort -u)
         fi
         ${sed} -i '/^current-context:/d' "${HOME:?}"/.kube/config
         functions::exit 0
@@ -531,17 +567,17 @@ main() {
         current_aks_subscription="$(awk -F '=' -v this="^${getopts_alias}_aks_subscription" '$1 ~ this { print $2 }' "${OCC_CONF}" 2> /dev/null)"
         # aks
         #
-        this::config_aks \
+        this::init_aks \
           "${current_kubeconfig:?}" \
           "${current_aks_name:?}" \
           "${current_aks_resource_group:?}" \
           "${current_aks_subscription:?}"
-        this::config_aks_set_context \
+        this::set_context_namespace_aks \
           "${current_kubeconfig:?}" \
           "${current_aks_name:?}"
-        this::config_aks_use_context \
+        this::use_context_aks \
           "${current_aks_name:?}"
-        this::extension_aptakube \
+        this::set_context_extension_aptakube \
           "${current_kubeconfig:?}" \
           "${current_aks_name:?}" \
           "${current_extension_aptakube_icon_url:-}" \
@@ -556,24 +592,36 @@ main() {
         current_user_name="$(awk -F '=' -v this="^${getopts_alias}_user_name" '$1 ~ this { print $2 }' "${OCC_CONF}" 2> /dev/null)"
         # custom
         #
-        this::config_custom \
+        this::init_custom \
           "${current_kubeconfig:?}" \
           "${current_cluster_api_url:?}" \
           "${current_cluster_name:?}" \
           "${current_user_name:?}"
-        this::config_custom_set_context \
+        this::set_context_namespace_custom \
           "${current_kubeconfig:?}" \
           "${current_cluster_name:?}" \
           "${current_user_name:?}"
-        this::config_custom_use_context \
+        this::use_context_custom \
           "${current_cluster_name:?}" \
           "${current_user_name:?}"
-        this::extension_aptakube \
+        this::set_context_extension_aptakube \
           "${current_kubeconfig:?}" \
           "${current_cluster_name:?}" \
           "${current_extension_aptakube_icon_url:-}" \
           "${current_extension_aptakube_order:-}" \
           "${current_extension_aptakube_tags:-}"
+        ;;
+      manual)
+        # manual variables
+        #
+        current_context_name="$(awk -F '=' -v this="^${getopts_alias}_context_name" '$1 ~ this { print $2 }' "${OCC_CONF}" 2> /dev/null)"
+        # manual
+        #
+        this::set_context_namespace_manual \
+          "${current_kubeconfig:?}" \
+          "${current_context_name:?}"
+        this::use_context_manual \
+          "${current_context_name:?}"
         ;;
       *)
         functions::exit 1 'Unsupported kind, exiting.'
