@@ -37,18 +37,21 @@ brew "yq"
 # dependencies
 
 brew "autoconf"
-brew "openssl@1.1" # CPPFLAGS, LDFLAGS, PKG_CONFIG_PATH
 brew "pkg-config"
 
 # dependencies (phpenv)
 
 brew "bzip2"
+brew "icu4c"
 brew "libiconv"
+brew "libxml2"
 brew "libzip"
+brew "openssl@1.1"
 brew "tidy-html5"
 
 # dependencies (pyenv)
 
 brew "libffi" # CPPFLAGS, LDFLAGS, PKG_CONFIG_PATH
+brew "openssl@3" # CPPFLAGS, LDFLAGS, PKG_CONFIG_PATH
 brew "readline"
 brew "sqlite" # CPPFLAGS, LDFLAGS, PKG_CONFIG_PATH

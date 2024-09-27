@@ -49,10 +49,10 @@ fi
 # variables #
 #############
 
-CPPFLAGS="-I${HOMEBREW_ROOT}/opt/libffi/include -I${HOMEBREW_ROOT}/opt/openssl@1.1/include -I${HOMEBREW_ROOT}/opt/sqlite/include"
-LDFLAGS="-L${HOMEBREW_ROOT}/opt/libffi/lib -L${HOMEBREW_ROOT}/opt/openssl@1.1/lib -L${HOMEBREW_ROOT}/opt/sqlite/lib"
+CPPFLAGS="-I${HOMEBREW_ROOT}/opt/libffi/include -I${HOMEBREW_ROOT}/opt/openssl@3/include -I${HOMEBREW_ROOT}/opt/sqlite/include"
+LDFLAGS="-L${HOMEBREW_ROOT}/opt/libffi/lib -L${HOMEBREW_ROOT}/opt/openssl@3/lib -L${HOMEBREW_ROOT}/opt/sqlite/lib"
 PIP_REQUIRE_VIRTUALENV="${PIP_REQUIRE_VIRTUALENV:-Y}"
-PKG_CONFIG_PATH="${HOMEBREW_ROOT}/opt/libffi/lib/pkgconfig:${HOMEBREW_ROOT}/opt/openssl@1.1/lib/pkgconfig:${HOMEBREW_ROOT}/opt/sqlite/lib/pkgconfig"
+PKG_CONFIG_PATH="${HOMEBREW_ROOT}/opt/libffi/lib/pkgconfig:${HOMEBREW_ROOT}/opt/openssl@3/lib/pkgconfig:${HOMEBREW_ROOT}/opt/sqlite/lib/pkgconfig"
 PYENV_VIRTUALENV_DISABLE_PROMPT="${PYENV_VIRTUALENV_DISABLE_PROMPT:-1}"
 XDG_CACHE_HOME="${XDG_CACHE_HOME:-${HOME:?}/.cache}"
 XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-${HOME:?}/.config}"
