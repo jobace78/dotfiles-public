@@ -19,8 +19,6 @@ fi
 # alias #
 #########
 
-alias tree='tree -C'
-
 ##############
 # completion #
 ##############
@@ -151,18 +149,17 @@ fi
 # paths #
 #########
 
-if [ -d "${HOME:?}"/.dotfiles-public/bin ]; then
-  path=("${HOME:?}"/.dotfiles-public/bin ${path})
+if [ -d "${HOME:?}"/.custom/bin ]; then
+  path=("${HOME:?}"/.custom/bin ${path})
 fi
 
 #############
 # variables #
 #############
 
-HOMEBREW_BUNDLE_FILE="${HOME:?}"/.brewfile
-HOMEBREW_BUNDLE_NO_LOCK=1
+CUSTOM=1
 
-export HOMEBREW_BUNDLE_FILE HOMEBREW_BUNDLE_NO_LOCK
+export CUSTOM
 ```
 
 - `~/.zshrc`
@@ -178,14 +175,12 @@ fi
 # alias #
 #########
 
-alias tree='tree -C'
-
 ##############
 # completion #
 ##############
 
-if [ -d "${HOME:?}"/.dotfiles-public/share/zsh/site-functions ]; then
-  fpath=("${HOME:?}"/.dotfiles-public/share/zsh/site-functions ${fpath})
+if [ -d "${HOME:?}"/.custom/share/zsh/site-functions ]; then
+  fpath=("${HOME:?}"/.custom/share/zsh/site-functions ${fpath})
 fi
 
 if type compinit 1> /dev/null; then

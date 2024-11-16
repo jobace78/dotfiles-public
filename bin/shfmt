@@ -26,5 +26,6 @@ else
   . "${HOME:?}"/.etc/functions.shconf
 fi
 
-# shellcheck disable=SC2048,SC2086
+# shellcheck disable=SC2048
+# shellcheck disable=SC2086
 "${HOMEBREW_ROOT:-"$(brew --prefix 2> /dev/null)"}"/bin/shfmt --binary-next-line --case-indent --indent=2 --space-redirects ${*}

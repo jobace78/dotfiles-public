@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 #
-# bashsupport disable=BP5004,BP5007
+# bashsupport disable=BP5004
+# bashsupport disable=BP5007
 
 #######################################
 # No description.

@@ -21,18 +21,30 @@ alias ls='ls -G'
 ##############
 #
 # index:
-#   - system-wide : <HOMEBREW_ROOT>/share/zsh/site-functions
-#   - user-wide   : <HOME>/.local/share/zsh/site-functions
+#   -            <HOMEBREW_ROOT>/share/zsh/site-functions
+#   -            <RBENV_ROOT>/completions
+#   - (override) <HOME>/.dotfiles-public/share/zsh/site-functions
+#   - (override) <HOME>/.local/share/zsh/site-functions
 #
 
 if [ "${commands[brew]}" ]; then
-  if [ -d "${HOMEBREW_ROOT}/share/zsh/site-functions" ]; then
-    fpath=("${HOMEBREW_ROOT}/share/zsh/site-functions" ${fpath})
+  if [ -d "${HOMEBREW_ROOT}"/share/zsh/site-functions ]; then
+    fpath=("${HOMEBREW_ROOT}"/share/zsh/site-functions ${fpath})
   fi
 fi
 
-if [ -d "${HOME:?}/.local/share/zsh/site-functions" ]; then
-  fpath=("${HOME:?}/.local/share/zsh/site-functions" ${fpath})
+if [ "${commands[rbenv]}" ]; then
+  if [ -d "${RBENV_ROOT}"/completions ]; then
+    fpath=("${RBENV_ROOT}"/completions ${fpath})
+  fi
+fi
+
+if [ -d "${HOME:?}"/.dotfiles-public/share/zsh/site-functions ]; then
+  fpath=("${HOME:?}"/.dotfiles-public/share/zsh/site-functions ${fpath})
+fi
+
+if [ -d "${HOME:?}"/.local/share/zsh/site-functions ]; then
+  fpath=("${HOME:?}"/.local/share/zsh/site-functions ${fpath})
 fi
 
 if type compinit 1> /dev/null; then
@@ -94,7 +106,7 @@ function _update_ps1_install() {
 if [ "${commands[starship]}" ]; then
   eval "$(starship init zsh)"
 else
-  if [ "${TERM}" != "linux" ]; then
+  if [ "${TERM}" != 'linux' ]; then
     _update_ps1_install
   fi
 fi
@@ -134,6 +146,12 @@ fi
 if [ "${commands[pyenv]}" ]; then
   eval "$(pyenv init -)"
   eval "$(pyenv virtualenv-init -)"
+fi
+
+# rbenv
+#
+if [ "${commands[rbenv]}" ]; then
+  eval "$(rbenv init -)"
 fi
 
 # sdkman
