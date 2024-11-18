@@ -38,21 +38,15 @@ brew "yq"
 # dependencies
 
 brew "autoconf"
+brew "bzip2" # used by: phpenv
+brew "icu4c" # used by: phpenv
+brew "libffi" # used by: pyenv | used in: CPPFLAGS, LDFLAGS, PKG_CONFIG_PATH
+brew "libiconv" # used by: phpenv
+brew "libxml2" # used by: phpenv
+brew "libyaml" # used by: rbenv
+brew "libzip" # used by: phpenv
+brew "openssl@3" # used by: phpenv, pyenv, rbenv | used in: CPPFLAGS, LDFLAGS, PKG_CONFIG_PATH
 brew "pkg-config"
-
-# dependencies (phpenv)
-
-brew "bzip2"
-brew "icu4c"
-brew "libiconv"
-brew "libxml2"
-brew "libzip"
-brew "openssl@1.1"
-brew "tidy-html5"
-
-# dependencies (pyenv)
-
-brew "libffi" # CPPFLAGS, LDFLAGS, PKG_CONFIG_PATH
-brew "openssl@3" # CPPFLAGS, LDFLAGS, PKG_CONFIG_PATH
-brew "readline"
-brew "sqlite" # CPPFLAGS, LDFLAGS, PKG_CONFIG_PATH
+brew "readline" # used by: pyenv, rbenv
+brew "sqlite" # used by: pyenv | used in: CPPFLAGS, LDFLAGS, PKG_CONFIG_PATH
+brew "tidy-html5" # used by: phpenv
