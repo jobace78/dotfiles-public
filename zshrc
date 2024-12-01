@@ -151,7 +151,7 @@ fi
 # rbenv
 #
 if [ "${commands[rbenv]}" ]; then
-  eval "$(rbenv init -)"
+  eval "$(rbenv init - --no-rehash zsh)"
 fi
 
 # sdkman
