@@ -165,3 +165,9 @@ fi
 if [ "${commands[terraform]}" ]; then
   complete -C terraform -o nospace terraform
 fi
+
+# tofu
+#
+if [ "${commands[tofu]}" ]; then
+  complete -C tofu -o nospace tofu
+fi
