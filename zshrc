@@ -160,12 +160,6 @@ if [ -s "${SDKMAN_DIR:=${HOME:?}/.sdkman}"/bin/sdkman-init.sh ]; then
   . "${SDKMAN_DIR}"/bin/sdkman-init.sh
 fi
 
-# terraform
-#
-if [ "${commands[terraform]}" ]; then
-  complete -C terraform -o nospace terraform
-fi
-
 # tofu
 #
 if [ "${commands[tofu]}" ]; then
