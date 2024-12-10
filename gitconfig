@@ -5,7 +5,7 @@
   lga = log --all --graph
   ln = log --name-status
   lna = log --all --name-status
-  s = ! "git log|awk '$1~/git-subtree-dir/{print $2}'"
+  s = ! "git log | awk '$1 ~ /git-subtree-dir/ { print $2 }'"
 
 [core]
   abbrev = 7
