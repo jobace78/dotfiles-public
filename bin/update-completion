@@ -80,6 +80,13 @@ this::update() {
     functions::stdout "creating '${HOME:?}/.local/share/zsh/site-functions/_orbctl'..."
     orbctl completion zsh > "${HOME:?}"/.local/share/zsh/site-functions/_orbctl
   fi
+  # _pre-commit
+  #
+  rm -f "${HOME:?}"/.local/share/zsh/site-functions/_pre-commit
+  if [ -x "$(command -v pre-commit)" ]; then
+    functions::stdout "creating '${HOME:?}/.local/share/zsh/site-functions/_pre-commit'..."
+    curl --retry 5 -L -S -f -o "${HOME:?}"/.local/share/zsh/site-functions/_pre-commit -s https://raw.githubusercontent.com/zsh-users/zsh-completions/refs/heads/master/src/_pre-commit
+  fi
   # _rdctl
   #
   rm -f "${HOME:?}"/.local/share/zsh/site-functions/_rdctl
