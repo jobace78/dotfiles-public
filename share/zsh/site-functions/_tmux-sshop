@@ -5,12 +5,12 @@ _tmux_sshop_list="$(tmux-sshop -l 2> /dev/null)"
 function _tmux-sshop {
   local line
   _arguments -C \
-  "-d[Debug]" \
-  "-l[List available accounts and exit]" \
-  "-r[Restore default account and exit]" \
-  "-H[Show this help message]" \
-  "-U[Display brief usage]" \
-  "-V[Print version]" \
-  ":1 :(${_tmux_sshop_list})" \
-  "*::arg:->args"
+    "-d[Debug]" \
+    "-l[List available accounts and exit]" \
+    "-r[Restore default account and exit]" \
+    "-H[Show this help message]" \
+    "-U[Display brief usage]" \
+    "-V[Print version]" \
+    ":1 :(${_tmux_sshop_list})" \
+    "*::arg:->args"
 }

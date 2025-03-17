@@ -5,15 +5,15 @@ _occ_list="$(occ -l 2> /dev/null)"
 function _occ {
   local line
   _arguments -C \
-  "-a[Configure as (cluster) admin]" \
-  "-l[List available aliases and exit]" \
-  "-n[Set the specified namespace]:Set the specified namespace:_message" \
-  "-r[Restore default kubeconfig files and exit]" \
-  "-t[Set the specified token]:Set the specified token:_message" \
-  "-u[Unset current context and exit]" \
-  "-H[Show this help message]" \
-  "-U[Display brief usage]" \
-  "-V[Print version]" \
-  ":1 :(${_occ_list})" \
-  "*::arg:->args"
+    "-a[Configure as (cluster) admin]" \
+    "-l[List available aliases and exit]" \
+    "-n[Set the specified namespace]:Set the specified namespace:_message" \
+    "-r[Restore default kubeconfig files and exit]" \
+    "-t[Set the specified token]:Set the specified token:_message" \
+    "-u[Unset current context and exit]" \
+    "-H[Show this help message]" \
+    "-U[Display brief usage]" \
+    "-V[Print version]" \
+    ":1 :(${_occ_list})" \
+    "*::arg:->args"
 }

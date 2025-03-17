@@ -3,8 +3,8 @@
 function _dos2unix {
   local line
   _arguments -C \
-  "-H[Show this help message]" \
-  "-U[Display brief usage]" \
-  "-V[Print version]" \
-  "*:file:_files"
+    "-H[Show this help message]" \
+    "-U[Display brief usage]" \
+    "-V[Print version]" \
+    "*:file:_files"
 }
