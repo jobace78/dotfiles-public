@@ -21,11 +21,16 @@ alias ls='ls -G'
 ##############
 #
 # index:
-#   -            <HOMEBREW_ROOT>/share/zsh/site-functions
-#   -            <RBENV_ROOT>/completions
+#   -            <HOME>/.luaver/completions
+#   -            <HOMEBREW_ROOT>/share/zsh/site-functions IF 'brew' is found in PATH...
+#   -            <RBENV_ROOT>/completions IF 'rbenv' is found in PATH...
 #   - (override) <HOME>/.dotfiles-public/share/zsh/site-functions
 #   - (override) <HOME>/.local/share/zsh/site-functions
 #
+
+if [ -d "${HOME:?}"/.luaver/completions ]; then
+  fpath=("${HOME:?}"/.luaver/completions ${fpath})
+fi
 
 if [ "${commands[brew]}" ]; then
   if [ -d "${HOMEBREW_ROOT}"/share/zsh/site-functions ]; then
@@ -115,6 +120,12 @@ fi
 #
 if [ "${commands[direnv]}" ]; then
   eval "$(direnv hook zsh)"
+fi
+
+# luaver
+#
+if [ -s "${HOME:?}"/.luaver/luaver ]; then
+  . "${HOME:?}"/.luaver/luaver
 fi
 
 # nvm
