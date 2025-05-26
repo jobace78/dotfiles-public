@@ -8,7 +8,9 @@
 #   - functions::log_to_stderr
 #   - functions::log_to_stdout
 #   - functions::print_to_stderr
+#   - functions::print_to_stderr_decorated
 #   - functions::print_to_stdout
+#   - functions::print_to_stdout_decorated
 #   - functions::stderr
 #   - functions::stdout
 #
@@ -106,6 +108,27 @@ functions::print_to_stderr() {
 
 #######################################
 # No description.
+# Globals:
+#   DECORATION_CHARACTER
+# Arguments:
+#  * - message (required, string)
+# Outputs:
+#   Message to stderr (decorated).
+#######################################
+functions::print_to_stderr_decorated() {
+  local decoration_character
+  local message
+  decoration_character="${DECORATION_CHARACTER:-#}"
+  message="${*:?}"
+  printf '\n' >&2
+  printf "%$((${#message} + 4))s\n" | tr ' ' "${decoration_character:0:1}" >&2
+  printf '%s\n' "${decoration_character:0:1} ${message} ${decoration_character:0:1}" >&2
+  printf "%$((${#message} + 4))s\n" | tr ' ' "${decoration_character:0:1}" >&2
+  printf '\n' >&2
+}
+
+#######################################
+# No description.
 # Arguments:
 #   * - message (optional, string)
 # Outputs:
@@ -116,6 +139,27 @@ functions::print_to_stdout() {
   local message
   message="${*:-}"
   printf '%s\n' "${message}"
+}
+
+#######################################
+# No description.
+# Globals:
+#   DECORATION_CHARACTER
+# Arguments:
+#  * - message (required, string)
+# Outputs:
+#   Message to stdout (decorated).
+#######################################
+functions::print_to_stdout_decorated() {
+  local decoration_character
+  local message
+  decoration_character="${DECORATION_CHARACTER:-#}"
+  message="${*:?}"
+  printf '\n'
+  printf "%$((${#message} + 4))s\n" | tr ' ' "${decoration_character:0:1}"
+  printf '%s\n' "${decoration_character:0:1} ${message} ${decoration_character:0:1}"
+  printf "%$((${#message} + 4))s\n" | tr ' ' "${decoration_character:0:1}"
+  printf '\n'
 }
 
 #######################################
