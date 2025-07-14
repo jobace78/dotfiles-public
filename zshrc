@@ -128,6 +128,12 @@ if [ -s "${HOME:?}"/.luaver/luaver ]; then
   . "${HOME:?}"/.luaver/luaver
 fi
 
+# mise
+#
+if [ "${commands[mise]}" ]; then
+  eval "$(mise activate zsh)"
+fi
+
 # nvm
 #
 if [ -s "${NVM_DIR:=${HOME:?}/.nvm}"/nvm.sh ]; then
