@@ -39,16 +39,27 @@ brew "yq"
 
 # dependencies
 
-brew "autoconf"
+brew "autoconf" # used by: phpenv
+brew "automake" # used by: phpenv
+brew "bison" # used by: phpenv
 brew "bzip2" # used by: phpenv
+brew "freetype" # used by: phpenv
+brew "gd" # used by: phpenv
+brew "gettext" # used by: phpenv
 brew "icu4c" # used by: phpenv
+brew "krb5" # used by: phpenv
+brew "libedit" # used by: phpenv
 brew "libffi" # used by: pyenv | used in: CPPFLAGS, LDFLAGS, PKG_CONFIG_PATH
 brew "libiconv" # used by: phpenv
+brew "libjpeg" # used by: phpenv
+brew "libpng" # used by: phpenv
 brew "libxml2" # used by: phpenv
 brew "libyaml" # used by: rbenv
 brew "libzip" # used by: phpenv
-brew "openssl@3" # used by: phpenv, pyenv, rbenv | used in: CPPFLAGS, LDFLAGS, PKG_CONFIG_PATH
-brew "pkg-config"
+brew "openssl@1.1" # used by: phpenv
+brew "openssl@3" # used by: pyenv, rbenv | used in: CPPFLAGS, LDFLAGS, PKG_CONFIG_PATH
+brew "pkg-config" # used by: phpenv
+brew "re2c" # used by: phpenv
 brew "readline" # used by: pyenv, rbenv
 brew "sqlite" # used by: pyenv | used in: CPPFLAGS, LDFLAGS, PKG_CONFIG_PATH
-brew "tidy-html5" # used by: phpenv
+brew "zlib" # used by: phpenv
