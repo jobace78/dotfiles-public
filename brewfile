@@ -56,7 +56,6 @@ brew "libpng" # used by: phpenv
 brew "libxml2" # used by: phpenv
 brew "libyaml" # used by: rbenv
 brew "libzip" # used by: phpenv
-brew "openssl@1.1" # used by: phpenv
 brew "openssl@3" # used by: pyenv, rbenv | used in: CPPFLAGS, LDFLAGS, PKG_CONFIG_PATH
 brew "pkg-config" # used by: phpenv
 brew "re2c" # used by: phpenv
