@@ -10,19 +10,13 @@
 #########
 #
 # index:
-#   -            <DOTNET_ROOT>
 #   -            <HOMEBREW_ROOT>/bin
 #   -            <PHPENV_ROOT>/bin
-#   -            <POWERSHELL_ROOT>
 #   -            <PYENV_ROOT>/bin
 #   -            <RBENV_ROOT>/bin
 #   - (override) <HOME>/.dotfiles-public/bin
 #   - (override) <HOME>/.local/bin
 #
-
-if [ -d "${DOTNET_ROOT:=/opt/dotnet}" ]; then
-  path=("${DOTNET_ROOT}" ${path})
-fi
 
 if [ -d "${HOMEBREW_ROOT:=/opt/homebrew}"/bin ]; then
   path=("${HOMEBREW_ROOT}"/bin ${path})
@@ -30,10 +24,6 @@ fi
 
 if [ -d "${PHPENV_ROOT:=${HOME:?}/.phpenv}"/bin ]; then
   path=("${PHPENV_ROOT}"/bin ${path})
-fi
-
-if [ -d "${POWERSHELL_ROOT:=/opt/powershell}" ]; then
-  path=("${POWERSHELL_ROOT}" ${path})
 fi
 
 if [ -d "${PYENV_ROOT:=${HOME:?}/.pyenv}"/bin ]; then
