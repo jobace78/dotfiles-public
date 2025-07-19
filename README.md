@@ -26,6 +26,10 @@ fi
 #################
 # configuration #
 #################
+
+##########
+# prompt #
+##########
 ```
 
 - `~/.brewfile`
@@ -39,7 +43,7 @@ if File.exist?(dotfiles_public_brewfile)
   instance_eval(File.read(dotfiles_public_brewfile))
 end
 
-brew "tree"
+brew "bat"
 ```
 
 - `~/.gitconfig`
@@ -77,6 +81,9 @@ brew "tree"
   path = ~/.simple-git-feature-branch-workflow/gitconfig.d/release.inc
   path = ~/.simple-git-feature-branch-workflow/gitconfig.d/release-clean.inc
   path = ~/.simple-git-feature-branch-workflow/gitconfig.d/release-status.inc
+
+[tag]
+  gpgsign = true
 ```
 
 - `~/.gnupg/gpg.conf`
@@ -149,17 +156,17 @@ fi
 # paths #
 #########
 
-if [ -d "${HOME:?}"/.custom/bin ]; then
-  path=("${HOME:?}"/.custom/bin ${path})
+if [ -d "${HOME:?}"/.bin ]; then
+  path=("${HOME:?}"/.bin ${path})
 fi
 
 #############
 # variables #
 #############
 
-CUSTOM=1
+BAT_PAGER=''
 
-export CUSTOM
+export BAT_PAGER
 ```
 
 - `~/.zshrc`
@@ -179,27 +186,39 @@ fi
 # completion #
 ##############
 
-if [ -d "${HOME:?}"/.custom/share/zsh/site-functions ]; then
-  fpath=("${HOME:?}"/.custom/share/zsh/site-functions ${fpath})
+if [ -d "${HOME:?}"/.share/zsh/site-functions ]; then
+  fpath=("${HOME:?}"/.share/zsh/site-functions ${fpath})
 fi
 
 if type compinit 1> /dev/null; then
   compinit
 else
-  autoload -U +X compinit && \
-  compinit
+  autoload -U +X compinit \
+    && compinit
 fi
 
 if type bashcompinit 1> /dev/null; then
   bashcompinit
 else
-  autoload -U +X bashcompinit && \
-  bashcompinit
+  autoload -U +X bashcompinit \
+    && bashcompinit
 fi
 
 #################
 # configuration #
 #################
+
+##########
+# prompt #
+##########
+
+if [ "${commands[the-prompt-of-your-choice]}" ]; then
+  eval "$(the-prompt-of-your-choice init zsh)"
+else
+  if [ "${TERM}" != 'linux' ]; then
+    _update_ps1_install
+  fi
+fi
 ```
 
 ## License
