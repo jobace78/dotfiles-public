@@ -385,10 +385,9 @@ this::use_context_manual() {
 #   OPTIND
 #   admin
 #   namespace
-#   sed
 #   token
 # Arguments:
-#  None
+#   None
 #######################################
 main() {
   if [ -f "$(dirname "${0}")"/../etc/bash44.shconf ]; then
@@ -415,10 +414,8 @@ main() {
     . "${HOME:?}"/.etc/functions.shconf
   fi
 
-  OCC_CONF="${OCC_CONF:-"${HOME:?}"/.occ.conf}"
   admin='false'
   namespace='default'
-  sed='sed'
   token=''
 
   local current_aks_name
@@ -439,6 +436,8 @@ main() {
   local getopts_kubeconfig
   local getopts_response
   local getopts_version
+  local occ_conf
+  local sed
   current_aks_name=''
   current_aks_resource_group=''
   current_aks_subscription=''
@@ -457,6 +456,8 @@ main() {
   getopts_kubeconfig=''
   getopts_response=''
   getopts_version='v20240827'
+  occ_conf="${OCC_CONF:-"${HOME:?}"/.occ.conf}"
+  sed='sed'
 
   trap 'functions::catch_all ${?}' ERR SIGHUP SIGINT SIGQUIT SIGTERM
 
@@ -465,6 +466,8 @@ main() {
       sed='gsed'
       ;;
   esac
+
+  mkdir -p "${HOME:?}"/.kube
 
   touch "${HOME:?}"/.kube/config 1> /dev/null
 
@@ -475,25 +478,25 @@ main() {
         admin='true'
         ;;
       l)
-        if [ -f "${OCC_CONF}" ]; then
+        if [ -f "${occ_conf}" ]; then
           while read -r getopts_alias; do
             getopts_aliases+=("${getopts_alias/_kubeconfig/}")
-          done < <(awk -F '=' '$1 ~ /_kubeconfig/ { print $1 }' "${OCC_CONF}" 2> /dev/null | sort -u)
+          done < <(awk -F '=' '$1 ~ /_kubeconfig/ { print $1 }' "${occ_conf}" 2> /dev/null | sort -u)
           if [[ "${getopts_aliases[*]}" ]]; then
             functions::stdout "${getopts_aliases[*]}"
             functions::exit 0
           else
-            functions::exit 1 "is '${OCC_CONF}' empty ???"
+            functions::exit 1 "is '${occ_conf}' empty ???"
           fi
         else
-          functions::exit 1 "'${OCC_CONF}' was NOT found, exiting."
+          functions::exit 1 "'${occ_conf}' was NOT found, exiting."
         fi
         ;;
       n)
         namespace="${OPTARG}"
         ;;
       r)
-        if [ -f "${OCC_CONF}" ]; then
+        if [ -f "${occ_conf}" ]; then
           while read -r getopts_kubeconfig; do
             if [ -f "${getopts_kubeconfig}" ]; then
               read -p "Do you want to restore [${getopts_kubeconfig}]? (y/N) " -r getopts_response < /dev/tty
@@ -506,7 +509,7 @@ main() {
                   ;;
               esac
             fi
-          done < <(awk -F '=' '$1 ~ /_kubeconfig/ { print $2 }' "${OCC_CONF}" 2> /dev/null | sort -u)
+          done < <(awk -F '=' '$1 ~ /_kubeconfig/ { print $2 }' "${occ_conf}" 2> /dev/null | sort -u)
         fi
         read -p "Do you want to restore [${HOME:?}/.kube/config]? (Y/n) " -r getopts_response < /dev/tty
         case "${getopts_response}" in
@@ -523,12 +526,12 @@ main() {
         token="${OPTARG}"
         ;;
       u)
-        if [ -f "${OCC_CONF}" ]; then
+        if [ -f "${occ_conf}" ]; then
           while read -r getopts_kubeconfig; do
             if [ -f "${getopts_kubeconfig}" ]; then
               ${sed} -i '/^current-context:/d' "${getopts_kubeconfig}"
             fi
-          done < <(awk -F '=' '$1 ~ /_kubeconfig/ { print $2 }' "${OCC_CONF}" 2> /dev/null | sort -u)
+          done < <(awk -F '=' '$1 ~ /_kubeconfig/ { print $2 }' "${occ_conf}" 2> /dev/null | sort -u)
         fi
         ${sed} -i '/^current-context:/d' "${HOME:?}"/.kube/config
         functions::exit 0
@@ -550,21 +553,21 @@ main() {
 
   getopts_alias="${1:?}"
 
-  if [ -f "${OCC_CONF}" ]; then
+  if [ -f "${occ_conf}" ]; then
     # common variables
     #
-    current_extension_aptakube_icon_url="$(awk -F '=' -v this="^${getopts_alias}_extension_aptakube_icon_url" '$1 ~ this { print $2 }' "${OCC_CONF}" 2> /dev/null)"
-    current_extension_aptakube_order="$(awk -F '=' -v this="^${getopts_alias}_extension_aptakube_order" '$1 ~ this { print $2 }' "${OCC_CONF}" 2> /dev/null)"
-    current_extension_aptakube_tags="$(awk -F '=' -v this="^${getopts_alias}_extension_aptakube_tags" '$1 ~ this { print $2 }' "${OCC_CONF}" 2> /dev/null)"
-    current_kind="$(awk -F '=' -v this="^${getopts_alias}_kind" '$1 ~ this { print $2 }' "${OCC_CONF}" 2> /dev/null)"
-    current_kubeconfig="$(awk -F '=' -v this="^${getopts_alias}_kubeconfig" '$1 ~ this { print $2 }' "${OCC_CONF}" 2> /dev/null)"
+    current_extension_aptakube_icon_url="$(awk -F '=' -v this="^${getopts_alias}_extension_aptakube_icon_url" '$1 ~ this { print $2 }' "${occ_conf}" 2> /dev/null)"
+    current_extension_aptakube_order="$(awk -F '=' -v this="^${getopts_alias}_extension_aptakube_order" '$1 ~ this { print $2 }' "${occ_conf}" 2> /dev/null)"
+    current_extension_aptakube_tags="$(awk -F '=' -v this="^${getopts_alias}_extension_aptakube_tags" '$1 ~ this { print $2 }' "${occ_conf}" 2> /dev/null)"
+    current_kind="$(awk -F '=' -v this="^${getopts_alias}_kind" '$1 ~ this { print $2 }' "${occ_conf}" 2> /dev/null)"
+    current_kubeconfig="$(awk -F '=' -v this="^${getopts_alias}_kubeconfig" '$1 ~ this { print $2 }' "${occ_conf}" 2> /dev/null)"
     case "${current_kind:?}" in
       aks)
         # aks variables
         #
-        current_aks_name="$(awk -F '=' -v this="^${getopts_alias}_aks_name" '$1 ~ this { print $2 }' "${OCC_CONF}" 2> /dev/null)"
-        current_aks_resource_group="$(awk -F '=' -v this="^${getopts_alias}_aks_resource_group" '$1 ~ this { print $2 }' "${OCC_CONF}" 2> /dev/null)"
-        current_aks_subscription="$(awk -F '=' -v this="^${getopts_alias}_aks_subscription" '$1 ~ this { print $2 }' "${OCC_CONF}" 2> /dev/null)"
+        current_aks_name="$(awk -F '=' -v this="^${getopts_alias}_aks_name" '$1 ~ this { print $2 }' "${occ_conf}" 2> /dev/null)"
+        current_aks_resource_group="$(awk -F '=' -v this="^${getopts_alias}_aks_resource_group" '$1 ~ this { print $2 }' "${occ_conf}" 2> /dev/null)"
+        current_aks_subscription="$(awk -F '=' -v this="^${getopts_alias}_aks_subscription" '$1 ~ this { print $2 }' "${occ_conf}" 2> /dev/null)"
         # aks
         #
         this::init_aks \
@@ -587,9 +590,9 @@ main() {
       custom)
         # custom variables
         #
-        current_cluster_api_url="$(awk -F '=' -v this="^${getopts_alias}_cluster_api_url" '$1 ~ this { print $2 }' "${OCC_CONF}" 2> /dev/null)"
-        current_cluster_name="$(awk -F '=' -v this="^${getopts_alias}_cluster_name" '$1 ~ this { print $2 }' "${OCC_CONF}" 2> /dev/null)"
-        current_user_name="$(awk -F '=' -v this="^${getopts_alias}_user_name" '$1 ~ this { print $2 }' "${OCC_CONF}" 2> /dev/null)"
+        current_cluster_api_url="$(awk -F '=' -v this="^${getopts_alias}_cluster_api_url" '$1 ~ this { print $2 }' "${occ_conf}" 2> /dev/null)"
+        current_cluster_name="$(awk -F '=' -v this="^${getopts_alias}_cluster_name" '$1 ~ this { print $2 }' "${occ_conf}" 2> /dev/null)"
+        current_user_name="$(awk -F '=' -v this="^${getopts_alias}_user_name" '$1 ~ this { print $2 }' "${occ_conf}" 2> /dev/null)"
         # custom
         #
         this::init_custom \
@@ -614,7 +617,7 @@ main() {
       manual)
         # manual variables
         #
-        current_context_name="$(awk -F '=' -v this="^${getopts_alias}_context_name" '$1 ~ this { print $2 }' "${OCC_CONF}" 2> /dev/null)"
+        current_context_name="$(awk -F '=' -v this="^${getopts_alias}_context_name" '$1 ~ this { print $2 }' "${occ_conf}" 2> /dev/null)"
         # manual
         #
         this::set_context_namespace_manual \
@@ -628,7 +631,7 @@ main() {
         ;;
     esac
   else
-    functions::exit 1 "'${OCC_CONF}' was NOT found, exiting."
+    functions::exit 1 "'${occ_conf}' was NOT found, exiting."
   fi
 }
 
