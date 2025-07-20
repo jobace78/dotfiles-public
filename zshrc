@@ -21,15 +21,17 @@ alias ls='ls -G'
 ##############
 #
 # index:
-#   -            <HOME>/.luaver/completions
-#   -            <HOMEBREW_ROOT>/share/zsh/site-functions IF 'brew' is found in PATH...
-#   -            <RBENV_ROOT>/completions IF 'rbenv' is found in PATH...
-#   - (override) <HOME>/.dotfiles-public/share/zsh/site-functions
-#   - (override) <HOME>/.local/share/zsh/site-functions
+#   -                                        <HOME>/.luaver/completions IF 'luaver' is found in PATH...
+#   -                                        <HOMEBREW_ROOT>/share/zsh/site-functions IF 'brew' is found in PATH...
+#   -                                        <RBENV_ROOT>/completions IF 'rbenv' is found in PATH...
+#   - (this should be set last, do not sort) <HOME>/.dotfiles-public/share/zsh/site-functions
+#   - (this should be set last, do not sort) <HOME>/.local/share/zsh/site-functions
 #
 
-if [ -d "${HOME:?}"/.luaver/completions ]; then
-  fpath=("${HOME:?}"/.luaver/completions ${fpath})
+if [ "${commands[luaver]}" ]; then
+  if [ -d "${HOME:?}"/.luaver/completions ]; then
+    fpath=("${HOME:?}"/.luaver/completions ${fpath})
+  fi
 fi
 
 if [ "${commands[brew]}" ]; then
@@ -111,6 +113,9 @@ fi
 
 # packer
 #
+# Notes:
+#   - 'complete' MUST be run AFTER 'compinit' and 'bashcompinit'...
+#
 if [ "${commands[packer]}" ]; then
   complete -C packer -o nospace packer
 fi
@@ -147,6 +152,9 @@ if [ -s "${SDKMAN_DIR:=${HOME:?}/.sdkman}"/bin/sdkman-init.sh ]; then
 fi
 
 # tofu
+#
+# Notes:
+#   - 'complete' MUST be run AFTER 'compinit' and 'bashcompinit'...
 #
 if [ "${commands[tofu]}" ]; then
   complete -C tofu -o nospace tofu
