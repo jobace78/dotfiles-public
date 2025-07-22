@@ -23,6 +23,10 @@ alias ls='ls -G'
 # configuration #
 #################
 
+##########
+# prompt #
+##########
+
 function _update_ps1() {
   if [ -f /Library/Developer/CommandLineTools/usr/share/git-core/git-prompt.sh ]; then
     GIT_PS1_SHOWCOLORHINTS=Y
@@ -45,11 +49,3 @@ function _update_ps1_install() {
   done
   precmd_functions+=(_update_ps1)
 }
-
-if [ -x "$(command -v starship)" ]; then
-  eval "$(starship init bash)"
-else
-  if [ "${TERM}" != "linux" ]; then
-    _update_ps1_install
-  fi
-fi
