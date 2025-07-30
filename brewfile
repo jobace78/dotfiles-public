@@ -1,40 +1,21 @@
 # brewfile
 
-tap "azure/kubelogin"
-tap "hashicorp/tap"
-
 cask "1password-cli"
 
-brew "awscli"
-brew "azure-cli"
-brew "azure/kubelogin/kubelogin"
 brew "bash"
 brew "coreutils"
 brew "git-lfs"
 brew "gnu-sed"
 brew "gnu-tar"
 brew "gnupg"
-brew "hadolint"
-brew "hashicorp/tap/packer"
-brew "helm"
-brew "jq"
-brew "kubernetes-cli"
-brew "kustomize"
 brew "lftp"
 brew "nmap"
-brew "oci-cli"
-brew "openshift-cli"
-brew "opentofu"
 brew "pinentry-mac"
-brew "pre-commit"
-brew "shellcheck"
-brew "shfmt"
 brew "sysbench"
 brew "telnet"
 brew "tmate"
 brew "tmux"
 brew "wrk"
-brew "yq"
 
 # dependencies
 
