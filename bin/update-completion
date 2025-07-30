@@ -5,6 +5,60 @@
 
 #######################################
 # No description.
+# Globals:
+#   HOME
+# Arguments:
+#   1 - command (required, string)
+#######################################
+this::completion_zsh() {
+  local command
+  command="${1:?}"
+  case "${command}" in
+    az)
+      rm -f "${HOME:?}"/.local/share/zsh/site-functions/_az
+      if [ -x "$(command -v az)" ]; then
+        functions::stdout "creating '${HOME:?}/.local/share/zsh/site-functions/_az'..."
+        {
+          echo '#compdef az'
+          curl --retry 5 -L -S -f -s https://raw.githubusercontent.com/Azure/azure-cli/refs/heads/main/az.completion
+        } >> "${HOME:?}"/.local/share/zsh/site-functions/_az
+      fi
+      ;;
+    git-completion.bash)
+      rm -f "${HOME:?}"/.local/share/zsh/site-functions/git-completion.bash
+      if [ -f /Library/Developer/CommandLineTools/usr/share/git-core/git-completion.bash ]; then
+        functions::stdout "creating '${HOME:?}/.local/share/zsh/site-functions/git-completion.bash'..."
+        ln -s /Library/Developer/CommandLineTools/usr/share/git-core/git-completion.bash \
+          "${HOME:?}"/.local/share/zsh/site-functions/git-completion.bash
+      fi
+      ;;
+    git-completion.zsh)
+      rm -f "${HOME:?}"/.local/share/zsh/site-functions/git-completion.zsh
+      if [ -f /Library/Developer/CommandLineTools/usr/share/git-core/git-completion.zsh ]; then
+        functions::stdout "creating '${HOME:?}/.local/share/zsh/site-functions/git-completion.zsh'..."
+        ln -s /Library/Developer/CommandLineTools/usr/share/git-core/git-completion.zsh \
+          "${HOME:?}"/.local/share/zsh/site-functions/git-completion.zsh
+      fi
+      ;;
+    pre-commit)
+      rm -f "${HOME:?}"/.local/share/zsh/site-functions/_pre-commit
+      if [ -x "$(command -v pre-commit)" ]; then
+        functions::stdout "creating '${HOME:?}/.local/share/zsh/site-functions/_pre-commit'..."
+        curl --retry 5 -L -S -f -o "${HOME:?}"/.local/share/zsh/site-functions/_pre-commit -s https://raw.githubusercontent.com/zsh-users/zsh-completions/refs/heads/master/src/_pre-commit
+      fi
+      ;;
+    *)
+      rm -f "${HOME:?}"/.local/share/zsh/site-functions/_"${command}"
+      if [ -x "$(command -v "${command}")" ]; then
+        functions::stdout "creating '${HOME:?}/.local/share/zsh/site-functions/_${command}'..."
+        "${command}" completion zsh > "${HOME:?}"/.local/share/zsh/site-functions/_"${command}"
+      fi
+      ;;
+  esac
+}
+
+#######################################
+# No description.
 # Arguments:
 #   1 - exit code (optional, integer)
 # Outputs:
@@ -30,93 +84,9 @@ EOT
 # No description.
 # Globals:
 #   HOME
-#   HOMEBREW_ROOT
-# Arguments:
-#  None
-#######################################
-this::update() {
-  # _az
-  #
-  rm -f "${HOME:?}"/.local/share/zsh/site-functions/_az
-  if [ -f "${HOMEBREW_ROOT:-"$(brew --prefix 2> /dev/null)"}"/opt/az/etc/bash_completion.d/az ]; then
-    functions::stdout "creating '${HOME:?}/.local/share/zsh/site-functions/_az'..."
-    {
-      functions::stdout '#compdef az'
-      cat "${HOMEBREW_ROOT:-"$(brew --prefix 2> /dev/null)"}"/opt/az/etc/bash_completion.d/az
-    } >> "${HOME:?}"/.local/share/zsh/site-functions/_az
-  fi
-  # _docker
-  #
-  rm -f "${HOME:?}"/.local/share/zsh/site-functions/_docker
-  if [ -f /Applications/Docker.app/Contents/Resources/etc/docker.zsh-completion ]; then
-    functions::stdout "creating '${HOME:?}/.local/share/zsh/site-functions/_docker'..."
-    ln -s /Applications/Docker.app/Contents/Resources/etc/docker.zsh-completion "${HOME:?}"/.local/share/zsh/site-functions/_docker
-  fi
-  # _docker-compose
-  #
-  rm -f "${HOME:?}"/.local/share/zsh/site-functions/_docker-compose
-  if [ -f /Applications/Docker.app/Contents/Resources/etc/docker-compose.zsh-completion ]; then
-    functions::stdout "creating '${HOME:?}/.local/share/zsh/site-functions/_docker-compose'..."
-    ln -s /Applications/Docker.app/Contents/Resources/etc/docker-compose.zsh-completion "${HOME:?}"/.local/share/zsh/site-functions/_docker-compose
-  fi
-  # _git-lfs
-  #
-  rm -f "${HOME:?}"/.local/share/zsh/site-functions/_git-lfs
-  if [ -x "$(command -v git-lfs)" ]; then
-    functions::stdout "creating '${HOME:?}/.local/share/zsh/site-functions/_git-lfs'..."
-    git-lfs completion zsh > "${HOME:?}"/.local/share/zsh/site-functions/_git-lfs
-  fi
-  # _op
-  #
-  rm -f "${HOME:?}"/.local/share/zsh/site-functions/_op
-  if [ -x "$(command -v op)" ]; then
-    functions::stdout "creating '${HOME:?}/.local/share/zsh/site-functions/_op'..."
-    op completion zsh > "${HOME:?}"/.local/share/zsh/site-functions/_op
-  fi
-  # _orbctl
-  #
-  rm -f "${HOME:?}"/.local/share/zsh/site-functions/_orbctl
-  if [ -x "$(command -v orbctl)" ]; then
-    functions::stdout "creating '${HOME:?}/.local/share/zsh/site-functions/_orbctl'..."
-    orbctl completion zsh > "${HOME:?}"/.local/share/zsh/site-functions/_orbctl
-  fi
-  # _pre-commit
-  #
-  rm -f "${HOME:?}"/.local/share/zsh/site-functions/_pre-commit
-  if [ -x "$(command -v pre-commit)" ]; then
-    functions::stdout "creating '${HOME:?}/.local/share/zsh/site-functions/_pre-commit'..."
-    curl --retry 5 -L -S -f -o "${HOME:?}"/.local/share/zsh/site-functions/_pre-commit -s https://raw.githubusercontent.com/zsh-users/zsh-completions/refs/heads/master/src/_pre-commit
-  fi
-  # _rdctl
-  #
-  rm -f "${HOME:?}"/.local/share/zsh/site-functions/_rdctl
-  if [ -x "$(command -v rdctl)" ]; then
-    functions::stdout "creating '${HOME:?}/.local/share/zsh/site-functions/_rdctl'..."
-    rdctl completion zsh > "${HOME:?}"/.local/share/zsh/site-functions/_rdctl
-  fi
-  # git-completion.bash
-  #
-  rm -f "${HOME:?}"/.local/share/zsh/site-functions/git-completion.bash
-  if [ -f /Library/Developer/CommandLineTools/usr/share/git-core/git-completion.bash ]; then
-    functions::stdout "creating '${HOME:?}/.local/share/zsh/site-functions/git-completion.bash'..."
-    ln -s /Library/Developer/CommandLineTools/usr/share/git-core/git-completion.bash "${HOME:?}"/.local/share/zsh/site-functions/git-completion.bash
-  fi
-  # git-completion.zsh
-  #
-  rm -f "${HOME:?}"/.local/share/zsh/site-functions/git-completion.zsh
-  if [ -f /Library/Developer/CommandLineTools/usr/share/git-core/git-completion.zsh ]; then
-    functions::stdout "creating '${HOME:?}/.local/share/zsh/site-functions/git-completion.zsh'..."
-    ln -s /Library/Developer/CommandLineTools/usr/share/git-core/git-completion.zsh "${HOME:?}"/.local/share/zsh/site-functions/git-completion.zsh
-  fi
-}
-
-#######################################
-# No description.
-# Globals:
-#   HOME
 #   OPTIND
 # Arguments:
-#  None
+#   None
 #######################################
 main() {
   if [ -f "$(dirname "${0}")"/../etc/bash44.shconf ]; then
@@ -146,7 +116,7 @@ main() {
   local getopts_args
   local getopts_version
   getopts_args=''
-  getopts_version='v20240819'
+  getopts_version='v20250730'
 
   trap 'functions::catch_all ${?}' ERR SIGHUP SIGINT SIGQUIT SIGTERM
 
@@ -168,7 +138,19 @@ main() {
 
   mkdir -p "${HOME:?}"/.local/share/zsh/site-functions
 
-  this::update
+  this::completion_zsh az
+  this::completion_zsh docker
+  this::completion_zsh git-completion.bash
+  this::completion_zsh git-completion.zsh
+  this::completion_zsh helm
+  this::completion_zsh kubectl
+  this::completion_zsh kustomize
+  this::completion_zsh oc
+  this::completion_zsh op
+  this::completion_zsh orbctl
+  this::completion_zsh pre-commit
+  this::completion_zsh rdctl
+  this::completion_zsh yq
 }
 
 # bashsupport disable=BP5001

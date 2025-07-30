@@ -26,6 +26,14 @@ else
   . "${HOME:?}"/.etc/functions.shconf
 fi
 
+if [ -x "$(mise which shellcheck 2> /dev/null)" ]; then
+  shellcheck_path="$(mise which shellcheck 2> /dev/null)"
+elif [ -x "${HOMEBREW_ROOT:-"$(brew --prefix 2> /dev/null)"}"/bin/shellcheck ]; then
+  shellcheck_path="${HOMEBREW_ROOT:-"$(brew --prefix 2> /dev/null)"}"/bin/shellcheck
+else
+  shellcheck_path=shellcheck
+fi
+
 # shellcheck disable=SC2048
 # shellcheck disable=SC2086
-"${HOMEBREW_ROOT:-"$(brew --prefix 2> /dev/null)"}"/bin/shellcheck --external-sources --source-path=SCRIPTDIR ${*}
+"${shellcheck_path}" --external-sources --source-path=SCRIPTDIR ${*}

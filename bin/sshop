@@ -92,7 +92,7 @@ this::op() {
 #   OPTIND
 #   getopts_debug
 # Arguments:
-#  None
+#   None
 #######################################
 main() {
   if [ -f "$(dirname "${0}")"/../etc/bash44.shconf ]; then

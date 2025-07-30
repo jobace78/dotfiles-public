@@ -95,7 +95,7 @@ this::op() {
 #   TMUX_SSH_WINDOW_NAME
 #   args[0]
 # Arguments:
-#  None
+#   None
 #######################################
 this::tmux() {
   local arg
@@ -136,7 +136,7 @@ this::tmux() {
 #   TMUX_SSH_WINDOW_NAME
 #   getopts_debug
 # Arguments:
-#  None
+#   None
 #######################################
 main() {
   if [ -f "$(dirname "${0}")"/../etc/bash44.shconf ]; then

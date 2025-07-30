@@ -21,18 +21,11 @@ alias ls='ls -G'
 ##############
 #
 # index:
-#   -                                        <HOME>/.luaver/completions IF 'luaver' is found in PATH...
 #   -                                        <HOMEBREW_ROOT>/share/zsh/site-functions IF 'brew' is found in PATH...
 #   -                                        <RBENV_ROOT>/completions IF 'rbenv' is found in PATH...
 #   - (this should be set last, do not sort) <HOME>/.dotfiles-public/share/zsh/site-functions
 #   - (this should be set last, do not sort) <HOME>/.local/share/zsh/site-functions
 #
-
-if [ "${commands[luaver]}" ]; then
-  if [ -d "${HOME:?}"/.luaver/completions ]; then
-    fpath=("${HOME:?}"/.luaver/completions ${fpath})
-  fi
-fi
 
 if [ "${commands[brew]}" ]; then
   if [ -d "${HOMEBREW_ROOT}"/share/zsh/site-functions ]; then
@@ -86,6 +79,12 @@ setopt \
   nullglob \
   promptsubst \
   shwordsplit
+
+# aws_completer
+#
+if [ "${commands[aws_completer]}" ]; then
+  complete -C aws_completer aws
+fi
 
 # direnv
 #
