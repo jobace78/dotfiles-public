@@ -92,12 +92,6 @@ if [ "${commands[direnv]}" ]; then
   eval "$(direnv hook zsh)"
 fi
 
-# luaver
-#
-if [ -s "${HOME:?}"/.luaver/luaver ]; then
-  . "${HOME:?}"/.luaver/luaver
-fi
-
 # mise
 #
 if [ "${commands[mise]}" ]; then

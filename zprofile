@@ -11,6 +11,7 @@
 #
 # index:
 #   - (this should be set first, do not sort) <HOMEBREW_ROOT>/bin
+#   - (this should be set first, do not sort) <HOMEBREW_ROOT>/sbin
 #   - (this should be set first, do not sort) <MISE_DATA_DIR>/shims
 #   -                                         <PHPENV_ROOT>/bin
 #   -                                         <PYENV_ROOT>/bin
@@ -27,7 +28,7 @@ if [ -d "${HOMEBREW_ROOT:=/opt/homebrew}"/sbin ]; then
   path=("${HOMEBREW_ROOT}"/sbin ${path})
 fi
 
-if [ -d "${MISE_DATA_DIR:=${XDG_DATA_HOME:-${HOME:?}/.local/share}/mise}"/shims ]; then
+if [ -d "${MISE_DATA_DIR:=${HOME:?}/.local/share/mise}"/shims ]; then
   path=("${MISE_DATA_DIR}"/shims ${path})
 fi
 
@@ -63,6 +64,9 @@ CPPFLAGS="${CPPFLAGS:--I${HOMEBREW_ROOT}/opt/libffi/include -I${HOMEBREW_ROOT}/o
 HOMEBREW_BUNDLE_FILE="${HOMEBREW_BUNDLE_FILE:-${HOME:?}/.brewfile}"
 HOMEBREW_BUNDLE_NO_LOCK="${HOMEBREW_BUNDLE_NO_LOCK:-1}"
 LDFLAGS="${LDFLAGS:--L${HOMEBREW_ROOT}/opt/libffi/lib -L${HOMEBREW_ROOT}/opt/openssl@3/lib -L${HOMEBREW_ROOT}/opt/sqlite/lib}"
+MISE_CACHE_DIR="${MISE_CACHE_DIR:-${HOME:?}/.cache/mise}"
+MISE_CONFIG_DIR="${MISE_CONFIG_DIR:-${HOME:?}/.config/mise}"
+MISE_STATE_DIR="${MISE_STATE_DIR:-${HOME:?}/.local/state/mise}"
 PACKER_CACHE_DIR="${PACKER_CACHE_DIR:-${HOME:?}/.packer.d/cache}"
 PACKER_PLUGIN_PATH="${PACKER_PLUGIN_PATH:-${HOME:?}/.packer.d/plugin}"
 PIP_REQUIRE_VIRTUALENV="${PIP_REQUIRE_VIRTUALENV:-Y}"
@@ -74,4 +78,21 @@ XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-${HOME:?}/.config}"
 XDG_DATA_HOME="${XDG_DATA_HOME:-${HOME:?}/.local/share}"
 XDG_STATE_HOME="${XDG_STATE_HOME:-${HOME:?}/.local/state}"
 
-export CPPFLAGS HOMEBREW_BUNDLE_FILE HOMEBREW_BUNDLE_NO_LOCK LDFLAGS PACKER_CACHE_DIR PACKER_PLUGIN_PATH PIP_REQUIRE_VIRTUALENV PKG_CONFIG_PATH POWERSHELL_UPDATECHECK PYENV_VIRTUALENV_DISABLE_PROMPT XDG_CACHE_HOME XDG_CONFIG_HOME XDG_DATA_HOME XDG_STATE_HOME
+export \
+  CPPFLAGS \
+  HOMEBREW_BUNDLE_FILE \
+  HOMEBREW_BUNDLE_NO_LOCK \
+  LDFLAGS \
+  MISE_CACHE_DIR \
+  MISE_CONFIG_DIR \
+  MISE_STATE_DIR \
+  PACKER_CACHE_DIR \
+  PACKER_PLUGIN_PATH \
+  PIP_REQUIRE_VIRTUALENV \
+  PKG_CONFIG_PATH \
+  POWERSHELL_UPDATECHECK \
+  PYENV_VIRTUALENV_DISABLE_PROMPT \
+  XDG_CACHE_HOME \
+  XDG_CONFIG_HOME \
+  XDG_DATA_HOME \
+  XDG_STATE_HOME
