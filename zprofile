@@ -23,6 +23,10 @@ if [ -d "${HOMEBREW_ROOT:=/opt/homebrew}"/bin ]; then
   path=("${HOMEBREW_ROOT}"/bin ${path})
 fi
 
+if [ -d "${HOMEBREW_ROOT:=/opt/homebrew}"/sbin ]; then
+  path=("${HOMEBREW_ROOT}"/sbin ${path})
+fi
+
 if [ -d "${MISE_DATA_DIR:=${XDG_DATA_HOME:-${HOME:?}/.local/share}/mise}"/shims ]; then
   path=("${MISE_DATA_DIR}"/shims ${path})
 fi
