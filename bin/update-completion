@@ -40,6 +40,13 @@ this::completion_zsh() {
           "${HOME:?}"/.local/share/zsh/site-functions/git-completion.zsh
       fi
       ;;
+    oci)
+      rm -f "${HOME:?}"/.local/share/zsh/site-functions/_oci
+      if [ -x "$(command -v oci)" ]; then
+        functions::stdout "creating '${HOME:?}/.local/share/zsh/site-functions/_oci'..."
+        _OCI_COMPLETE=zsh_source oci > "${HOME:?}"/.local/share/zsh/site-functions/_oci
+      fi
+      ;;
     pre-commit)
       rm -f "${HOME:?}"/.local/share/zsh/site-functions/_pre-commit
       if [ -x "$(command -v pre-commit)" ]; then
@@ -146,6 +153,7 @@ main() {
   this::completion_zsh kubectl
   this::completion_zsh kustomize
   this::completion_zsh oc
+  this::completion_zsh oci
   this::completion_zsh op
   this::completion_zsh orbctl
   this::completion_zsh pre-commit

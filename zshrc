@@ -138,6 +138,12 @@ if [ "${commands[rbenv]}" ]; then
   eval "$(rbenv init - --no-rehash zsh)"
 fi
 
+# ruff
+#
+if [ "${commands[ruff]}" ]; then
+  eval "$(ruff generate-shell-completion zsh)"
+fi
+
 # sdkman
 #
 if [ -s "${SDKMAN_DIR:=${HOME:?}/.sdkman}"/bin/sdkman-init.sh ]; then
@@ -151,6 +157,18 @@ fi
 #
 if [ "${commands[tofu]}" ]; then
   complete -C tofu -o nospace tofu
+fi
+
+# uv
+#
+if [ "${commands[uv]}" ]; then
+  eval "$(uv generate-shell-completion zsh)"
+fi
+
+# uvx
+#
+if [ "${commands[uvx]}" ]; then
+  eval "$(uvx --generate-shell-completion zsh)"
 fi
 
 ##########
