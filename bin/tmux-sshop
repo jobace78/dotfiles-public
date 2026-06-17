@@ -146,7 +146,6 @@ main() {
     # shellcheck source=/dev/null
     . "${HOME:?}"/.etc/bash44.shconf || exit 1
   fi
-
   if [ -f "$(dirname "${0}")"/../etc/constants.shconf ]; then
     # shellcheck source=../etc/constants.shconf
     . "$(dirname "${0}")"/../etc/constants.shconf
@@ -154,7 +153,6 @@ main() {
     # shellcheck source=/dev/null
     . "${HOME:?}"/.etc/constants.shconf
   fi
-
   if [ -f "$(dirname "${0}")"/../etc/functions.shconf ]; then
     # shellcheck source=../etc/functions.shconf
     . "$(dirname "${0}")"/../etc/functions.shconf
@@ -162,13 +160,15 @@ main() {
     # shellcheck source=/dev/null
     . "${HOME:?}"/.etc/functions.shconf
   fi
-
+  # global variables
+  #
   # bashsupport disable=BP5006
   TMUX_SSH_SESSION_NAME="${TMUX_SSH_SESSION_NAME:-default}"
   # bashsupport disable=BP5006
   TMUX_SSH_WINDOW_NAME="${TMUX_SSH_WINDOW_NAME:-default}"
   getopts_debug='false'
-
+  # local variables
+  #
   local getopts_account_file_name
   local getopts_account_file_path
   local getopts_accounts
@@ -179,9 +179,9 @@ main() {
   getopts_accounts=()
   getopts_args=''
   getopts_version='v20240819'
-
   trap 'functions::catch_all ${?}' ERR SIGHUP SIGINT SIGQUIT SIGTERM
-
+  # getopts_args / getopts_version
+  #
   OPTIND=1
   while getopts 'dlrHUV' getopts_args; do
     case "${getopts_args}" in
@@ -225,13 +225,11 @@ main() {
     esac
   done
   shift $((OPTIND - 1))
-
+  # main
+  #
   [ $# -ge 2 ] || this::help 1
-
   this::op "${1}"
-
   this::tmux "${@:2}"
-
   this::op default
 }
 

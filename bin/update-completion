@@ -103,7 +103,6 @@ main() {
     # shellcheck source=/dev/null
     . "${HOME:?}"/.etc/bash44.shconf || exit 1
   fi
-
   if [ -f "$(dirname "${0}")"/../etc/constants.shconf ]; then
     # shellcheck source=../etc/constants.shconf
     . "$(dirname "${0}")"/../etc/constants.shconf
@@ -111,7 +110,6 @@ main() {
     # shellcheck source=/dev/null
     . "${HOME:?}"/.etc/constants.shconf
   fi
-
   if [ -f "$(dirname "${0}")"/../etc/functions.shconf ]; then
     # shellcheck source=../etc/functions.shconf
     . "$(dirname "${0}")"/../etc/functions.shconf
@@ -119,14 +117,15 @@ main() {
     # shellcheck source=/dev/null
     . "${HOME:?}"/.etc/functions.shconf
   fi
-
+  # local variables
+  #
   local getopts_args
   local getopts_version
   getopts_args=''
   getopts_version='v20250730'
-
   trap 'functions::catch_all ${?}' ERR SIGHUP SIGINT SIGQUIT SIGTERM
-
+  # getopts_args / getopts_version
+  #
   OPTIND=1
   while getopts 'HUV' getopts_args; do
     case "${getopts_args}" in
@@ -142,9 +141,9 @@ main() {
     esac
   done
   shift $((OPTIND - 1))
-
+  # main
+  #
   mkdir -p "${HOME:?}"/.local/share/zsh/site-functions
-
   this::completion_zsh az
   this::completion_zsh docker
   this::completion_zsh git-completion.bash
