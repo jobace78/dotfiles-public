@@ -14,7 +14,7 @@ this::help() {
   exit_code="${1:-1}"
   cat << EOT
 
-  Usage: $(basename "${0}") [OPTION...] FILE
+  Usage: ${0} [OPTION...] FILE
 
   Help options:
     -H Show this help message

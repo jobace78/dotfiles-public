@@ -15,7 +15,7 @@ this::help() {
   exit_code="${1:-1}"
   cat << EOT
 
-  Usage: $(basename "${0}") [OPTION...] <ACCOUNT> <ARGS>
+  Usage: ${0} [OPTION...] <ACCOUNT> <ARGS>
 
   Options:
     -d Debug
