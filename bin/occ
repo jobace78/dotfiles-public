@@ -12,9 +12,7 @@
 #   - this::session_is_valid
 #   - this::set_context_extension_aptakube
 #   - this::set_context_namespace
-#   - this::set_context_namespace_manual
 #   - this::use_context
-#   - this::use_context_manual
 #
 
 #######################################
@@ -50,14 +48,14 @@ this::help() {
     <alias>_aks_name=<aks1 name>
     <alias>_aks_resource_group=<aks1 resource group>
     <alias>_aks_subscription=<aks1 subscription>
-    <alias>_cluster_and_context_name=<cluster name>
+    <alias>_cluster_and_context_name=<cluster and context name>
     <alias>_extension_aptakube_order=1
     <alias>_extension_aptakube_tags=AKS,aks-label-1,aks-label-2
     <alias>_kind=aks
     <alias>_kubeconfig=/Users/jobace78/.kubeconfig-aks1.yaml
     <alias>_user_name=<mail or user name>
 
-    <alias>_cluster_and_context_name=<cluster name>
+    <alias>_cluster_and_context_name=<cluster and context name>
     <alias>_extension_aptakube_icon_url=/Users/jobace78/icon_kubernetes_512x512.png
     <alias>_extension_aptakube_order=2
     <alias>_extension_aptakube_tags=GENERIC,generic-label-1,generic-label-2
@@ -66,11 +64,11 @@ this::help() {
     <alias>_kubeconfig=/Users/jobace78/.kubeconfig-generic1.yaml
     <alias>_user_name=<mail or user name>
 
+    <alias>_cluster_and_context_name=<cluster and context name>
     <alias>_kind=manual
     <alias>_kubeconfig=/Users/jobace78/.kubeconfig-manual1.yaml
-    <alias>_manual_context_name=<manual1 name>
 
-    <alias>_cluster_and_context_name=<cluster name>
+    <alias>_cluster_and_context_name=<cluster and context name>
     <alias>_extension_aptakube_icon_url=/Users/jobace78/icon_openshift_512x512.png
     <alias>_extension_aptakube_order=3
     <alias>_extension_aptakube_tags=OCP,ocp-label-1,ocp-label-2
@@ -79,7 +77,7 @@ this::help() {
     <alias>_ocp_server=https://<api address>
     <alias>_user_name=<mail or user name>
 
-    <alias>_cluster_and_context_name=<cluster name>
+    <alias>_cluster_and_context_name=<cluster and context name>
     <alias>_extension_aptakube_order=4
     <alias>_extension_aptakube_tags=OKE,oke-label-1,oke-label-2
     <alias>_kind=oke
@@ -301,7 +299,7 @@ EOT
 #######################################
 # No description.
 # Arguments:
-#   1: local_current_context_name (required, string)
+#   1: local_current_cluster_and_context_name (required, string)
 #   2: local_current_kubeconfig (required, string)
 # Returns:
 #   0 ...
@@ -309,11 +307,11 @@ EOT
 #######################################
 this::session_is_valid() {
   # INFO : local variables with "local" prefix to avoid "collisions"...
-  local local_current_context_name
+  local local_current_cluster_and_context_name
   local local_current_kubeconfig
-  local_current_context_name="${1:?}"
+  local_current_cluster_and_context_name="${1:?}"
   local_current_kubeconfig="${2:?}"
-  if oc --context="${local_current_context_name}" --kubeconfig="${local_current_kubeconfig}" whoami 1> /dev/null 2> /dev/null && [[ $(oc --context="${local_current_context_name}" --kubeconfig="${local_current_kubeconfig}" whoami 2> /dev/null) != 'system:anonymous' ]]; then
+  if oc --context="${local_current_cluster_and_context_name}" --kubeconfig="${local_current_kubeconfig}" whoami 1> /dev/null 2> /dev/null && [[ $(oc --context="${local_current_cluster_and_context_name}" --kubeconfig="${local_current_kubeconfig}" whoami 2> /dev/null) != 'system:anonymous' ]]; then
     return 0
   else
     return 1
@@ -405,26 +403,6 @@ this::set_context_namespace() {
 
 #######################################
 # No description.
-# Globals:
-#   namespace
-# Arguments:
-#   1: local_current_kubeconfig (required, string)
-#   2: local_current_manual_context_name (required, string)
-#######################################
-this::set_context_namespace_manual() {
-  # INFO : local variables with "local" prefix to avoid "collisions"...
-  local local_current_kubeconfig
-  local local_current_manual_context_name
-  local_current_kubeconfig="${1:?}"
-  local_current_manual_context_name="${2:?}"
-  oc config set-context \
-    --kubeconfig="${local_current_kubeconfig}" \
-    --namespace="${namespace:?}" \
-    "${local_current_manual_context_name}" 1> /dev/null
-}
-
-#######################################
-# No description.
 # Arguments:
 #   1: local_current_cluster_and_context_name (required, string)
 #######################################
@@ -434,19 +412,6 @@ this::use_context() {
   local_current_cluster_and_context_name="${1:?}"
   oc config use-context \
     "${local_current_cluster_and_context_name}"
-}
-
-#######################################
-# No description.
-# Arguments:
-#   1: local_current_manual_context_name (required, string)
-#######################################
-this::use_context_manual() {
-  # INFO : local variables with "local" prefix to avoid "collisions"...
-  local local_current_manual_context_name
-  local_current_manual_context_name="${1:?}"
-  oc config use-context \
-    "${local_current_manual_context_name}"
 }
 
 #######################################
@@ -502,7 +467,6 @@ main() {
   local current_generic_server
   local current_kind
   local current_kubeconfig
-  local current_manual_context_name
   local current_ocp_server
   local current_oke_cluster_id
   local current_oke_profile
@@ -526,7 +490,6 @@ main() {
   current_generic_server=''
   current_kind=''
   current_kubeconfig=''
-  current_manual_context_name=''
   current_ocp_server=''
   current_oke_cluster_id=''
   current_oke_profile=''
@@ -635,6 +598,7 @@ main() {
   if [ -f "${occ_conf}" ]; then
     # common variables
     #
+    current_cluster_and_context_name="$(awk -F '=' -v this="^${getopts_alias}_cluster_and_context_name" '$1 ~ this { print $2 }' "${occ_conf}" 2> /dev/null)"
     current_extension_aptakube_icon_url="$(awk -F '=' -v this="^${getopts_alias}_extension_aptakube_icon_url" '$1 ~ this { print $2 }' "${occ_conf}" 2> /dev/null)"
     current_extension_aptakube_order="$(awk -F '=' -v this="^${getopts_alias}_extension_aptakube_order" '$1 ~ this { print $2 }' "${occ_conf}" 2> /dev/null)"
     current_extension_aptakube_tags="$(awk -F '=' -v this="^${getopts_alias}_extension_aptakube_tags" '$1 ~ this { print $2 }' "${occ_conf}" 2> /dev/null)"
@@ -648,7 +612,6 @@ main() {
         current_aks_name="$(awk -F '=' -v this="^${getopts_alias}_aks_name" '$1 ~ this { print $2 }' "${occ_conf}" 2> /dev/null)"
         current_aks_resource_group="$(awk -F '=' -v this="^${getopts_alias}_aks_resource_group" '$1 ~ this { print $2 }' "${occ_conf}" 2> /dev/null)"
         current_aks_subscription="$(awk -F '=' -v this="^${getopts_alias}_aks_subscription" '$1 ~ this { print $2 }' "${occ_conf}" 2> /dev/null)"
-        current_cluster_and_context_name="$(awk -F '=' -v this="^${getopts_alias}_cluster_and_context_name" '$1 ~ this { print $2 }' "${occ_conf}" 2> /dev/null)"
         current_user_name="$(awk -F '=' -v this="^${getopts_alias}_user_name" '$1 ~ this { print $2 }' "${occ_conf}" 2> /dev/null)"
         # aks
         #
@@ -678,7 +641,6 @@ main() {
       generic)
         # generic variables
         #
-        current_cluster_and_context_name="$(awk -F '=' -v this="^${getopts_alias}_cluster_and_context_name" '$1 ~ this { print $2 }' "${occ_conf}" 2> /dev/null)"
         current_generic_server="$(awk -F '=' -v this="^${getopts_alias}_generic_server" '$1 ~ this { print $2 }' "${occ_conf}" 2> /dev/null)"
         current_user_name="$(awk -F '=' -v this="^${getopts_alias}_user_name" '$1 ~ this { print $2 }' "${occ_conf}" 2> /dev/null)"
         # generic
@@ -704,21 +666,17 @@ main() {
           "${current_kubeconfig:?}"
         ;;
       manual)
-        # manual variables
-        #
-        current_manual_context_name="$(awk -F '=' -v this="^${getopts_alias}_manual_context_name" '$1 ~ this { print $2 }' "${occ_conf}" 2> /dev/null)"
         # manual
         #
-        this::set_context_namespace_manual \
-          "${current_kubeconfig:?}" \
-          "${current_manual_context_name:?}"
-        this::use_context_manual \
-          "${current_manual_context_name:?}"
+        this::set_context_namespace \
+          "${current_cluster_and_context_name:?}" \
+          "${current_kubeconfig:?}"
+        this::use_context \
+          "${current_cluster_and_context_name:?}"
         ;;
       ocp)
         # ocp variables
         #
-        current_cluster_and_context_name="$(awk -F '=' -v this="^${getopts_alias}_cluster_and_context_name" '$1 ~ this { print $2 }' "${occ_conf}" 2> /dev/null)"
         current_ocp_server="$(awk -F '=' -v this="^${getopts_alias}_ocp_server" '$1 ~ this { print $2 }' "${occ_conf}" 2> /dev/null)"
         current_user_name="$(awk -F '=' -v this="^${getopts_alias}_user_name" '$1 ~ this { print $2 }' "${occ_conf}" 2> /dev/null)"
         # ocp
@@ -746,7 +704,6 @@ main() {
       oke)
         # oke variables
         #
-        current_cluster_and_context_name="$(awk -F '=' -v this="^${getopts_alias}_cluster_and_context_name" '$1 ~ this { print $2 }' "${occ_conf}" 2> /dev/null)"
         current_oke_cluster_id="$(awk -F '=' -v this="^${getopts_alias}_oke_cluster_id" '$1 ~ this { print $2 }' "${occ_conf}" 2> /dev/null)"
         current_oke_profile="$(awk -F '=' -v this="^${getopts_alias}_oke_profile" '$1 ~ this { print $2 }' "${occ_conf}" 2> /dev/null)"
         current_user_name="$(awk -F '=' -v this="^${getopts_alias}_user_name" '$1 ~ this { print $2 }' "${occ_conf}" 2> /dev/null)"
