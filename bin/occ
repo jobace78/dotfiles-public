@@ -166,24 +166,25 @@ this::init_aks() {
 
 #######################################
 # No description.
-# Globals:
-#   token
 # Arguments:
 #   1: local_current_cluster_and_context_name (required, string)
 #   2: local_current_generic_server (required, string)
 #   3: local_current_kubeconfig (required, string)
-#   4: local_current_user_name (required, string)
+#   4: local_current_token (required, string)
+#   5: local_current_user_name (required, string)
 #######################################
 this::init_generic() {
   # INFO : local variables with "local" prefix to avoid "collisions"...
   local local_current_cluster_and_context_name
   local local_current_generic_server
   local local_current_kubeconfig
+  local local_current_token
   local local_current_user_name
   local_current_cluster_and_context_name="${1:?}"
   local_current_generic_server="${2:?}"
   local_current_kubeconfig="${3:?}"
-  local_current_user_name="${4:?}"
+  local_current_token="${4:?}"
+  local_current_user_name="${5:?}"
   oc config set-cluster \
     --kubeconfig="${local_current_kubeconfig}" \
     --server="${local_current_generic_server}" \
@@ -193,10 +194,10 @@ this::init_generic() {
     --kubeconfig="${local_current_kubeconfig}" \
     --user="${local_current_user_name}-at-${local_current_cluster_and_context_name}" \
     "${local_current_cluster_and_context_name}" 1> /dev/null
-  if [ -n "${token:-}" ]; then
+  if [ "${local_current_token}" != 'changeme' ]; then
     oc config set-credentials \
       --kubeconfig="${local_current_kubeconfig}" \
-      --token="${token}" \
+      --token="${local_current_token}" \
       "${local_current_user_name}-at-${local_current_cluster_and_context_name}" 1> /dev/null
   fi
 }
@@ -422,21 +423,22 @@ this::set_context_extension_aptakube() {
 
 #######################################
 # No description.
-# Globals:
-#   namespace
 # Arguments:
 #   1: local_current_cluster_and_context_name (required, string)
 #   2: local_current_kubeconfig (required, string)
+#   3: local_current_namespace (required, string)
 #######################################
 this::set_context_namespace() {
   # INFO : local variables with "local" prefix to avoid "collisions"...
   local local_current_cluster_and_context_name
   local local_current_kubeconfig
+  local local_current_namespace
   local_current_cluster_and_context_name="${1:?}"
   local_current_kubeconfig="${2:?}"
+  local_current_namespace="${3:?}"
   oc config set-context \
     --kubeconfig="${local_current_kubeconfig}" \
-    --namespace="${namespace:?}" \
+    --namespace="${local_current_namespace}" \
     "${local_current_cluster_and_context_name}" 1> /dev/null
 }
 
@@ -460,9 +462,6 @@ this::use_context() {
 #   OCC_YAML
 #   OPTARG
 #   OPTIND
-#   force
-#   namespace
-#   token
 # Arguments:
 #   None
 #######################################
@@ -488,11 +487,6 @@ main() {
     # shellcheck source=/dev/null
     . "${HOME:?}"/.etc/functions.shconf
   fi
-  # global variables
-  #
-  force='false'
-  namespace='default'
-  token=''
   # local variables
   #
   local current_aks_admin
@@ -503,13 +497,19 @@ main() {
   local current_extension_aptakube_icon_url
   local current_extension_aptakube_order
   local current_extension_aptakube_tags
+  local current_force
   local current_generic_server
   local current_kind
   local current_kubeconfig
+  local current_namespace
   local current_ocp_server
   local current_oke_cluster_id
   local current_oke_profile
+  local current_token
   local current_user_name
+  local default_force
+  local default_namespace
+  local default_token
   local getopts_alias
   local getopts_aliases
   local getopts_args
@@ -526,13 +526,19 @@ main() {
   current_extension_aptakube_icon_url=''
   current_extension_aptakube_order=''
   current_extension_aptakube_tags=''
+  current_force=''
   current_generic_server=''
   current_kind=''
   current_kubeconfig=''
+  current_namespace=''
   current_ocp_server=''
   current_oke_cluster_id=''
   current_oke_profile=''
+  current_token=''
   current_user_name=''
+  default_force='false'
+  default_namespace='default'
+  default_token='changeme'
   getopts_alias=''
   getopts_aliases=()
   getopts_args=''
@@ -557,7 +563,7 @@ main() {
   while getopts 'fln:rt:uHUV' getopts_args; do
     case "${getopts_args}" in
       f)
-        force='true'
+        current_force='true'
         ;;
       l)
         if [ -f "${occ_yaml}" ]; then
@@ -575,7 +581,7 @@ main() {
         fi
         ;;
       n)
-        namespace="${OPTARG}"
+        current_namespace="${OPTARG}"
         ;;
       r)
         if [ -f "${occ_yaml}" ]; then
@@ -605,7 +611,7 @@ main() {
         functions::exit 0
         ;;
       t)
-        token="${OPTARG}"
+        current_token="${OPTARG}"
         ;;
       u)
         if [ -f "${occ_yaml}" ]; then
@@ -654,7 +660,7 @@ main() {
         current_user_name="$(this::occ_yaml_get_alias_field "${getopts_alias}" user_name)"
         # aks
         #
-        if [ "${force}" = 'true' ] || ! this::session_is_valid "${current_cluster_and_context_name:?}" "${current_kubeconfig:?}"; then
+        if [ "${current_force:-${default_force}}" = 'true' ] || ! this::session_is_valid "${current_cluster_and_context_name:?}" "${current_kubeconfig:?}"; then
           this::init_aks \
             "${current_aks_admin:?}" \
             "${current_aks_name:?}" \
@@ -667,7 +673,8 @@ main() {
         fi
         this::set_context_namespace \
           "${current_cluster_and_context_name:?}" \
-          "${current_kubeconfig:?}"
+          "${current_kubeconfig:?}" \
+          "${current_namespace:-${default_namespace}}"
         this::use_context \
           "${current_cluster_and_context_name:?}"
         this::set_context_extension_aptakube \
@@ -684,17 +691,19 @@ main() {
         current_user_name="$(this::occ_yaml_get_alias_field "${getopts_alias}" user_name)"
         # generic
         #
-        if [ -n "${token}" ] || [ "${force}" = 'true' ] || ! this::session_is_valid "${current_cluster_and_context_name:?}" "${current_kubeconfig:?}"; then
+        if [ "${current_force:-${default_force}}" = 'true' ] || ! this::session_is_valid "${current_cluster_and_context_name:?}" "${current_kubeconfig:?}"; then
           this::init_generic \
             "${current_cluster_and_context_name:?}" \
             "${current_generic_server:?}" \
             "${current_kubeconfig:?}" \
+            "${current_token:-${default_token}}" \
             "${current_user_name:?}"
           this::session_is_valid "${current_cluster_and_context_name:?}" "${current_kubeconfig:?}" || functions::exit 1 "NOT AUTHENTICATED"
         fi
         this::set_context_namespace \
           "${current_cluster_and_context_name:?}" \
-          "${current_kubeconfig:?}"
+          "${current_kubeconfig:?}" \
+          "${current_namespace:-${default_namespace}}"
         this::use_context \
           "${current_cluster_and_context_name:?}"
         this::set_context_extension_aptakube \
@@ -709,7 +718,8 @@ main() {
         #
         this::set_context_namespace \
           "${current_cluster_and_context_name:?}" \
-          "${current_kubeconfig:?}"
+          "${current_kubeconfig:?}" \
+          "${current_namespace:-${default_namespace}}"
         this::use_context \
           "${current_cluster_and_context_name:?}"
         ;;
@@ -720,7 +730,7 @@ main() {
         current_user_name="$(this::occ_yaml_get_alias_field "${getopts_alias}" user_name)"
         # ocp
         #
-        if [ "${force}" = 'true' ] || ! this::session_is_valid "${current_cluster_and_context_name:?}" "${current_kubeconfig:?}"; then
+        if [ "${current_force:-${default_force}}" = 'true' ] || ! this::session_is_valid "${current_cluster_and_context_name:?}" "${current_kubeconfig:?}"; then
           this::init_ocp \
             "${current_cluster_and_context_name:?}" \
             "${current_kubeconfig:?}" \
@@ -730,7 +740,8 @@ main() {
         fi
         this::set_context_namespace \
           "${current_cluster_and_context_name:?}" \
-          "${current_kubeconfig:?}"
+          "${current_kubeconfig:?}" \
+          "${current_namespace:-${default_namespace}}"
         this::use_context \
           "${current_cluster_and_context_name:?}"
         this::set_context_extension_aptakube \
@@ -748,7 +759,7 @@ main() {
         current_user_name="$(this::occ_yaml_get_alias_field "${getopts_alias}" user_name)"
         # oke
         #
-        if [ "${force}" = 'true' ] || ! this::session_is_valid "${current_cluster_and_context_name:?}" "${current_kubeconfig:?}"; then
+        if [ "${current_force:-${default_force}}" = 'true' ] || ! this::session_is_valid "${current_cluster_and_context_name:?}" "${current_kubeconfig:?}"; then
           this::init_oke \
             "${current_cluster_and_context_name:?}" \
             "${current_kubeconfig:?}" \
@@ -759,7 +770,8 @@ main() {
         fi
         this::set_context_namespace \
           "${current_cluster_and_context_name:?}" \
-          "${current_kubeconfig:?}"
+          "${current_kubeconfig:?}" \
+          "${current_namespace:-${default_namespace}}"
         this::use_context \
           "${current_cluster_and_context_name:?}"
         this::set_context_extension_aptakube \
