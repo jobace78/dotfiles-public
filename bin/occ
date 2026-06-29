@@ -5,9 +5,11 @@
 # index:
 #   - this::help
 #   - this::init_aks
-#   - this::init_custom
+#   - this::init_generic
+#   - this::init_ocp
 #   - this::init_oke
 #   - this::print_empty_kubeconfig
+#   - this::session_is_valid
 #   - this::set_context_extension_aptakube
 #   - this::set_context_namespace
 #   - this::set_context_namespace_manual
@@ -31,6 +33,7 @@ this::help() {
 
   Options:
     -a             Configure as (cluster) admin
+    -f             Force login even if the current session is valid
     -l             List available aliases and exit
     -n <namespace> Set the specified namespace
     -r             Restore default kubeconfig files and exit
@@ -48,19 +51,19 @@ this::help() {
     <alias>_aks_resource_group=<aks1 resource group>
     <alias>_aks_subscription=<aks1 subscription>
     <alias>_cluster_name=<cluster name>
-    <alias>_extension_aptakube_order=2
-    <alias>_extension_aptakube_tags=AZ,AKS
+    <alias>_extension_aptakube_order=1
+    <alias>_extension_aptakube_tags=AKS,aks-label-1,aks-label-2
     <alias>_kind=aks
     <alias>_kubeconfig=/Users/jobace78/.kubeconfig-aks1.yaml
     <alias>_user_name=<mail or user name>
 
     <alias>_cluster_name=<cluster name>
-    <alias>_custom_server=https://<api address>
-    <alias>_extension_aptakube_icon_url=/Users/jobace78/icon_openshift_512x512.png
-    <alias>_extension_aptakube_order=1
-    <alias>_extension_aptakube_tags=AWS,OCP
-    <alias>_kind=custom
-    <alias>_kubeconfig=/Users/jobace78/.kubeconfig-custom1.yaml
+    <alias>_extension_aptakube_icon_url=/Users/jobace78/icon_kubernetes_512x512.png
+    <alias>_extension_aptakube_order=2
+    <alias>_extension_aptakube_tags=GENERIC,generic-label-1,generic-label-2
+    <alias>_generic_server=https://<api address>
+    <alias>_kind=generic
+    <alias>_kubeconfig=/Users/jobace78/.kubeconfig-generic1.yaml
     <alias>_user_name=<mail or user name>
 
     <alias>_kind=manual
@@ -68,8 +71,17 @@ this::help() {
     <alias>_manual_context_name=<manual1 name>
 
     <alias>_cluster_name=<cluster name>
+    <alias>_extension_aptakube_icon_url=/Users/jobace78/icon_openshift_512x512.png
     <alias>_extension_aptakube_order=3
-    <alias>_extension_aptakube_tags=OCI,OKE
+    <alias>_extension_aptakube_tags=OCP,ocp-label-1,ocp-label-2
+    <alias>_kind=ocp
+    <alias>_kubeconfig=/Users/jobace78/.kubeconfig-ocp1.yaml
+    <alias>_ocp_server=https://<api address>
+    <alias>_user_name=<mail or user name>
+
+    <alias>_cluster_name=<cluster name>
+    <alias>_extension_aptakube_order=4
+    <alias>_extension_aptakube_tags=OKE,oke-label-1,oke-label-2
     <alias>_kind=oke
     <alias>_kubeconfig=/Users/jobace78/.kubeconfig-oke1.yaml
     <alias>_oke_cluster_id=<oke1 cluster id>
@@ -81,8 +93,9 @@ this::help() {
     [...]
     KUBECONFIG=":\${HOME:?}/.kube/config"
     KUBECONFIG="\${KUBECONFIG}:/Users/jobace78/.kubeconfig-aks1.yaml"
-    KUBECONFIG="\${KUBECONFIG}:/Users/jobace78/.kubeconfig-custom1.yaml"
+    KUBECONFIG="\${KUBECONFIG}:/Users/jobace78/.kubeconfig-generic1.yaml"
     KUBECONFIG="\${KUBECONFIG}:/Users/jobace78/.kubeconfig-manual1.yaml"
+    KUBECONFIG="\${KUBECONFIG}:/Users/jobace78/.kubeconfig-ocp1.yaml"
     KUBECONFIG="\${KUBECONFIG}:/Users/jobace78/.kubeconfig-oke1.yaml"
     [...]
 
@@ -116,6 +129,8 @@ this::init_aks() {
   local_current_cluster_name="${4:?}"
   local_current_kubeconfig="${5:?}"
   local_current_user_name="${6:?}"
+  # truncate any existing kubeconfig...
+  #
   if [ -f "${local_current_kubeconfig}" ]; then
     cat /dev/null > "${local_current_kubeconfig}"
   fi
@@ -152,23 +167,23 @@ this::init_aks() {
 #   token
 # Arguments:
 #   1: local_current_cluster_name (required, string)
-#   2: local_current_custom_server (required, string)
+#   2: local_current_generic_server (required, string)
 #   3: local_current_kubeconfig (required, string)
 #   4: local_current_user_name (required, string)
 #######################################
-this::init_custom() {
+this::init_generic() {
   # INFO : local variables with "local" prefix to avoid "collisions"...
   local local_current_cluster_name
-  local local_current_custom_server
+  local local_current_generic_server
   local local_current_kubeconfig
   local local_current_user_name
   local_current_cluster_name="${1:?}"
-  local_current_custom_server="${2:?}"
+  local_current_generic_server="${2:?}"
   local_current_kubeconfig="${3:?}"
   local_current_user_name="${4:?}"
   oc config set-cluster \
     --kubeconfig="${local_current_kubeconfig}" \
-    --server="${local_current_custom_server}" \
+    --server="${local_current_generic_server}" \
     "${local_current_cluster_name}" 1> /dev/null
   oc config set-context \
     --cluster="${local_current_cluster_name}" \
@@ -181,6 +196,43 @@ this::init_custom() {
       --token="${token}" \
       "${local_current_user_name}-at-${local_current_cluster_name}" 1> /dev/null
   fi
+}
+
+#######################################
+# No description.
+# Arguments:
+#   1: local_current_cluster_name (required, string)
+#   2: local_current_kubeconfig (required, string)
+#   3: local_current_ocp_server (required, string)
+#   4: local_current_user_name (required, string)
+#######################################
+this::init_ocp() {
+  # INFO : local variables with "local" prefix to avoid "collisions"...
+  local local_current_cluster_name
+  local local_current_kubeconfig
+  local local_current_ocp_server
+  local local_current_user_name
+  local_current_cluster_name="${1:?}"
+  local_current_kubeconfig="${2:?}"
+  local_current_ocp_server="${3:?}"
+  local_current_user_name="${4:?}"
+  # truncate any existing kubeconfig...
+  #
+  if [ -f "${local_current_kubeconfig}" ]; then
+    cat /dev/null > "${local_current_kubeconfig}"
+  fi
+  oc login "${local_current_ocp_server}" \
+    --kubeconfig="${local_current_kubeconfig}" \
+    --web 1> /dev/null
+  yq --inplace \
+    "
+    .clusters[].name = \"${local_current_cluster_name}\"
+    | .contexts[].context |= {\"cluster\": \"${local_current_cluster_name}\", \"namespace\": (.namespace // \"default\"), \"user\": \"${local_current_user_name}-at-${local_current_cluster_name}\"}
+    | .contexts[].name = \"${local_current_cluster_name}-as-${local_current_user_name}\"
+    | del(.current-context)
+    | .users[].name = \"${local_current_user_name}-at-${local_current_cluster_name}\"
+    " \
+    "${local_current_kubeconfig}"
 }
 
 #######################################
@@ -204,6 +256,8 @@ this::init_oke() {
   local_current_oke_cluster_id="${3:?}"
   local_current_oke_profile="${4:?}"
   local_current_user_name="${5:?}"
+  # truncate any existing kubeconfig...
+  #
   if [ -f "${local_current_kubeconfig}" ]; then
     cat /dev/null > "${local_current_kubeconfig}"
   fi
@@ -241,6 +295,28 @@ kind: Config
 preferences: {}
 users: null
 EOT
+}
+
+#######################################
+# No description.
+# Arguments:
+#   1: local_current_context_name (required, string)
+#   2: local_current_kubeconfig (required, string)
+# Returns:
+#   0 ...
+#   1 ...
+#######################################
+this::session_is_valid() {
+  # INFO : local variables with "local" prefix to avoid "collisions"...
+  local local_current_context_name
+  local local_current_kubeconfig
+  local_current_context_name="${1:?}"
+  local_current_kubeconfig="${2:?}"
+  if oc --context="${local_current_context_name}" --kubeconfig="${local_current_kubeconfig}" whoami 1> /dev/null 2> /dev/null && [[ $(oc --context="${local_current_context_name}" --kubeconfig="${local_current_kubeconfig}" whoami 2> /dev/null) != 'system:anonymous' ]]; then
+    return 0
+  else
+    return 1
+  fi
 }
 
 #######################################
@@ -386,6 +462,7 @@ this::use_context_manual() {
 #   OPTARG
 #   OPTIND
 #   admin
+#   force
 #   namespace
 #   token
 # Arguments:
@@ -399,7 +476,6 @@ main() {
     # shellcheck source=/dev/null
     . "${HOME:?}"/.etc/bash44.shconf || exit 1
   fi
-
   if [ -f "$(dirname "${0}")"/../etc/constants.shconf ]; then
     # shellcheck source=../etc/constants.shconf
     . "$(dirname "${0}")"/../etc/constants.shconf
@@ -407,7 +483,6 @@ main() {
     # shellcheck source=/dev/null
     . "${HOME:?}"/.etc/constants.shconf
   fi
-
   if [ -f "$(dirname "${0}")"/../etc/functions.shconf ]; then
     # shellcheck source=../etc/functions.shconf
     . "$(dirname "${0}")"/../etc/functions.shconf
@@ -415,22 +490,26 @@ main() {
     # shellcheck source=/dev/null
     . "${HOME:?}"/.etc/functions.shconf
   fi
-
+  # global variables
+  #
   admin='false'
+  force='false'
   namespace='default'
   token=''
-
+  # local variables
+  #
   local current_aks_name
   local current_aks_resource_group
   local current_aks_subscription
   local current_cluster_name
-  local current_custom_server
   local current_extension_aptakube_icon_url
   local current_extension_aptakube_order
   local current_extension_aptakube_tags
+  local current_generic_server
   local current_kind
   local current_kubeconfig
   local current_manual_context_name
+  local current_ocp_server
   local current_oke_cluster_id
   local current_oke_profile
   local current_user_name
@@ -446,13 +525,14 @@ main() {
   current_aks_resource_group=''
   current_aks_subscription=''
   current_cluster_name=''
-  current_custom_server=''
   current_extension_aptakube_icon_url=''
   current_extension_aptakube_order=''
   current_extension_aptakube_tags=''
+  current_generic_server=''
   current_kind=''
   current_kubeconfig=''
   current_manual_context_name=''
+  current_ocp_server=''
   current_oke_cluster_id=''
   current_oke_profile=''
   current_user_name=''
@@ -461,27 +541,29 @@ main() {
   getopts_args=''
   getopts_kubeconfig=''
   getopts_response=''
-  getopts_version='v20251028'
+  getopts_version='v20260629'
   occ_conf="${OCC_CONF:-"${HOME:?}"/.occ.conf}"
   sed='sed'
-
   trap 'functions::catch_all ${?}' ERR SIGHUP SIGINT SIGQUIT SIGTERM
-
+  # setup
+  #
   case "$(uname)" in
     Darwin*)
       sed='gsed'
       ;;
   esac
-
   mkdir -p "${HOME:?}"/.kube
-
   touch "${HOME:?}"/.kube/config 1> /dev/null
-
+  # getopts_args / getopts_version
+  #
   OPTIND=1
-  while getopts 'aln:rt:uHUV' getopts_args; do
+  while getopts 'afln:rt:uHUV' getopts_args; do
     case "${getopts_args}" in
       a)
         admin='true'
+        ;;
+      f)
+        force='true'
         ;;
       l)
         if [ -f "${occ_conf}" ]; then
@@ -554,11 +636,10 @@ main() {
     esac
   done
   shift $((OPTIND - 1))
-
+  # main
+  #
   [ $# -ge 1 ] || this::help 1
-
   getopts_alias="${1:?}"
-
   if [ -f "${occ_conf}" ]; then
     # common variables
     #
@@ -578,13 +659,16 @@ main() {
         current_user_name="$(awk -F '=' -v this="^${getopts_alias}_user_name" '$1 ~ this { print $2 }' "${occ_conf}" 2> /dev/null)"
         # aks
         #
-        this::init_aks \
-          "${current_aks_name:?}" \
-          "${current_aks_resource_group:?}" \
-          "${current_aks_subscription:?}" \
-          "${current_cluster_name:?}" \
-          "${current_kubeconfig:?}" \
-          "${current_user_name:?}"
+        if [ "${force}" = 'true' ] || ! this::session_is_valid "${current_cluster_name:?}-as-${current_user_name:?}" "${current_kubeconfig:?}"; then
+          this::init_aks \
+            "${current_aks_name:?}" \
+            "${current_aks_resource_group:?}" \
+            "${current_aks_subscription:?}" \
+            "${current_cluster_name:?}" \
+            "${current_kubeconfig:?}" \
+            "${current_user_name:?}"
+          this::session_is_valid "${current_cluster_name:?}-as-${current_user_name:?}" "${current_kubeconfig:?}" || functions::exit 1 "NOT AUTHENTICATED"
+        fi
         this::set_context_namespace \
           "${current_cluster_name:?}" \
           "${current_kubeconfig:?}" \
@@ -599,19 +683,22 @@ main() {
           "${current_extension_aptakube_tags:-}" \
           "${current_kubeconfig:?}"
         ;;
-      custom)
-        # custom variables
+      generic)
+        # generic variables
         #
         current_cluster_name="$(awk -F '=' -v this="^${getopts_alias}_cluster_name" '$1 ~ this { print $2 }' "${occ_conf}" 2> /dev/null)"
-        current_custom_server="$(awk -F '=' -v this="^${getopts_alias}_custom_server" '$1 ~ this { print $2 }' "${occ_conf}" 2> /dev/null)"
+        current_generic_server="$(awk -F '=' -v this="^${getopts_alias}_generic_server" '$1 ~ this { print $2 }' "${occ_conf}" 2> /dev/null)"
         current_user_name="$(awk -F '=' -v this="^${getopts_alias}_user_name" '$1 ~ this { print $2 }' "${occ_conf}" 2> /dev/null)"
-        # custom
+        # generic
         #
-        this::init_custom \
-          "${current_cluster_name:?}" \
-          "${current_custom_server:?}" \
-          "${current_kubeconfig:?}" \
-          "${current_user_name:?}"
+        if [ -n "${token}" ] || [ "${force}" = 'true' ] || ! this::session_is_valid "${current_cluster_name:?}-as-${current_user_name:?}" "${current_kubeconfig:?}"; then
+          this::init_generic \
+            "${current_cluster_name:?}" \
+            "${current_generic_server:?}" \
+            "${current_kubeconfig:?}" \
+            "${current_user_name:?}"
+          this::session_is_valid "${current_cluster_name:?}-as-${current_user_name:?}" "${current_kubeconfig:?}" || functions::exit 1 "NOT AUTHENTICATED"
+        fi
         this::set_context_namespace \
           "${current_cluster_name:?}" \
           "${current_kubeconfig:?}" \
@@ -638,6 +725,36 @@ main() {
         this::use_context_manual \
           "${current_manual_context_name:?}"
         ;;
+      ocp)
+        # ocp variables
+        #
+        current_cluster_name="$(awk -F '=' -v this="^${getopts_alias}_cluster_name" '$1 ~ this { print $2 }' "${occ_conf}" 2> /dev/null)"
+        current_ocp_server="$(awk -F '=' -v this="^${getopts_alias}_ocp_server" '$1 ~ this { print $2 }' "${occ_conf}" 2> /dev/null)"
+        current_user_name="$(awk -F '=' -v this="^${getopts_alias}_user_name" '$1 ~ this { print $2 }' "${occ_conf}" 2> /dev/null)"
+        # ocp
+        #
+        if [ "${force}" = 'true' ] || ! this::session_is_valid "${current_cluster_name:?}-as-${current_user_name:?}" "${current_kubeconfig:?}"; then
+          this::init_ocp \
+            "${current_cluster_name:?}" \
+            "${current_kubeconfig:?}" \
+            "${current_ocp_server:?}" \
+            "${current_user_name:?}"
+          this::session_is_valid "${current_cluster_name:?}-as-${current_user_name:?}" "${current_kubeconfig:?}" || functions::exit 1 "NOT AUTHENTICATED"
+        fi
+        this::set_context_namespace \
+          "${current_cluster_name:?}" \
+          "${current_kubeconfig:?}" \
+          "${current_user_name:?}"
+        this::use_context \
+          "${current_cluster_name:?}" \
+          "${current_user_name:?}"
+        this::set_context_extension_aptakube \
+          "${current_cluster_name:?}" \
+          "${current_extension_aptakube_icon_url:-}" \
+          "${current_extension_aptakube_order:-}" \
+          "${current_extension_aptakube_tags:-}" \
+          "${current_kubeconfig:?}"
+        ;;
       oke)
         # oke variables
         #
@@ -647,12 +764,15 @@ main() {
         current_user_name="$(awk -F '=' -v this="^${getopts_alias}_user_name" '$1 ~ this { print $2 }' "${occ_conf}" 2> /dev/null)"
         # oke
         #
-        this::init_oke \
-          "${current_cluster_name:?}" \
-          "${current_kubeconfig:?}" \
-          "${current_oke_cluster_id:?}" \
-          "${current_oke_profile:?}" \
-          "${current_user_name:?}"
+        if [ "${force}" = 'true' ] || ! this::session_is_valid "${current_cluster_name:?}-as-${current_user_name:?}" "${current_kubeconfig:?}"; then
+          this::init_oke \
+            "${current_cluster_name:?}" \
+            "${current_kubeconfig:?}" \
+            "${current_oke_cluster_id:?}" \
+            "${current_oke_profile:?}" \
+            "${current_user_name:?}"
+          this::session_is_valid "${current_cluster_name:?}-as-${current_user_name:?}" "${current_kubeconfig:?}" || functions::exit 1 "NOT AUTHENTICATED"
+        fi
         this::set_context_namespace \
           "${current_cluster_name:?}" \
           "${current_kubeconfig:?}" \
