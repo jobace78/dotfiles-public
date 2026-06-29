@@ -32,7 +32,6 @@ this::help() {
   Usage: ${0} [OPTION...] <ALIAS>
 
   Options:
-    -a             Configure as (cluster) admin
     -f             Force login even if the current session is valid
     -l             List available aliases and exit
     -n <namespace> Set the specified namespace
@@ -47,6 +46,7 @@ this::help() {
 
   Configuration file example:
     [...]
+    <alias>_aks_admin=false
     <alias>_aks_name=<aks1 name>
     <alias>_aks_resource_group=<aks1 resource group>
     <alias>_aks_subscription=<aks1 subscription>
@@ -105,36 +105,37 @@ EOT
 
 #######################################
 # No description.
-# Globals:
-#   admin
 # Arguments:
-#   1: local_current_aks_name (required, string)
-#   2: local_current_aks_resource_group (required, string)
-#   3: local_current_aks_subscription (required, string)
-#   4: local_current_cluster_name (required, string)
-#   5: local_current_kubeconfig (required, string)
-#   6: local_current_user_name (required, string)
+#   1: local_current_aks_admin (required, string)
+#   2: local_current_aks_name (required, string)
+#   3: local_current_aks_resource_group (required, string)
+#   4: local_current_aks_subscription (required, string)
+#   5: local_current_cluster_name (required, string)
+#   6: local_current_kubeconfig (required, string)
+#   7: local_current_user_name (required, string)
 #######################################
 this::init_aks() {
   # INFO : local variables with "local" prefix to avoid "collisions"...
+  local local_current_aks_admin
   local local_current_aks_name
   local local_current_aks_resource_group
   local local_current_aks_subscription
   local local_current_cluster_name
   local local_current_kubeconfig
   local local_current_user_name
-  local_current_aks_name="${1:?}"
-  local_current_aks_resource_group="${2:?}"
-  local_current_aks_subscription="${3:?}"
-  local_current_cluster_name="${4:?}"
-  local_current_kubeconfig="${5:?}"
-  local_current_user_name="${6:?}"
+  local_current_aks_admin="${1:?}"
+  local_current_aks_name="${2:?}"
+  local_current_aks_resource_group="${3:?}"
+  local_current_aks_subscription="${4:?}"
+  local_current_cluster_name="${5:?}"
+  local_current_kubeconfig="${6:?}"
+  local_current_user_name="${7:?}"
   # truncate any existing kubeconfig...
   #
   if [ -f "${local_current_kubeconfig}" ]; then
     cat /dev/null > "${local_current_kubeconfig}"
   fi
-  if [ "${admin:-}" = 'true' ]; then
+  if [ "${local_current_aks_admin}" = 'true' ]; then
     az aks get-credentials \
       --admin \
       --context "${local_current_aks_name}" \
@@ -461,7 +462,6 @@ this::use_context_manual() {
 #   OCC_CONF
 #   OPTARG
 #   OPTIND
-#   admin
 #   force
 #   namespace
 #   token
@@ -492,12 +492,12 @@ main() {
   fi
   # global variables
   #
-  admin='false'
   force='false'
   namespace='default'
   token=''
   # local variables
   #
+  local current_aks_admin
   local current_aks_name
   local current_aks_resource_group
   local current_aks_subscription
@@ -521,6 +521,7 @@ main() {
   local getopts_version
   local occ_conf
   local sed
+  current_aks_admin=''
   current_aks_name=''
   current_aks_resource_group=''
   current_aks_subscription=''
@@ -557,11 +558,8 @@ main() {
   # getopts_args / getopts_version
   #
   OPTIND=1
-  while getopts 'afln:rt:uHUV' getopts_args; do
+  while getopts 'fln:rt:uHUV' getopts_args; do
     case "${getopts_args}" in
-      a)
-        admin='true'
-        ;;
       f)
         force='true'
         ;;
@@ -652,6 +650,7 @@ main() {
       aks)
         # aks variables
         #
+        current_aks_admin="$(awk -F '=' -v this="^${getopts_alias}_aks_admin" '$1 ~ this { print $2 }' "${occ_conf}" 2> /dev/null)"
         current_aks_name="$(awk -F '=' -v this="^${getopts_alias}_aks_name" '$1 ~ this { print $2 }' "${occ_conf}" 2> /dev/null)"
         current_aks_resource_group="$(awk -F '=' -v this="^${getopts_alias}_aks_resource_group" '$1 ~ this { print $2 }' "${occ_conf}" 2> /dev/null)"
         current_aks_subscription="$(awk -F '=' -v this="^${getopts_alias}_aks_subscription" '$1 ~ this { print $2 }' "${occ_conf}" 2> /dev/null)"
@@ -661,6 +660,7 @@ main() {
         #
         if [ "${force}" = 'true' ] || ! this::session_is_valid "${current_cluster_name:?}-as-${current_user_name:?}" "${current_kubeconfig:?}"; then
           this::init_aks \
+            "${current_aks_admin:?}" \
             "${current_aks_name:?}" \
             "${current_aks_resource_group:?}" \
             "${current_aks_subscription:?}" \
