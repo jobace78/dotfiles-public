@@ -50,14 +50,14 @@ this::help() {
     <alias>_aks_name=<aks1 name>
     <alias>_aks_resource_group=<aks1 resource group>
     <alias>_aks_subscription=<aks1 subscription>
-    <alias>_cluster_name=<cluster name>
+    <alias>_cluster_and_context_name=<cluster name>
     <alias>_extension_aptakube_order=1
     <alias>_extension_aptakube_tags=AKS,aks-label-1,aks-label-2
     <alias>_kind=aks
     <alias>_kubeconfig=/Users/jobace78/.kubeconfig-aks1.yaml
     <alias>_user_name=<mail or user name>
 
-    <alias>_cluster_name=<cluster name>
+    <alias>_cluster_and_context_name=<cluster name>
     <alias>_extension_aptakube_icon_url=/Users/jobace78/icon_kubernetes_512x512.png
     <alias>_extension_aptakube_order=2
     <alias>_extension_aptakube_tags=GENERIC,generic-label-1,generic-label-2
@@ -70,7 +70,7 @@ this::help() {
     <alias>_kubeconfig=/Users/jobace78/.kubeconfig-manual1.yaml
     <alias>_manual_context_name=<manual1 name>
 
-    <alias>_cluster_name=<cluster name>
+    <alias>_cluster_and_context_name=<cluster name>
     <alias>_extension_aptakube_icon_url=/Users/jobace78/icon_openshift_512x512.png
     <alias>_extension_aptakube_order=3
     <alias>_extension_aptakube_tags=OCP,ocp-label-1,ocp-label-2
@@ -79,7 +79,7 @@ this::help() {
     <alias>_ocp_server=https://<api address>
     <alias>_user_name=<mail or user name>
 
-    <alias>_cluster_name=<cluster name>
+    <alias>_cluster_and_context_name=<cluster name>
     <alias>_extension_aptakube_order=4
     <alias>_extension_aptakube_tags=OKE,oke-label-1,oke-label-2
     <alias>_kind=oke
@@ -110,7 +110,7 @@ EOT
 #   2: local_current_aks_name (required, string)
 #   3: local_current_aks_resource_group (required, string)
 #   4: local_current_aks_subscription (required, string)
-#   5: local_current_cluster_name (required, string)
+#   5: local_current_cluster_and_context_name (required, string)
 #   6: local_current_kubeconfig (required, string)
 #   7: local_current_user_name (required, string)
 #######################################
@@ -120,14 +120,14 @@ this::init_aks() {
   local local_current_aks_name
   local local_current_aks_resource_group
   local local_current_aks_subscription
-  local local_current_cluster_name
+  local local_current_cluster_and_context_name
   local local_current_kubeconfig
   local local_current_user_name
   local_current_aks_admin="${1:?}"
   local_current_aks_name="${2:?}"
   local_current_aks_resource_group="${3:?}"
   local_current_aks_subscription="${4:?}"
-  local_current_cluster_name="${5:?}"
+  local_current_cluster_and_context_name="${5:?}"
   local_current_kubeconfig="${6:?}"
   local_current_user_name="${7:?}"
   # truncate any existing kubeconfig...
@@ -153,11 +153,11 @@ this::init_aks() {
   fi
   yq --inplace \
     "
-    .clusters[].name = \"${local_current_cluster_name}\"
-    | .contexts[].context |= {\"cluster\": \"${local_current_cluster_name}\", \"namespace\": (.namespace // \"default\"), \"user\": \"${local_current_user_name}-at-${local_current_cluster_name}\"}
-    | .contexts[].name = \"${local_current_cluster_name}-as-${local_current_user_name}\"
+    .clusters[].name = \"${local_current_cluster_and_context_name}\"
+    | .contexts[].context |= {\"cluster\": \"${local_current_cluster_and_context_name}\", \"namespace\": (.namespace // \"default\"), \"user\": \"${local_current_user_name}-at-${local_current_cluster_and_context_name}\"}
+    | .contexts[].name = \"${local_current_cluster_and_context_name}\"
     | del(.current-context)
-    | .users[].name = \"${local_current_user_name}-at-${local_current_cluster_name}\"
+    | .users[].name = \"${local_current_user_name}-at-${local_current_cluster_and_context_name}\"
     " \
     "${local_current_kubeconfig}"
 }
@@ -167,53 +167,53 @@ this::init_aks() {
 # Globals:
 #   token
 # Arguments:
-#   1: local_current_cluster_name (required, string)
+#   1: local_current_cluster_and_context_name (required, string)
 #   2: local_current_generic_server (required, string)
 #   3: local_current_kubeconfig (required, string)
 #   4: local_current_user_name (required, string)
 #######################################
 this::init_generic() {
   # INFO : local variables with "local" prefix to avoid "collisions"...
-  local local_current_cluster_name
+  local local_current_cluster_and_context_name
   local local_current_generic_server
   local local_current_kubeconfig
   local local_current_user_name
-  local_current_cluster_name="${1:?}"
+  local_current_cluster_and_context_name="${1:?}"
   local_current_generic_server="${2:?}"
   local_current_kubeconfig="${3:?}"
   local_current_user_name="${4:?}"
   oc config set-cluster \
     --kubeconfig="${local_current_kubeconfig}" \
     --server="${local_current_generic_server}" \
-    "${local_current_cluster_name}" 1> /dev/null
+    "${local_current_cluster_and_context_name}" 1> /dev/null
   oc config set-context \
-    --cluster="${local_current_cluster_name}" \
+    --cluster="${local_current_cluster_and_context_name}" \
     --kubeconfig="${local_current_kubeconfig}" \
-    --user="${local_current_user_name}-at-${local_current_cluster_name}" \
-    "${local_current_cluster_name}-as-${local_current_user_name}" 1> /dev/null
+    --user="${local_current_user_name}-at-${local_current_cluster_and_context_name}" \
+    "${local_current_cluster_and_context_name}" 1> /dev/null
   if [ -n "${token:-}" ]; then
     oc config set-credentials \
       --kubeconfig="${local_current_kubeconfig}" \
       --token="${token}" \
-      "${local_current_user_name}-at-${local_current_cluster_name}" 1> /dev/null
+      "${local_current_user_name}-at-${local_current_cluster_and_context_name}" 1> /dev/null
   fi
 }
 
 #######################################
 # No description.
 # Arguments:
-#   1: local_current_cluster_name (required, string)
+#   1: local_current_cluster_and_context_name (required, string)
 #   2: local_current_kubeconfig (required, string)
 #   3: local_current_ocp_server (required, string)
 #   4: local_current_user_name (required, string)
 #######################################
 this::init_ocp() {
   # INFO : local variables with "local" prefix to avoid "collisions"...
-  local local_current_cluster_name
+  local local_current_cluster_and_context_name
   local local_current_kubeconfig
   local local_current_ocp_server
   local local_current_user_name
-  local_current_cluster_name="${1:?}"
+  local_current_cluster_and_context_name="${1:?}"
   local_current_kubeconfig="${2:?}"
   local_current_ocp_server="${3:?}"
   local_current_user_name="${4:?}"
@@ -227,11 +227,11 @@ this::init_ocp() {
     --web 1> /dev/null
   yq --inplace \
     "
-    .clusters[].name = \"${local_current_cluster_name}\"
-    | .contexts[].context |= {\"cluster\": \"${local_current_cluster_name}\", \"namespace\": (.namespace // \"default\"), \"user\": \"${local_current_user_name}-at-${local_current_cluster_name}\"}
-    | .contexts[].name = \"${local_current_cluster_name}-as-${local_current_user_name}\"
+    .clusters[].name = \"${local_current_cluster_and_context_name}\"
+    | .contexts[].context |= {\"cluster\": \"${local_current_cluster_and_context_name}\", \"namespace\": (.namespace // \"default\"), \"user\": \"${local_current_user_name}-at-${local_current_cluster_and_context_name}\"}
+    | .contexts[].name = \"${local_current_cluster_and_context_name}\"
     | del(.current-context)
-    | .users[].name = \"${local_current_user_name}-at-${local_current_cluster_name}\"
+    | .users[].name = \"${local_current_user_name}-at-${local_current_cluster_and_context_name}\"
     " \
     "${local_current_kubeconfig}"
 }
@@ -239,7 +239,7 @@ this::init_ocp() {
 #######################################
 # No description.
 # Arguments:
-#   1: local_current_cluster_name (required, string)
+#   1: local_current_cluster_and_context_name (required, string)
 #   2: local_current_kubeconfig (required, string)
 #   3: local_current_oke_cluster_id (required, string)
 #   4: local_current_oke_profile (required, string)
@@ -247,12 +247,12 @@ this::init_ocp() {
 #######################################
 this::init_oke() {
   # INFO : local variables with "local" prefix to avoid "collisions"...
-  local local_current_cluster_name
+  local local_current_cluster_and_context_name
   local local_current_kubeconfig
   local local_current_oke_cluster_id
   local local_current_oke_profile
   local local_current_user_name
-  local_current_cluster_name="${1:?}"
+  local_current_cluster_and_context_name="${1:?}"
   local_current_kubeconfig="${2:?}"
   local_current_oke_cluster_id="${3:?}"
   local_current_oke_profile="${4:?}"
@@ -267,13 +267,13 @@ this::init_oke() {
     --file "${local_current_kubeconfig}"
   yq --inplace \
     "
-    .clusters[].name = \"${local_current_cluster_name}\"
-    | .contexts[].context |= {\"cluster\": \"${local_current_cluster_name}\", \"namespace\": (.namespace // \"default\"), \"user\": \"${local_current_user_name}-at-${local_current_cluster_name}\"}
-    | .contexts[].name = \"${local_current_cluster_name}-as-${local_current_user_name}\"
+    .clusters[].name = \"${local_current_cluster_and_context_name}\"
+    | .contexts[].context |= {\"cluster\": \"${local_current_cluster_and_context_name}\", \"namespace\": (.namespace // \"default\"), \"user\": \"${local_current_user_name}-at-${local_current_cluster_and_context_name}\"}
+    | .contexts[].name = \"${local_current_cluster_and_context_name}\"
     | del(.current-context)
     | .kind = null
     | .kind = \"Config\"
-    | .users[].name = \"${local_current_user_name}-at-${local_current_cluster_name}\"
+    | .users[].name = \"${local_current_user_name}-at-${local_current_cluster_and_context_name}\"
     | .users[].user.exec.args = [\"--profile\", \"${local_current_oke_profile}\"] + .users[].user.exec.args
     " \
     "${local_current_kubeconfig}"
@@ -323,7 +323,7 @@ this::session_is_valid() {
 #######################################
 # No description.
 # Arguments:
-#   1: local_current_cluster_name (required, string)
+#   1: local_current_cluster_and_context_name (required, string)
 #   2: local_current_extension_aptakube_icon_url (required, string)
 #   3: local_current_extension_aptakube_order (required, string)
 #   4: local_current_extension_aptakube_tags (required, string)
@@ -333,51 +333,51 @@ this::set_context_extension_aptakube() {
   local tag_index
   tag_index=''
   # INFO : local variables with "local" prefix to avoid "collisions"...
-  local local_current_cluster_name
+  local local_current_cluster_and_context_name
   local local_current_extension_aptakube_icon_url
   local local_current_extension_aptakube_order
   local local_current_extension_aptakube_tags
   local local_current_extension_aptakube_tags_array
   local local_current_kubeconfig
-  local_current_cluster_name="${1:?}"
+  local_current_cluster_and_context_name="${1:?}"
   local_current_extension_aptakube_icon_url="${2:-}"
   local_current_extension_aptakube_order="${3:-}"
   local_current_extension_aptakube_tags="${4:-}"
   local_current_extension_aptakube_tags_array=()
   local_current_kubeconfig="${5:?}"
   yq --inplace \
-    "(.contexts[].context | select(.cluster == \"${local_current_cluster_name}\") | .extensions[0].name) = \"aptakube\"" \
+    "(.contexts[].context | select(.cluster == \"${local_current_cluster_and_context_name}\") | .extensions[0].name) = \"aptakube\"" \
     "${local_current_kubeconfig}"
   # extension_aptakube_icon_url
   #
   yq --inplace \
-    "del(.contexts[].context | select(.cluster == \"${local_current_cluster_name}\") | .extensions[0].extension.icon-url)" \
+    "del(.contexts[].context | select(.cluster == \"${local_current_cluster_and_context_name}\") | .extensions[0].extension.icon-url)" \
     "${local_current_kubeconfig}"
   if [ -n "${local_current_extension_aptakube_icon_url}" ]; then
     yq --inplace \
-      "(.contexts[].context | select(.cluster == \"${local_current_cluster_name}\") | .extensions[0].extension.icon-url) = \"${local_current_extension_aptakube_icon_url}\"" \
+      "(.contexts[].context | select(.cluster == \"${local_current_cluster_and_context_name}\") | .extensions[0].extension.icon-url) = \"${local_current_extension_aptakube_icon_url}\"" \
       "${local_current_kubeconfig}"
   fi
   # extension_aptakube_order
   #
   yq --inplace \
-    "del(.contexts[].context | select(.cluster == \"${local_current_cluster_name}\") | .extensions[0].extension.order)" \
+    "del(.contexts[].context | select(.cluster == \"${local_current_cluster_and_context_name}\") | .extensions[0].extension.order)" \
     "${local_current_kubeconfig}"
   if [ -n "${local_current_extension_aptakube_order}" ]; then
     yq --inplace \
-      "(.contexts[].context | select(.cluster == \"${local_current_cluster_name}\") | .extensions[0].extension.order) = ${local_current_extension_aptakube_order}" \
+      "(.contexts[].context | select(.cluster == \"${local_current_cluster_and_context_name}\") | .extensions[0].extension.order) = ${local_current_extension_aptakube_order}" \
       "${local_current_kubeconfig}"
   fi
   # extension_aptakube_tags
   #
   yq --inplace \
-    "del(.contexts[].context | select(.cluster == \"${local_current_cluster_name}\") | .extensions[0].extension.tags)" \
+    "del(.contexts[].context | select(.cluster == \"${local_current_cluster_and_context_name}\") | .extensions[0].extension.tags)" \
     "${local_current_kubeconfig}"
   if [ -n "${local_current_extension_aptakube_tags}" ]; then
     IFS=',' read -a local_current_extension_aptakube_tags_array -r <<< "${local_current_extension_aptakube_tags}"
     for tag_index in "${!local_current_extension_aptakube_tags_array[@]}"; do
       yq --inplace \
-        "(.contexts[].context | select(.cluster == \"${local_current_cluster_name}\") | .extensions[0].extension.tags[${tag_index}]) = \"${local_current_extension_aptakube_tags_array[tag_index]}\"" \
+        "(.contexts[].context | select(.cluster == \"${local_current_cluster_and_context_name}\") | .extensions[0].extension.tags[${tag_index}]) = \"${local_current_extension_aptakube_tags_array[tag_index]}\"" \
         "${local_current_kubeconfig}"
     done
   fi
@@ -388,22 +388,19 @@ this::set_context_extension_aptakube() {
 # Globals:
 #   namespace
 # Arguments:
-#   1: local_current_cluster_name (required, string)
+#   1: local_current_cluster_and_context_name (required, string)
 #   2: local_current_kubeconfig (required, string)
-#   3: local_current_user_name (required, string)
 #######################################
 this::set_context_namespace() {
   # INFO : local variables with "local" prefix to avoid "collisions"...
-  local local_current_cluster_name
+  local local_current_cluster_and_context_name
   local local_current_kubeconfig
-  local local_current_user_name
-  local_current_cluster_name="${1:?}"
+  local_current_cluster_and_context_name="${1:?}"
   local_current_kubeconfig="${2:?}"
-  local_current_user_name="${3:?}"
   oc config set-context \
     --kubeconfig="${local_current_kubeconfig}" \
     --namespace="${namespace:?}" \
-    "${local_current_cluster_name}-as-${local_current_user_name}" 1> /dev/null
+    "${local_current_cluster_and_context_name}" 1> /dev/null
 }
 
 #######################################
@@ -429,17 +426,14 @@ this::set_context_namespace_manual() {
 #######################################
 # No description.
 # Arguments:
-#   1: local_current_cluster_name (required, string)
-#   2: local_current_user_name (required, string)
+#   1: local_current_cluster_and_context_name (required, string)
 #######################################
 this::use_context() {
   # INFO : local variables with "local" prefix to avoid "collisions"...
-  local local_current_cluster_name
-  local local_current_user_name
-  local_current_cluster_name="${1:?}"
-  local_current_user_name="${2:?}"
+  local local_current_cluster_and_context_name
+  local_current_cluster_and_context_name="${1:?}"
   oc config use-context \
-    "${local_current_cluster_name}-as-${local_current_user_name}"
+    "${local_current_cluster_and_context_name}"
 }
 
 #######################################
@@ -501,7 +495,7 @@ main() {
   local current_aks_name
   local current_aks_resource_group
   local current_aks_subscription
-  local current_cluster_name
+  local current_cluster_and_context_name
   local current_extension_aptakube_icon_url
   local current_extension_aptakube_order
   local current_extension_aptakube_tags
@@ -525,7 +519,7 @@ main() {
   current_aks_name=''
   current_aks_resource_group=''
   current_aks_subscription=''
-  current_cluster_name=''
+  current_cluster_and_context_name=''
   current_extension_aptakube_icon_url=''
   current_extension_aptakube_order=''
   current_extension_aptakube_tags=''
@@ -654,30 +648,28 @@ main() {
         current_aks_name="$(awk -F '=' -v this="^${getopts_alias}_aks_name" '$1 ~ this { print $2 }' "${occ_conf}" 2> /dev/null)"
         current_aks_resource_group="$(awk -F '=' -v this="^${getopts_alias}_aks_resource_group" '$1 ~ this { print $2 }' "${occ_conf}" 2> /dev/null)"
         current_aks_subscription="$(awk -F '=' -v this="^${getopts_alias}_aks_subscription" '$1 ~ this { print $2 }' "${occ_conf}" 2> /dev/null)"
-        current_cluster_name="$(awk -F '=' -v this="^${getopts_alias}_cluster_name" '$1 ~ this { print $2 }' "${occ_conf}" 2> /dev/null)"
+        current_cluster_and_context_name="$(awk -F '=' -v this="^${getopts_alias}_cluster_and_context_name" '$1 ~ this { print $2 }' "${occ_conf}" 2> /dev/null)"
         current_user_name="$(awk -F '=' -v this="^${getopts_alias}_user_name" '$1 ~ this { print $2 }' "${occ_conf}" 2> /dev/null)"
         # aks
         #
-        if [ "${force}" = 'true' ] || ! this::session_is_valid "${current_cluster_name:?}-as-${current_user_name:?}" "${current_kubeconfig:?}"; then
+        if [ "${force}" = 'true' ] || ! this::session_is_valid "${current_cluster_and_context_name:?}" "${current_kubeconfig:?}"; then
           this::init_aks \
             "${current_aks_admin:?}" \
             "${current_aks_name:?}" \
             "${current_aks_resource_group:?}" \
             "${current_aks_subscription:?}" \
-            "${current_cluster_name:?}" \
+            "${current_cluster_and_context_name:?}" \
             "${current_kubeconfig:?}" \
             "${current_user_name:?}"
-          this::session_is_valid "${current_cluster_name:?}-as-${current_user_name:?}" "${current_kubeconfig:?}" || functions::exit 1 "NOT AUTHENTICATED"
+          this::session_is_valid "${current_cluster_and_context_name:?}" "${current_kubeconfig:?}" || functions::exit 1 "NOT AUTHENTICATED"
         fi
         this::set_context_namespace \
-          "${current_cluster_name:?}" \
-          "${current_kubeconfig:?}" \
-          "${current_user_name:?}"
+          "${current_cluster_and_context_name:?}" \
+          "${current_kubeconfig:?}"
         this::use_context \
-          "${current_cluster_name:?}" \
-          "${current_user_name:?}"
+          "${current_cluster_and_context_name:?}"
         this::set_context_extension_aptakube \
-          "${current_cluster_name:?}" \
+          "${current_cluster_and_context_name:?}" \
           "${current_extension_aptakube_icon_url:-}" \
           "${current_extension_aptakube_order:-}" \
           "${current_extension_aptakube_tags:-}" \
@@ -686,28 +678,26 @@ main() {
       generic)
         # generic variables
         #
-        current_cluster_name="$(awk -F '=' -v this="^${getopts_alias}_cluster_name" '$1 ~ this { print $2 }' "${occ_conf}" 2> /dev/null)"
+        current_cluster_and_context_name="$(awk -F '=' -v this="^${getopts_alias}_cluster_and_context_name" '$1 ~ this { print $2 }' "${occ_conf}" 2> /dev/null)"
         current_generic_server="$(awk -F '=' -v this="^${getopts_alias}_generic_server" '$1 ~ this { print $2 }' "${occ_conf}" 2> /dev/null)"
         current_user_name="$(awk -F '=' -v this="^${getopts_alias}_user_name" '$1 ~ this { print $2 }' "${occ_conf}" 2> /dev/null)"
         # generic
         #
-        if [ -n "${token}" ] || [ "${force}" = 'true' ] || ! this::session_is_valid "${current_cluster_name:?}-as-${current_user_name:?}" "${current_kubeconfig:?}"; then
+        if [ -n "${token}" ] || [ "${force}" = 'true' ] || ! this::session_is_valid "${current_cluster_and_context_name:?}" "${current_kubeconfig:?}"; then
           this::init_generic \
-            "${current_cluster_name:?}" \
+            "${current_cluster_and_context_name:?}" \
             "${current_generic_server:?}" \
             "${current_kubeconfig:?}" \
             "${current_user_name:?}"
-          this::session_is_valid "${current_cluster_name:?}-as-${current_user_name:?}" "${current_kubeconfig:?}" || functions::exit 1 "NOT AUTHENTICATED"
+          this::session_is_valid "${current_cluster_and_context_name:?}" "${current_kubeconfig:?}" || functions::exit 1 "NOT AUTHENTICATED"
         fi
         this::set_context_namespace \
-          "${current_cluster_name:?}" \
-          "${current_kubeconfig:?}" \
-          "${current_user_name:?}"
+          "${current_cluster_and_context_name:?}" \
+          "${current_kubeconfig:?}"
         this::use_context \
-          "${current_cluster_name:?}" \
-          "${current_user_name:?}"
+          "${current_cluster_and_context_name:?}"
         this::set_context_extension_aptakube \
-          "${current_cluster_name:?}" \
+          "${current_cluster_and_context_name:?}" \
           "${current_extension_aptakube_icon_url:-}" \
           "${current_extension_aptakube_order:-}" \
           "${current_extension_aptakube_tags:-}" \
@@ -728,28 +718,26 @@ main() {
       ocp)
         # ocp variables
         #
-        current_cluster_name="$(awk -F '=' -v this="^${getopts_alias}_cluster_name" '$1 ~ this { print $2 }' "${occ_conf}" 2> /dev/null)"
+        current_cluster_and_context_name="$(awk -F '=' -v this="^${getopts_alias}_cluster_and_context_name" '$1 ~ this { print $2 }' "${occ_conf}" 2> /dev/null)"
         current_ocp_server="$(awk -F '=' -v this="^${getopts_alias}_ocp_server" '$1 ~ this { print $2 }' "${occ_conf}" 2> /dev/null)"
         current_user_name="$(awk -F '=' -v this="^${getopts_alias}_user_name" '$1 ~ this { print $2 }' "${occ_conf}" 2> /dev/null)"
         # ocp
         #
-        if [ "${force}" = 'true' ] || ! this::session_is_valid "${current_cluster_name:?}-as-${current_user_name:?}" "${current_kubeconfig:?}"; then
+        if [ "${force}" = 'true' ] || ! this::session_is_valid "${current_cluster_and_context_name:?}" "${current_kubeconfig:?}"; then
           this::init_ocp \
-            "${current_cluster_name:?}" \
+            "${current_cluster_and_context_name:?}" \
             "${current_kubeconfig:?}" \
             "${current_ocp_server:?}" \
             "${current_user_name:?}"
-          this::session_is_valid "${current_cluster_name:?}-as-${current_user_name:?}" "${current_kubeconfig:?}" || functions::exit 1 "NOT AUTHENTICATED"
+          this::session_is_valid "${current_cluster_and_context_name:?}" "${current_kubeconfig:?}" || functions::exit 1 "NOT AUTHENTICATED"
         fi
         this::set_context_namespace \
-          "${current_cluster_name:?}" \
-          "${current_kubeconfig:?}" \
-          "${current_user_name:?}"
+          "${current_cluster_and_context_name:?}" \
+          "${current_kubeconfig:?}"
         this::use_context \
-          "${current_cluster_name:?}" \
-          "${current_user_name:?}"
+          "${current_cluster_and_context_name:?}"
         this::set_context_extension_aptakube \
-          "${current_cluster_name:?}" \
+          "${current_cluster_and_context_name:?}" \
           "${current_extension_aptakube_icon_url:-}" \
           "${current_extension_aptakube_order:-}" \
           "${current_extension_aptakube_tags:-}" \
@@ -758,30 +746,28 @@ main() {
       oke)
         # oke variables
         #
-        current_cluster_name="$(awk -F '=' -v this="^${getopts_alias}_cluster_name" '$1 ~ this { print $2 }' "${occ_conf}" 2> /dev/null)"
+        current_cluster_and_context_name="$(awk -F '=' -v this="^${getopts_alias}_cluster_and_context_name" '$1 ~ this { print $2 }' "${occ_conf}" 2> /dev/null)"
         current_oke_cluster_id="$(awk -F '=' -v this="^${getopts_alias}_oke_cluster_id" '$1 ~ this { print $2 }' "${occ_conf}" 2> /dev/null)"
         current_oke_profile="$(awk -F '=' -v this="^${getopts_alias}_oke_profile" '$1 ~ this { print $2 }' "${occ_conf}" 2> /dev/null)"
         current_user_name="$(awk -F '=' -v this="^${getopts_alias}_user_name" '$1 ~ this { print $2 }' "${occ_conf}" 2> /dev/null)"
         # oke
         #
-        if [ "${force}" = 'true' ] || ! this::session_is_valid "${current_cluster_name:?}-as-${current_user_name:?}" "${current_kubeconfig:?}"; then
+        if [ "${force}" = 'true' ] || ! this::session_is_valid "${current_cluster_and_context_name:?}" "${current_kubeconfig:?}"; then
           this::init_oke \
-            "${current_cluster_name:?}" \
+            "${current_cluster_and_context_name:?}" \
             "${current_kubeconfig:?}" \
             "${current_oke_cluster_id:?}" \
             "${current_oke_profile:?}" \
             "${current_user_name:?}"
-          this::session_is_valid "${current_cluster_name:?}-as-${current_user_name:?}" "${current_kubeconfig:?}" || functions::exit 1 "NOT AUTHENTICATED"
+          this::session_is_valid "${current_cluster_and_context_name:?}" "${current_kubeconfig:?}" || functions::exit 1 "NOT AUTHENTICATED"
         fi
         this::set_context_namespace \
-          "${current_cluster_name:?}" \
-          "${current_kubeconfig:?}" \
-          "${current_user_name:?}"
+          "${current_cluster_and_context_name:?}" \
+          "${current_kubeconfig:?}"
         this::use_context \
-          "${current_cluster_name:?}" \
-          "${current_user_name:?}"
+          "${current_cluster_and_context_name:?}"
         this::set_context_extension_aptakube \
-          "${current_cluster_name:?}" \
+          "${current_cluster_and_context_name:?}" \
           "${current_extension_aptakube_icon_url:-}" \
           "${current_extension_aptakube_order:-}" \
           "${current_extension_aptakube_tags:-}" \
