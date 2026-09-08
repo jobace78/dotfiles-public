@@ -68,7 +68,7 @@ functions::exit() {
 functions::log_to_stderr() {
   local date
   local message
-  date="$(coreutils date --rfc-3339=seconds 2> /dev/null || date --rfc-3339=seconds 2> /dev/null || printf '%s' '1970-01-01 01:00:00+01:00')"
+  date="$(coreutils date --rfc-3339=seconds 2> /dev/null || date --rfc-3339=seconds 2> /dev/null || printf '%s' '1970-01-01 00:00:00+00:00')"
   message="${*:?}"
   printf '%s\n' "[${date}] ${message}" >&2
 }
@@ -83,7 +83,7 @@ functions::log_to_stderr() {
 functions::log_to_stdout() {
   local date
   local message
-  date="$(coreutils date --rfc-3339=seconds 2> /dev/null || date --rfc-3339=seconds 2> /dev/null || printf '%s' '1970-01-01 01:00:00+01:00')"
+  date="$(coreutils date --rfc-3339=seconds 2> /dev/null || date --rfc-3339=seconds 2> /dev/null || printf '%s' '1970-01-01 00:00:00+00:00')"
   message="${*:?}"
   printf '%s\n' "[${date}] ${message}"
 }
