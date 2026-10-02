@@ -557,7 +557,7 @@ main() {
   esac
   mkdir -p "${HOME:?}"/.kube
   touch "${HOME:?}"/.kube/config 1> /dev/null
-  # getopts_args / getopts_version
+  # getopts
   #
   OPTIND=1
   while getopts 'fln:rt:uHUV' getopts_args; do

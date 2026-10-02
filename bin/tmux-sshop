@@ -180,7 +180,7 @@ main() {
   getopts_args=''
   getopts_version='v20240819'
   trap 'functions::catch_all ${?}' ERR SIGHUP SIGINT SIGQUIT SIGTERM
-  # getopts_args / getopts_version
+  # getopts
   #
   OPTIND=1
   while getopts 'dlrHUV' getopts_args; do
