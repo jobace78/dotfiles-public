@@ -117,7 +117,7 @@ EOT
 #   7: local_current_user_name (required, string)
 #######################################
 this::init_aks() {
-  # INFO : local variables with "local" prefix to avoid "collisions"...
+  # INFO : local variables with "local" prefix to avoid shadowing...
   local local_current_aks_admin
   local local_current_aks_name
   local local_current_aks_resource_group
@@ -174,7 +174,7 @@ this::init_aks() {
 #   5: local_current_user_name (required, string)
 #######################################
 this::init_generic() {
-  # INFO : local variables with "local" prefix to avoid "collisions"...
+  # INFO : local variables with "local" prefix to avoid shadowing...
   local local_current_cluster_and_context_name
   local local_current_generic_server
   local local_current_kubeconfig
@@ -211,7 +211,7 @@ this::init_generic() {
 #   4: local_current_user_name (required, string)
 #######################################
 this::init_ocp() {
-  # INFO : local variables with "local" prefix to avoid "collisions"...
+  # INFO : local variables with "local" prefix to avoid shadowing...
   local local_current_cluster_and_context_name
   local local_current_kubeconfig
   local local_current_ocp_server
@@ -249,7 +249,7 @@ this::init_ocp() {
 #   5: local_current_user_name (required, string)
 #######################################
 this::init_oke() {
-  # INFO : local variables with "local" prefix to avoid "collisions"...
+  # INFO : local variables with "local" prefix to avoid shadowing...
   local local_current_cluster_and_context_name
   local local_current_kubeconfig
   local local_current_oke_cluster_id
@@ -292,7 +292,7 @@ this::init_oke() {
 #   The yq query result against the config.
 #######################################
 this::occ_yaml_get() {
-  # INFO : local variables with "local" prefix to avoid "collisions"...
+  # INFO : local variables with "local" prefix to avoid shadowing...
   local local_current_expression
   local_current_expression="${1:?}"
   yq "${local_current_expression}" "${occ_yaml:?}" 2> /dev/null
@@ -309,7 +309,7 @@ this::occ_yaml_get() {
 #   The yq query result against the config.
 #######################################
 this::occ_yaml_get_alias_field() {
-  # INFO : local variables with "local" prefix to avoid "collisions"...
+  # INFO : local variables with "local" prefix to avoid shadowing...
   local local_current_alias
   local local_current_field
   local_current_alias="${1:?}"
@@ -346,7 +346,7 @@ EOT
 #   1 ...
 #######################################
 this::session_is_valid() {
-  # INFO : local variables with "local" prefix to avoid "collisions"...
+  # INFO : local variables with "local" prefix to avoid shadowing...
   local local_current_cluster_and_context_name
   local local_current_kubeconfig
   local_current_cluster_and_context_name="${1:?}"
@@ -370,7 +370,7 @@ this::session_is_valid() {
 this::set_context_extension_aptakube() {
   local tag_index
   tag_index=''
-  # INFO : local variables with "local" prefix to avoid "collisions"...
+  # INFO : local variables with "local" prefix to avoid shadowing...
   local local_current_cluster_and_context_name
   local local_current_extension_aptakube_icon_url
   local local_current_extension_aptakube_order
@@ -429,7 +429,7 @@ this::set_context_extension_aptakube() {
 #   3: local_current_namespace (required, string)
 #######################################
 this::set_context_namespace() {
-  # INFO : local variables with "local" prefix to avoid "collisions"...
+  # INFO : local variables with "local" prefix to avoid shadowing...
   local local_current_cluster_and_context_name
   local local_current_kubeconfig
   local local_current_namespace
@@ -448,7 +448,7 @@ this::set_context_namespace() {
 #   1: local_current_cluster_and_context_name (required, string)
 #######################################
 this::use_context() {
-  # INFO : local variables with "local" prefix to avoid "collisions"...
+  # INFO : local variables with "local" prefix to avoid shadowing...
   local local_current_cluster_and_context_name
   local_current_cluster_and_context_name="${1:?}"
   oc config use-context \
