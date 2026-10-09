@@ -11,3 +11,8 @@ Thumbs.db
 .idea/
 
 ### DO NOT MODIFY ABOVE THIS LINE ###
+
+.claude/
+.codex/
+AGENTS.md
+CLAUDE.md
