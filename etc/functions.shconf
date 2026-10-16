@@ -17,21 +17,31 @@
 
 #######################################
 # No description.
+#
+# Notes:
+#   - exits from shell.
+#
 # Arguments:
-#   1 - exit code (required, integer)
+#   1: exit code (required, integer)
+#   2: signal name (optional, string)
+# Outputs:
+#   The caught signal, or the exit code and failing line, to stderr, when the exit code is not 0.
 # Returns:
-#   Exists from shell.
+#   None
 #######################################
 functions::catch_all() {
   local exit_code
+  local signal
   exit_code="${1:?}"
+  signal="${2:-}"
   trap - ERR SIGHUP SIGINT SIGQUIT SIGTERM
   if [[ ${exit_code} == 0 ]]; then
     :
+  elif [ -n "${signal}" ]; then
+    printf '%s\n' "*** ${signal} caught ***" >&2
   else
     printf '%s\n' "*** exit code << ${exit_code} >> on line $(caller) ***" >&2
   fi
-  # kill "${!}" 2> /dev/null
   exit "${exit_code}"
 }
 

@@ -122,8 +122,12 @@ main() {
   local getopts_args
   local getopts_version
   getopts_args=''
-  getopts_version='v20250730'
-  trap 'functions::catch_all ${?}' ERR SIGHUP SIGINT SIGQUIT SIGTERM
+  getopts_version='v20261015'
+  trap 'functions::catch_all ${?}' ERR
+  trap 'functions::catch_all 129 SIGHUP' SIGHUP
+  trap 'functions::catch_all 130 SIGINT' SIGINT
+  trap 'functions::catch_all 131 SIGQUIT' SIGQUIT
+  trap 'functions::catch_all 143 SIGTERM' SIGTERM
   # getopts
   #
   OPTIND=1

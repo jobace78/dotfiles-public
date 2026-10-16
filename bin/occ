@@ -544,10 +544,14 @@ main() {
   getopts_args=''
   getopts_kubeconfig=''
   getopts_response=''
-  getopts_version='v20260629'
+  getopts_version='v20261015'
   occ_yaml="${OCC_YAML:-"${HOME:?}"/.occ.yaml}"
   sed='sed'
-  trap 'functions::catch_all ${?}' ERR SIGHUP SIGINT SIGQUIT SIGTERM
+  trap 'functions::catch_all ${?}' ERR
+  trap 'functions::catch_all 129 SIGHUP' SIGHUP
+  trap 'functions::catch_all 130 SIGINT' SIGINT
+  trap 'functions::catch_all 131 SIGQUIT' SIGQUIT
+  trap 'functions::catch_all 143 SIGTERM' SIGTERM
   # setup
   #
   case "$(uname)" in
