@@ -2,6 +2,11 @@
 #
 # bashsupport disable=BP5007
 
+#
+# Notes:
+#   - deprecated, run shfmt directly and keep these options in .editorconfig
+#
+
 if [ -f "$(dirname "${0}")"/../etc/bash44.shconf ]; then
   # shellcheck source=../etc/bash44.shconf
   . "$(dirname "${0}")"/../etc/bash44.shconf || exit 1
@@ -36,4 +41,9 @@ fi
 
 # shellcheck disable=SC2048
 # shellcheck disable=SC2086
-"${shfmt_path}" --binary-next-line --case-indent --indent=2 --space-redirects ${*}
+"${shfmt_path}" \
+  --binary-next-line \
+  --case-indent \
+  --indent=2 \
+  --space-redirects \
+  ${*}

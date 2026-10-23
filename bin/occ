@@ -4,12 +4,12 @@
 #
 # index:
 #   - this::help
+#   - this::helper_occ_yaml_get
+#   - this::helper_occ_yaml_get_alias_field
 #   - this::init_aks
 #   - this::init_generic
 #   - this::init_ocp
 #   - this::init_oke
-#   - this::occ_yaml_get
-#   - this::occ_yaml_get_alias_field
 #   - this::print_empty_kubeconfig
 #   - this::session_is_valid
 #   - this::set_context_extension_aptakube
@@ -103,6 +103,41 @@ this::help() {
 
 EOT
   functions::exit "${exit_code}"
+}
+
+#######################################
+# No description.
+# Globals:
+#   occ_yaml
+# Arguments:
+#   1: local_current_expression (required, string)
+# Outputs:
+#   The yq query result against the config.
+#######################################
+this::helper_occ_yaml_get() {
+  # INFO : local variables with "local" prefix to avoid shadowing...
+  local local_current_expression
+  local_current_expression="${1:?}"
+  yq "${local_current_expression}" "${occ_yaml:?}" 2> /dev/null
+}
+
+#######################################
+# No description.
+# Globals:
+#   occ_yaml
+# Arguments:
+#   1: local_current_alias (required, string)
+#   2: local_current_field (required, string)
+# Outputs:
+#   The yq query result against the config.
+#######################################
+this::helper_occ_yaml_get_alias_field() {
+  # INFO : local variables with "local" prefix to avoid shadowing...
+  local local_current_alias
+  local local_current_field
+  local_current_alias="${1:?}"
+  local_current_field="${2:?}"
+  yq ".aliases.${local_current_alias}.${local_current_field} | select(. != null)" "${occ_yaml:?}" 2> /dev/null
 }
 
 #######################################
@@ -280,41 +315,6 @@ this::init_oke() {
     | .users[].user.exec.args = [\"--profile\", \"${local_current_oke_profile}\"] + .users[].user.exec.args
     " \
     "${local_current_kubeconfig}"
-}
-
-#######################################
-# No description.
-# Globals:
-#   occ_yaml
-# Arguments:
-#   1: local_current_expression (required, string)
-# Outputs:
-#   The yq query result against the config.
-#######################################
-this::occ_yaml_get() {
-  # INFO : local variables with "local" prefix to avoid shadowing...
-  local local_current_expression
-  local_current_expression="${1:?}"
-  yq "${local_current_expression}" "${occ_yaml:?}" 2> /dev/null
-}
-
-#######################################
-# No description.
-# Globals:
-#   occ_yaml
-# Arguments:
-#   1: local_current_alias (required, string)
-#   2: local_current_field (required, string)
-# Outputs:
-#   The yq query result against the config.
-#######################################
-this::occ_yaml_get_alias_field() {
-  # INFO : local variables with "local" prefix to avoid shadowing...
-  local local_current_alias
-  local local_current_field
-  local_current_alias="${1:?}"
-  local_current_field="${2:?}"
-  yq ".aliases.${local_current_alias}.${local_current_field} | select(. != null)" "${occ_yaml:?}" 2> /dev/null
 }
 
 #######################################
@@ -544,7 +544,7 @@ main() {
   getopts_args=''
   getopts_kubeconfig=''
   getopts_response=''
-  getopts_version='v20261015'
+  getopts_version='v20261023'
   occ_yaml="${OCC_YAML:-"${HOME:?}"/.occ.yaml}"
   sed='sed'
   trap 'functions::catch_all ${?}' ERR
@@ -554,6 +554,11 @@ main() {
   trap 'functions::catch_all 143 SIGTERM' SIGTERM
   # setup
   #
+  if [ -x "$(command -v yq)" ]; then
+    :
+  else
+    functions::exit 1 "'yq' was NOT found, exiting."
+  fi
   case "$(uname)" in
     Darwin*)
       sed='gsed'
@@ -573,7 +578,7 @@ main() {
         if [ -f "${occ_yaml}" ]; then
           while read -r getopts_alias; do
             getopts_aliases+=("${getopts_alias}")
-          done < <(this::occ_yaml_get '.aliases | keys | sort | .[]')
+          done < <(this::helper_occ_yaml_get '.aliases | keys | sort | .[]')
           if [[ "${getopts_aliases[*]}" ]]; then
             functions::stdout "${getopts_aliases[*]}"
             functions::exit 0
@@ -601,7 +606,7 @@ main() {
                   ;;
               esac
             fi
-          done < <(this::occ_yaml_get '[ .aliases[].kubeconfig | select(. != null) ] | sort | unique | .[]')
+          done < <(this::helper_occ_yaml_get '[ .aliases[].kubeconfig | select(. != null) ] | sort | unique | .[]')
         fi
         read -p "Do you want to restore [${HOME:?}/.kube/config]? (Y/n) " -r getopts_response < /dev/tty
         case "${getopts_response}" in
@@ -623,7 +628,7 @@ main() {
             if [ -f "${getopts_kubeconfig}" ]; then
               ${sed} -i '/^current-context:/d' "${getopts_kubeconfig}"
             fi
-          done < <(this::occ_yaml_get '[ .aliases[].kubeconfig | select(. != null) ] | sort | unique | .[]')
+          done < <(this::helper_occ_yaml_get '[ .aliases[].kubeconfig | select(. != null) ] | sort | unique | .[]')
         fi
         ${sed} -i '/^current-context:/d' "${HOME:?}"/.kube/config
         functions::exit 0
@@ -647,21 +652,21 @@ main() {
   if [ -f "${occ_yaml}" ]; then
     # common variables
     #
-    current_cluster_and_context_name="$(this::occ_yaml_get_alias_field "${getopts_alias}" cluster_and_context_name)"
-    current_extension_aptakube_icon_url="$(this::occ_yaml_get_alias_field "${getopts_alias}" extension_aptakube_icon_url)"
-    current_extension_aptakube_order="$(this::occ_yaml_get_alias_field "${getopts_alias}" extension_aptakube_order)"
-    current_extension_aptakube_tags="$(this::occ_yaml_get_alias_field "${getopts_alias}" extension_aptakube_tags)"
-    current_kind="$(this::occ_yaml_get_alias_field "${getopts_alias}" kind)"
-    current_kubeconfig="$(this::occ_yaml_get_alias_field "${getopts_alias}" kubeconfig)"
+    current_cluster_and_context_name="$(this::helper_occ_yaml_get_alias_field "${getopts_alias}" cluster_and_context_name)"
+    current_extension_aptakube_icon_url="$(this::helper_occ_yaml_get_alias_field "${getopts_alias}" extension_aptakube_icon_url)"
+    current_extension_aptakube_order="$(this::helper_occ_yaml_get_alias_field "${getopts_alias}" extension_aptakube_order)"
+    current_extension_aptakube_tags="$(this::helper_occ_yaml_get_alias_field "${getopts_alias}" extension_aptakube_tags)"
+    current_kind="$(this::helper_occ_yaml_get_alias_field "${getopts_alias}" kind)"
+    current_kubeconfig="$(this::helper_occ_yaml_get_alias_field "${getopts_alias}" kubeconfig)"
     case "${current_kind:?}" in
       aks)
         # aks variables
         #
-        current_aks_admin="$(this::occ_yaml_get_alias_field "${getopts_alias}" aks_admin)"
-        current_aks_name="$(this::occ_yaml_get_alias_field "${getopts_alias}" aks_name)"
-        current_aks_resource_group="$(this::occ_yaml_get_alias_field "${getopts_alias}" aks_resource_group)"
-        current_aks_subscription="$(this::occ_yaml_get_alias_field "${getopts_alias}" aks_subscription)"
-        current_user_name="$(this::occ_yaml_get_alias_field "${getopts_alias}" user_name)"
+        current_aks_admin="$(this::helper_occ_yaml_get_alias_field "${getopts_alias}" aks_admin)"
+        current_aks_name="$(this::helper_occ_yaml_get_alias_field "${getopts_alias}" aks_name)"
+        current_aks_resource_group="$(this::helper_occ_yaml_get_alias_field "${getopts_alias}" aks_resource_group)"
+        current_aks_subscription="$(this::helper_occ_yaml_get_alias_field "${getopts_alias}" aks_subscription)"
+        current_user_name="$(this::helper_occ_yaml_get_alias_field "${getopts_alias}" user_name)"
         # aks
         #
         if [ "${current_force:-${default_force}}" = 'true' ] || ! this::session_is_valid "${current_cluster_and_context_name:?}" "${current_kubeconfig:?}"; then
@@ -691,8 +696,8 @@ main() {
       generic)
         # generic variables
         #
-        current_generic_server="$(this::occ_yaml_get_alias_field "${getopts_alias}" generic_server)"
-        current_user_name="$(this::occ_yaml_get_alias_field "${getopts_alias}" user_name)"
+        current_generic_server="$(this::helper_occ_yaml_get_alias_field "${getopts_alias}" generic_server)"
+        current_user_name="$(this::helper_occ_yaml_get_alias_field "${getopts_alias}" user_name)"
         # generic
         #
         if [ "${current_force:-${default_force}}" = 'true' ] || ! this::session_is_valid "${current_cluster_and_context_name:?}" "${current_kubeconfig:?}"; then
@@ -730,8 +735,8 @@ main() {
       ocp)
         # ocp variables
         #
-        current_ocp_server="$(this::occ_yaml_get_alias_field "${getopts_alias}" ocp_server)"
-        current_user_name="$(this::occ_yaml_get_alias_field "${getopts_alias}" user_name)"
+        current_ocp_server="$(this::helper_occ_yaml_get_alias_field "${getopts_alias}" ocp_server)"
+        current_user_name="$(this::helper_occ_yaml_get_alias_field "${getopts_alias}" user_name)"
         # ocp
         #
         if [ "${current_force:-${default_force}}" = 'true' ] || ! this::session_is_valid "${current_cluster_and_context_name:?}" "${current_kubeconfig:?}"; then
@@ -758,9 +763,9 @@ main() {
       oke)
         # oke variables
         #
-        current_oke_cluster_id="$(this::occ_yaml_get_alias_field "${getopts_alias}" oke_cluster_id)"
-        current_oke_profile="$(this::occ_yaml_get_alias_field "${getopts_alias}" oke_profile)"
-        current_user_name="$(this::occ_yaml_get_alias_field "${getopts_alias}" user_name)"
+        current_oke_cluster_id="$(this::helper_occ_yaml_get_alias_field "${getopts_alias}" oke_cluster_id)"
+        current_oke_profile="$(this::helper_occ_yaml_get_alias_field "${getopts_alias}" oke_profile)"
+        current_user_name="$(this::helper_occ_yaml_get_alias_field "${getopts_alias}" user_name)"
         # oke
         #
         if [ "${current_force:-${default_force}}" = 'true' ] || ! this::session_is_valid "${current_cluster_and_context_name:?}" "${current_kubeconfig:?}"; then

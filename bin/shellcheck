@@ -2,6 +2,11 @@
 #
 # bashsupport disable=BP5007
 
+#
+# Notes:
+#   - deprecated, run shellcheck directly and keep these options in ~/.shellcheckrc
+#
+
 if [ -f "$(dirname "${0}")"/../etc/bash44.shconf ]; then
   # shellcheck source=../etc/bash44.shconf
   . "$(dirname "${0}")"/../etc/bash44.shconf || exit 1
@@ -36,4 +41,8 @@ fi
 
 # shellcheck disable=SC2048
 # shellcheck disable=SC2086
-"${shellcheck_path}" --external-sources --source-path=SCRIPTDIR ${*}
+"${shellcheck_path}" \
+  --enable=add-default-case,avoid-negated-conditions,avoid-nullary-conditions,check-set-e-suppressed,check-unassigned-uppercase,deprecate-which,quote-safe-variables,require-variable-braces,useless-use-of-cat \
+  --external-sources \
+  --source-path=SCRIPTDIR \
+  ${*}
