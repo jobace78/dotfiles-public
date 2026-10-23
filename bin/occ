@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
 #
-# bashsupport disable=BP5007
-#
 # index:
 #   - this::help
 #   - this::helper_occ_yaml_get
@@ -18,11 +16,13 @@
 #
 
 #######################################
-# No description.
+# Print the usage help message and exit with the given exit code.
 # Arguments:
 #   1 - exit_code (optional, integer)
 # Outputs:
 #   Help message to stdout.
+# Returns:
+#   None
 #######################################
 this::help() {
   local exit_code
@@ -106,13 +106,15 @@ EOT
 }
 
 #######################################
-# No description.
+# Print the result of the given yq expression against the occ config.
 # Globals:
 #   occ_yaml
 # Arguments:
 #   1: local_current_expression (required, string)
 # Outputs:
-#   The yq query result against the config.
+#   The yq query result against the config to stdout.
+# Returns:
+#   None
 #######################################
 this::helper_occ_yaml_get() {
   # INFO : local variables with "local" prefix to avoid shadowing...
@@ -122,14 +124,16 @@ this::helper_occ_yaml_get() {
 }
 
 #######################################
-# No description.
+# Print the value of a field of the given alias from the occ config, if set.
 # Globals:
 #   occ_yaml
 # Arguments:
 #   1: local_current_alias (required, string)
 #   2: local_current_field (required, string)
 # Outputs:
-#   The yq query result against the config.
+#   The yq query result against the config to stdout.
+# Returns:
+#   None
 #######################################
 this::helper_occ_yaml_get_alias_field() {
   # INFO : local variables with "local" prefix to avoid shadowing...
@@ -141,7 +145,7 @@ this::helper_occ_yaml_get_alias_field() {
 }
 
 #######################################
-# No description.
+# Recreate the kubeconfig of an AKS cluster with az and rename its cluster, context and user.
 # Arguments:
 #   1: local_current_aks_admin (required, string)
 #   2: local_current_aks_name (required, string)
@@ -150,6 +154,10 @@ this::helper_occ_yaml_get_alias_field() {
 #   5: local_current_cluster_and_context_name (required, string)
 #   6: local_current_kubeconfig (required, string)
 #   7: local_current_user_name (required, string)
+# Outputs:
+#   None
+# Returns:
+#   None
 #######################################
 this::init_aks() {
   # INFO : local variables with "local" prefix to avoid shadowing...
@@ -200,13 +208,18 @@ this::init_aks() {
 }
 
 #######################################
-# No description.
+# Set the cluster, context and, unless the token is the default one, the credentials of a
+# generic cluster in its kubeconfig.
 # Arguments:
 #   1: local_current_cluster_and_context_name (required, string)
 #   2: local_current_generic_server (required, string)
 #   3: local_current_kubeconfig (required, string)
 #   4: local_current_token (required, string)
 #   5: local_current_user_name (required, string)
+# Outputs:
+#   None
+# Returns:
+#   None
 #######################################
 this::init_generic() {
   # INFO : local variables with "local" prefix to avoid shadowing...
@@ -238,12 +251,16 @@ this::init_generic() {
 }
 
 #######################################
-# No description.
+# Recreate the kubeconfig of an OpenShift cluster with a web login and rename its cluster, context and user.
 # Arguments:
 #   1: local_current_cluster_and_context_name (required, string)
 #   2: local_current_kubeconfig (required, string)
 #   3: local_current_ocp_server (required, string)
 #   4: local_current_user_name (required, string)
+# Outputs:
+#   None
+# Returns:
+#   None
 #######################################
 this::init_ocp() {
   # INFO : local variables with "local" prefix to avoid shadowing...
@@ -275,13 +292,17 @@ this::init_ocp() {
 }
 
 #######################################
-# No description.
+# Recreate the kubeconfig of an OKE cluster with oci and rename its cluster, context and user.
 # Arguments:
 #   1: local_current_cluster_and_context_name (required, string)
 #   2: local_current_kubeconfig (required, string)
 #   3: local_current_oke_cluster_id (required, string)
 #   4: local_current_oke_profile (required, string)
 #   5: local_current_user_name (required, string)
+# Outputs:
+#   The oci CLI messages to stdout.
+# Returns:
+#   None
 #######################################
 this::init_oke() {
   # INFO : local variables with "local" prefix to avoid shadowing...
@@ -318,9 +339,13 @@ this::init_oke() {
 }
 
 #######################################
-# No description.
+# Write an empty kubeconfig to the given path, creating its directory if needed.
 # Arguments:
 #   1: path (required, string)
+# Outputs:
+#   None
+# Returns:
+#   None
 #######################################
 this::print_empty_kubeconfig() {
   local path
@@ -337,13 +362,15 @@ EOT
 }
 
 #######################################
-# No description.
+# Check that the given context has an authenticated, non-anonymous session.
 # Arguments:
 #   1: local_current_cluster_and_context_name (required, string)
 #   2: local_current_kubeconfig (required, string)
+# Outputs:
+#   None
 # Returns:
-#   0 ...
-#   1 ...
+#   0 if the session is valid.
+#   1 otherwise.
 #######################################
 this::session_is_valid() {
   # INFO : local variables with "local" prefix to avoid shadowing...
@@ -359,13 +386,17 @@ this::session_is_valid() {
 }
 
 #######################################
-# No description.
+# Set the aptakube extension (icon url, order and tags) of the given context in its kubeconfig.
 # Arguments:
 #   1: local_current_cluster_and_context_name (required, string)
-#   2: local_current_extension_aptakube_icon_url (required, string)
-#   3: local_current_extension_aptakube_order (required, string)
-#   4: local_current_extension_aptakube_tags (required, string)
+#   2: local_current_extension_aptakube_icon_url (optional, string)
+#   3: local_current_extension_aptakube_order (optional, string)
+#   4: local_current_extension_aptakube_tags (optional, string)
 #   5: local_current_kubeconfig (required, string)
+# Outputs:
+#   None
+# Returns:
+#   None
 #######################################
 this::set_context_extension_aptakube() {
   local tag_index
@@ -422,11 +453,15 @@ this::set_context_extension_aptakube() {
 }
 
 #######################################
-# No description.
+# Set the namespace of the given context in its kubeconfig.
 # Arguments:
 #   1: local_current_cluster_and_context_name (required, string)
 #   2: local_current_kubeconfig (required, string)
 #   3: local_current_namespace (required, string)
+# Outputs:
+#   None
+# Returns:
+#   None
 #######################################
 this::set_context_namespace() {
   # INFO : local variables with "local" prefix to avoid shadowing...
@@ -443,9 +478,13 @@ this::set_context_namespace() {
 }
 
 #######################################
-# No description.
+# Make the given context the current one.
 # Arguments:
 #   1: local_current_cluster_and_context_name (required, string)
+# Outputs:
+#   The oc confirmation message to stdout.
+# Returns:
+#   None
 #######################################
 this::use_context() {
   # INFO : local variables with "local" prefix to avoid shadowing...
@@ -456,13 +495,21 @@ this::use_context() {
 }
 
 #######################################
-# No description.
+# Log in to the cluster of the given alias from the occ config when needed and switch to its context.
+#
+# Notes:
+#   - exits from shell with -l, -r, -u, -H, -U, -V, an unknown option or on error.
+#
 # Globals:
 #   HOME
 #   OCC_YAML
 #   OPTARG
 #   OPTIND
 # Arguments:
+#   None
+# Outputs:
+#   The aliases with -l, the version with -V, or the oc messages, to stdout.
+# Returns:
 #   None
 #######################################
 main() {
@@ -563,6 +610,9 @@ main() {
     Darwin*)
       sed='gsed'
       ;;
+    *)
+      sed='sed'
+      ;;
   esac
   mkdir -p "${HOME:?}"/.kube
   touch "${HOME:?}"/.kube/config 1> /dev/null
@@ -579,7 +629,7 @@ main() {
           while read -r getopts_alias; do
             getopts_aliases+=("${getopts_alias}")
           done < <(this::helper_occ_yaml_get '.aliases | keys | sort | .[]')
-          if [[ "${getopts_aliases[*]}" ]]; then
+          if [ -n "${getopts_aliases[*]}" ]; then
             functions::stdout "${getopts_aliases[*]}"
             functions::exit 0
           else
@@ -639,7 +689,7 @@ main() {
       V)
         functions::exit 0 "${getopts_version}"
         ;;
-      ?)
+      *)
         this::help 1
         ;;
     esac
@@ -669,6 +719,7 @@ main() {
         current_user_name="$(this::helper_occ_yaml_get_alias_field "${getopts_alias}" user_name)"
         # aks
         #
+        # shellcheck disable=SC2310
         if [ "${current_force:-${default_force}}" = 'true' ] || ! this::session_is_valid "${current_cluster_and_context_name:?}" "${current_kubeconfig:?}"; then
           this::init_aks \
             "${current_aks_admin:?}" \
@@ -678,6 +729,7 @@ main() {
             "${current_cluster_and_context_name:?}" \
             "${current_kubeconfig:?}" \
             "${current_user_name:?}"
+          # shellcheck disable=SC2310
           this::session_is_valid "${current_cluster_and_context_name:?}" "${current_kubeconfig:?}" || functions::exit 1 "NOT AUTHENTICATED"
         fi
         this::set_context_namespace \
@@ -700,6 +752,7 @@ main() {
         current_user_name="$(this::helper_occ_yaml_get_alias_field "${getopts_alias}" user_name)"
         # generic
         #
+        # shellcheck disable=SC2310
         if [ "${current_force:-${default_force}}" = 'true' ] || ! this::session_is_valid "${current_cluster_and_context_name:?}" "${current_kubeconfig:?}"; then
           this::init_generic \
             "${current_cluster_and_context_name:?}" \
@@ -707,6 +760,7 @@ main() {
             "${current_kubeconfig:?}" \
             "${current_token:-${default_token}}" \
             "${current_user_name:?}"
+          # shellcheck disable=SC2310
           this::session_is_valid "${current_cluster_and_context_name:?}" "${current_kubeconfig:?}" || functions::exit 1 "NOT AUTHENTICATED"
         fi
         this::set_context_namespace \
@@ -739,12 +793,14 @@ main() {
         current_user_name="$(this::helper_occ_yaml_get_alias_field "${getopts_alias}" user_name)"
         # ocp
         #
+        # shellcheck disable=SC2310
         if [ "${current_force:-${default_force}}" = 'true' ] || ! this::session_is_valid "${current_cluster_and_context_name:?}" "${current_kubeconfig:?}"; then
           this::init_ocp \
             "${current_cluster_and_context_name:?}" \
             "${current_kubeconfig:?}" \
             "${current_ocp_server:?}" \
             "${current_user_name:?}"
+          # shellcheck disable=SC2310
           this::session_is_valid "${current_cluster_and_context_name:?}" "${current_kubeconfig:?}" || functions::exit 1 "NOT AUTHENTICATED"
         fi
         this::set_context_namespace \
@@ -768,6 +824,7 @@ main() {
         current_user_name="$(this::helper_occ_yaml_get_alias_field "${getopts_alias}" user_name)"
         # oke
         #
+        # shellcheck disable=SC2310
         if [ "${current_force:-${default_force}}" = 'true' ] || ! this::session_is_valid "${current_cluster_and_context_name:?}" "${current_kubeconfig:?}"; then
           this::init_oke \
             "${current_cluster_and_context_name:?}" \
@@ -775,6 +832,7 @@ main() {
             "${current_oke_cluster_id:?}" \
             "${current_oke_profile:?}" \
             "${current_user_name:?}"
+          # shellcheck disable=SC2310
           this::session_is_valid "${current_cluster_and_context_name:?}" "${current_kubeconfig:?}" || functions::exit 1 "NOT AUTHENTICATED"
         fi
         this::set_context_namespace \
@@ -799,7 +857,8 @@ main() {
   fi
 }
 
-# bashsupport disable=BP5001
+# main (bats)
+#
 if [[ ${BASH_SOURCE[0]} == "${0}" ]]; then
   main "${@}"
 fi

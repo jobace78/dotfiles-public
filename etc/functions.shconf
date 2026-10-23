@@ -1,7 +1,5 @@
 # shellcheck shell=bash
 #
-# bashsupport disable=BP5007
-#
 # index:
 #   - functions::catch_all
 #   - functions::exit
@@ -16,7 +14,7 @@
 #
 
 #######################################
-# No description.
+# Reset the traps, report the caught signal or the failing line, and exit with the given code.
 #
 # Notes:
 #   - exits from shell.
@@ -46,12 +44,14 @@ functions::catch_all() {
 }
 
 #######################################
-# No description.
+# Print the optional message and exit from shell with the given exit code, or 1 when it is not numeric.
 # Arguments:
 #   1 - exit code (optional, integer, defaults to '1')
 #   2 - message (optional, string)
+# Outputs:
+#   The message, when given, to stdout.
 # Returns:
-#   Exists from shell.
+#   None
 #######################################
 functions::exit() {
   local exit_code
@@ -69,11 +69,13 @@ functions::exit() {
 }
 
 #######################################
-# No description.
+# Print the message prefixed with the current date to stderr.
 # Arguments:
 #   * - message (required, string)
 # Outputs:
 #   Message with date to stderr.
+# Returns:
+#   None
 #######################################
 functions::log_to_stderr() {
   local date
@@ -84,11 +86,13 @@ functions::log_to_stderr() {
 }
 
 #######################################
-# No description.
+# Print the message prefixed with the current date to stdout.
 # Arguments:
 #   * - message (required, string)
 # Outputs:
 #   Message with date to stdout.
+# Returns:
+#   None
 #######################################
 functions::log_to_stdout() {
   local date
@@ -99,11 +103,13 @@ functions::log_to_stdout() {
 }
 
 #######################################
-# No description.
+# Print the message to stderr.
 # Arguments:
 #   * - message (optional, string)
 # Outputs:
 #   Message to stderr.
+# Returns:
+#   None
 #######################################
 functions::print_to_stderr() {
   local message
@@ -112,13 +118,15 @@ functions::print_to_stderr() {
 }
 
 #######################################
-# No description.
+# Print the message framed by the decoration character to stderr.
 # Globals:
 #   DECORATION_CHARACTER
 # Arguments:
-#  * - message (required, string)
+#   * - message (required, string)
 # Outputs:
 #   Message to stderr (decorated).
+# Returns:
+#   None
 #######################################
 functions::print_to_stderr_decorated() {
   local decoration_character
@@ -133,11 +141,13 @@ functions::print_to_stderr_decorated() {
 }
 
 #######################################
-# No description.
+# Print the message to stdout.
 # Arguments:
 #   * - message (optional, string)
 # Outputs:
 #   Message to stdout.
+# Returns:
+#   None
 #######################################
 functions::print_to_stdout() {
   local message
@@ -146,13 +156,15 @@ functions::print_to_stdout() {
 }
 
 #######################################
-# No description.
+# Print the message framed by the decoration character to stdout.
 # Globals:
 #   DECORATION_CHARACTER
 # Arguments:
-#  * - message (required, string)
+#   * - message (required, string)
 # Outputs:
 #   Message to stdout (decorated).
+# Returns:
+#   None
 #######################################
 functions::print_to_stdout_decorated() {
   local decoration_character
@@ -172,6 +184,8 @@ functions::print_to_stdout_decorated() {
 #   * - message (optional, string)
 # Outputs:
 #   Message to stderr.
+# Returns:
+#   None
 #######################################
 functions::stderr() {
   functions::print_to_stderr "${*:-}"
@@ -183,6 +197,8 @@ functions::stderr() {
 #   * - message (optional, string)
 # Outputs:
 #   Message to stdout.
+# Returns:
+#   None
 #######################################
 functions::stdout() {
   functions::print_to_stdout "${*:-}"

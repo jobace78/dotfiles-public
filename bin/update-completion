@@ -1,14 +1,15 @@
 #!/usr/bin/env bash
-#
-# bashsupport disable=BP5004
-# bashsupport disable=BP5007
 
 #######################################
-# No description.
+# Recreate the zsh completion file of the given command in the user site-functions directory.
 # Globals:
 #   HOME
 # Arguments:
 #   1 - command (required, string)
+# Outputs:
+#   A progress message to stdout.
+# Returns:
+#   None
 #######################################
 this::completion_zsh() {
   local command
@@ -65,11 +66,13 @@ this::completion_zsh() {
 }
 
 #######################################
-# No description.
+# Print the usage help message and exit with the given exit code.
 # Arguments:
 #   1 - exit code (optional, integer)
 # Outputs:
 #   Help message to stdout.
+# Returns:
+#   None
 #######################################
 this::help() {
   local exit_code
@@ -88,11 +91,19 @@ EOT
 }
 
 #######################################
-# No description.
+# Recreate the zsh completion files of the supported commands.
+#
+# Notes:
+#   - exits from shell with -H, -U, -V or an unknown option.
+#
 # Globals:
 #   HOME
 #   OPTIND
 # Arguments:
+#   None
+# Outputs:
+#   Progress messages, or the version with -V, to stdout.
+# Returns:
 #   None
 #######################################
 main() {
@@ -122,7 +133,7 @@ main() {
   local getopts_args
   local getopts_version
   getopts_args=''
-  getopts_version='v20261015'
+  getopts_version='v20261023'
   trap 'functions::catch_all ${?}' ERR
   trap 'functions::catch_all 129 SIGHUP' SIGHUP
   trap 'functions::catch_all 130 SIGINT' SIGINT
@@ -139,7 +150,7 @@ main() {
       V)
         functions::exit 0 "${getopts_version}"
         ;;
-      ?)
+      *)
         this::help 1
         ;;
     esac
@@ -164,7 +175,8 @@ main() {
   this::completion_zsh yq
 }
 
-# bashsupport disable=BP5001
+# main (bats)
+#
 if [[ ${BASH_SOURCE[0]} == "${0}" ]]; then
   main "${@}"
 fi

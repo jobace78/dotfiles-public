@@ -1,14 +1,13 @@
 #!/usr/bin/env bash
-#
-# bashsupport disable=BP5004
-# bashsupport disable=BP5007
 
 #######################################
-# No description.
+# Print the usage help message and exit with the given exit code.
 # Arguments:
 #   1 - exit code (optional, integer)
 # Outputs:
 #   Help message to stdout.
+# Returns:
+#   None
 #######################################
 this::help() {
   local exit_code
@@ -37,16 +36,22 @@ EOT
 }
 
 #######################################
-# No description.
+# Switch the 1Password SSH agent config to the given account, or restore the default one.
+#
+# Notes:
+#   - exits from shell when the default or the account agent config is not found.
+#
 # Globals:
 #   HOME
 #   SSH_AUTH_SOCK
 #   getopts_debug
 # Arguments:
-#   1
+#   1 - account, or 'default' (required, string)
+# Outputs:
+#   The identities of the agent, in debug mode, to stdout.
+# Returns:
+#   None
 #######################################
-#
-# bashsupport disable=BP2001
 this::op() {
   local account
   account="${1:?}"
@@ -61,14 +66,10 @@ this::op() {
             :
           else
             if [ -S "${HOME:?}"/.1password/agent.sock ]; then
-              # bashsupport disable=BP5006
               SSH_AUTH_SOCK="${HOME:?}"/.1password/agent.sock
-              # bashsupport disable=BP5006
               export SSH_AUTH_SOCK
             elif [ -S "${HOME:?}"/Library/Group\ Containers/2BUA8C4S2C.com.1password/t/agent.sock ]; then
-              # bashsupport disable=BP5006
               SSH_AUTH_SOCK="${HOME:?}"/Library/Group\ Containers/2BUA8C4S2C.com.1password/t/agent.sock
-              # bashsupport disable=BP5006
               export SSH_AUTH_SOCK
             fi
           fi
@@ -89,12 +90,19 @@ this::op() {
 }
 
 #######################################
-# No description.
+# Open a tmux session with one synchronized ssh pane per given host and attach to it.
+#
+# Notes:
+#   - exits from shell when the session already exists.
+#
 # Globals:
 #   TMUX_SSH_SESSION_NAME
 #   TMUX_SSH_WINDOW_NAME
-#   args[0]
 # Arguments:
+#   * - hosts (required, string)
+# Outputs:
+#   The attached tmux session to stdout.
+# Returns:
 #   None
 #######################################
 this::tmux() {
@@ -128,7 +136,12 @@ this::tmux() {
 }
 
 #######################################
-# No description.
+# Open synchronized ssh panes in tmux with the 1Password SSH agent config of the given account,
+# then restore the default.
+#
+# Notes:
+#   - exits from shell with -l, -r, -H, -U, -V, an unknown option or on error.
+#
 # Globals:
 #   HOME
 #   OPTIND
@@ -136,6 +149,10 @@ this::tmux() {
 #   TMUX_SSH_WINDOW_NAME
 #   getopts_debug
 # Arguments:
+#   None
+# Outputs:
+#   The accounts with -l, the version with -V, or the tmux session, to stdout.
+# Returns:
 #   None
 #######################################
 main() {
@@ -162,9 +179,7 @@ main() {
   fi
   # global variables
   #
-  # bashsupport disable=BP5006
   TMUX_SSH_SESSION_NAME="${TMUX_SSH_SESSION_NAME:-default}"
-  # bashsupport disable=BP5006
   TMUX_SSH_WINDOW_NAME="${TMUX_SSH_WINDOW_NAME:-default}"
   getopts_debug='false'
   # local variables
@@ -178,7 +193,7 @@ main() {
   getopts_account_file_path=''
   getopts_accounts=()
   getopts_args=''
-  getopts_version='v20261015'
+  getopts_version='v20261023'
   trap 'functions::catch_all ${?}' ERR
   trap 'functions::catch_all 129 SIGHUP' SIGHUP
   trap 'functions::catch_all 130 SIGINT' SIGINT
@@ -202,7 +217,7 @@ main() {
               getopts_accounts+=("${getopts_account_file_name%.toml}")
             fi
           done
-          if [[ "${getopts_accounts[*]}" ]]; then
+          if [ -n "${getopts_accounts[*]}" ]; then
             functions::stdout "${getopts_accounts[*]}"
             functions::exit 0
           else
@@ -223,7 +238,7 @@ main() {
       V)
         functions::exit 0 "${getopts_version}"
         ;;
-      ?)
+      *)
         this::help 1
         ;;
     esac
@@ -237,7 +252,8 @@ main() {
   this::op default
 }
 
-# bashsupport disable=BP5001
+# main (bats)
+#
 if [[ ${BASH_SOURCE[0]} == "${0}" ]]; then
   main "${@}"
 fi
