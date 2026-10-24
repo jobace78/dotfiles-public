@@ -127,12 +127,6 @@ if [ "${commands[packer]}" ]; then
   complete -C packer -o nospace packer
 fi
 
-# perlbrew
-#
-if [ -s "${PERLBREW_ROOT:=${HOME:?}/.perlbrew}"/etc/bashrc ]; then
-  . "${PERLBREW_ROOT}"/etc/bashrc
-fi
-
 # phpenv
 #
 if [ "${commands[phpenv]}" ]; then
