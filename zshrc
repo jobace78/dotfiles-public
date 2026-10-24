@@ -21,15 +21,20 @@ alias ls='ls -G'
 ##############
 #
 # index:
-#   -                                        <HOMEBREW_ROOT>/share/zsh/site-functions IF 'brew' is found in PATH...
+#   -                                        <BREW_PREFIX>/share/zsh/site-functions IF 'brew' is found in PATH...
 #   -                                        <RBENV_ROOT>/completions IF 'rbenv' is found in PATH...
 #   - (this should be set last, do not sort) <HOME>/.dotfiles-public/share/zsh/site-functions
 #   - (this should be set last, do not sort) <HOME>/.local/share/zsh/site-functions
 #
 
+#
+# Notes:
+#   - '${commands[brew]:h:h}' is the prefix of the brew found in PATH (<BREW_PREFIX>/bin/brew without '/bin/brew')...
+#   - HOMEBREW_ROOT is not used here, zprofile sets it without exporting it, so subshells do not have it...
+#
 if [ "${commands[brew]}" ]; then
-  if [ -d "${HOMEBREW_ROOT}"/share/zsh/site-functions ]; then
-    fpath=("${HOMEBREW_ROOT}"/share/zsh/site-functions ${fpath})
+  if [ -d "${commands[brew]:h:h}"/share/zsh/site-functions ]; then
+    fpath=("${commands[brew]:h:h}"/share/zsh/site-functions ${fpath})
   fi
 fi
 
