@@ -86,6 +86,17 @@ if [ "${commands[aws_completer]}" ]; then
   complete -C aws_completer aws
 fi
 
+# az
+#
+# Notes:
+#   - 'update-completion' writes the script, sourced (not autoloaded) as az documents...
+#
+if [ "${commands[az]}" ]; then
+  if [ -s "${HOME:?}"/.local/share/zsh/completion-scripts/az.zsh ]; then
+    . "${HOME:?}"/.local/share/zsh/completion-scripts/az.zsh
+  fi
+fi
+
 # mise
 #
 if [ "${commands[mise]}" ]; then
@@ -96,6 +107,17 @@ fi
 #
 if [ -s "${NVM_DIR:=${HOME:?}/.nvm}"/nvm.sh ]; then
   . "${NVM_DIR}"/nvm.sh
+fi
+
+# oci
+#
+# Notes:
+#   - 'update-completion' writes the script, sourced (not autoloaded) as oci documents...
+#
+if [ "${commands[oci]}" ]; then
+  if [ -s "${HOME:?}"/.local/share/zsh/completion-scripts/oci.zsh ]; then
+    . "${HOME:?}"/.local/share/zsh/completion-scripts/oci.zsh
+  fi
 fi
 
 # packer

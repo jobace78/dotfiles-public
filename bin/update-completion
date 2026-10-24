@@ -1,7 +1,12 @@
 #!/usr/bin/env bash
 
 #######################################
-# Recreate the zsh completion file of the given command in the user site-functions directory.
+# Recreate the zsh completion file of the given command in the user completion-scripts or site-functions directory.
+#
+# Notes:
+#   - az and oci scripts only register the completion, autoloaded from site-functions they miss the first TAB, so
+#     they go to completion-scripts, which zshrc sources.
+#
 # Globals:
 #   HOME
 # Arguments:
@@ -16,20 +21,19 @@ this::completion_zsh() {
   command="${1:?}"
   case "${command}" in
     az)
-      rm -f "${HOME:?}"/.local/share/zsh/site-functions/_az
+      rm -f "${HOME:?}"/.local/share/zsh/completion-scripts/az.zsh
+      rm -f "${HOME:?}"/.local/share/zsh/site-functions/_az # INFO legacy location
       if [ -x "$(command -v az)" ]; then
-        functions::stdout "creating '${HOME:?}/.local/share/zsh/site-functions/_az'..."
-        {
-          echo '#compdef az'
-          curl --retry 5 -L -S -f -s https://raw.githubusercontent.com/Azure/azure-cli/refs/heads/main/az.completion
-        } >> "${HOME:?}"/.local/share/zsh/site-functions/_az
+        functions::stdout "creating '${HOME:?}/.local/share/zsh/completion-scripts/az.zsh'..."
+        curl --retry 5 -L -S -f -o "${HOME:?}"/.local/share/zsh/completion-scripts/az.zsh -s https://raw.githubusercontent.com/Azure/azure-cli/refs/heads/main/az.completion
       fi
       ;;
     oci)
-      rm -f "${HOME:?}"/.local/share/zsh/site-functions/_oci
+      rm -f "${HOME:?}"/.local/share/zsh/completion-scripts/oci.zsh
+      rm -f "${HOME:?}"/.local/share/zsh/site-functions/_oci # INFO legacy location
       if [ -x "$(command -v oci)" ]; then
-        functions::stdout "creating '${HOME:?}/.local/share/zsh/site-functions/_oci'..."
-        _OCI_COMPLETE=zsh_source oci > "${HOME:?}"/.local/share/zsh/site-functions/_oci
+        functions::stdout "creating '${HOME:?}/.local/share/zsh/completion-scripts/oci.zsh'..."
+        _OCI_COMPLETE=zsh_source oci > "${HOME:?}"/.local/share/zsh/completion-scripts/oci.zsh
       fi
       ;;
     pre-commit)
@@ -83,6 +87,7 @@ EOT
 # Globals:
 #   HOME
 #   OPTIND
+#   UMASK
 # Arguments:
 #   None
 # Outputs:
@@ -91,6 +96,8 @@ EOT
 #   None
 #######################################
 main() {
+  # shellcheck disable=SC2034
+  readonly UMASK="${UMASK:=0022}" # compinit refuses group-writable fpath directories
   if [ -f "$(dirname "${0}")"/../etc/bash44.shconf ]; then
     # shellcheck source=../etc/bash44.shconf
     . "$(dirname "${0}")"/../etc/bash44.shconf || exit 1
@@ -142,7 +149,7 @@ main() {
   shift $((OPTIND - 1))
   # main
   #
-  mkdir -p "${HOME:?}"/.local/share/zsh/site-functions
+  mkdir -p "${HOME:?}"/.local/share/zsh/completion-scripts "${HOME:?}"/.local/share/zsh/site-functions
   this::completion_zsh az
   this::completion_zsh docker
   this::completion_zsh helm
