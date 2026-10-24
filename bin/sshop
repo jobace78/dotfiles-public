@@ -105,27 +105,12 @@ this::op() {
 #   None
 #######################################
 main() {
-  if [ -f "$(dirname "${0}")"/../etc/bash44.shconf ]; then
-    # shellcheck source=../etc/bash44.shconf
-    . "$(dirname "${0}")"/../etc/bash44.shconf || exit 1
-  else
-    # shellcheck source=/dev/null
-    . "${HOME:?}"/.etc/bash44.shconf || exit 1
-  fi
-  if [ -f "$(dirname "${0}")"/../etc/constants.shconf ]; then
-    # shellcheck source=../etc/constants.shconf
-    . "$(dirname "${0}")"/../etc/constants.shconf
-  else
-    # shellcheck source=/dev/null
-    . "${HOME:?}"/.etc/constants.shconf
-  fi
-  if [ -f "$(dirname "${0}")"/../etc/functions.shconf ]; then
-    # shellcheck source=../etc/functions.shconf
-    . "$(dirname "${0}")"/../etc/functions.shconf
-  else
-    # shellcheck source=/dev/null
-    . "${HOME:?}"/.etc/functions.shconf
-  fi
+  # shellcheck source=../etc/bash44.shconf
+  . "$(dirname "${0}")"/../etc/bash44.shconf || exit 1
+  # shellcheck source=../etc/constants.shconf
+  . "$(dirname "${0}")"/../etc/constants.shconf
+  # shellcheck source=../etc/functions.shconf
+  . "$(dirname "${0}")"/../etc/functions.shconf
   # global variables
   #
   getopts_debug='false'
@@ -140,7 +125,7 @@ main() {
   getopts_account_file_path=''
   getopts_accounts=()
   getopts_args=''
-  getopts_version='v20261023'
+  getopts_version='v20261024'
   trap 'functions::catch_all ${?}' ERR
   trap 'functions::catch_all 129 SIGHUP' SIGHUP
   trap 'functions::catch_all 130 SIGINT' SIGINT
