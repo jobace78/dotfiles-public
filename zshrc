@@ -2,7 +2,7 @@
 #
 # Notes:
 #   - values found here may be overriden by values found in ~/.zshrc
-#   - this zshrc should be loaded BEFORE your own zshrc...
+#   - this zshrc SHOULD be loaded BEFORE your own zshrc...
 #
 
 #########
@@ -22,8 +22,8 @@ alias ls='ls -G'
 #
 # index:
 #   -                                        <BREW_PREFIX>/share/zsh/site-functions IF 'brew' is found in PATH...
-#   - (this should be set last, do not sort) <HOME>/.dotfiles-public/share/zsh/site-functions
-#   - (this should be set last, do not sort) <HOME>/.local/share/zsh/site-functions
+#   - (this SHOULD be set last, do not sort) <HOME>/.dotfiles-public/share/zsh/site-functions
+#   - (this SHOULD be set last, do not sort) <HOME>/.local/share/zsh/site-functions
 #
 
 #

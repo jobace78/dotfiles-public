@@ -2,7 +2,7 @@
 #
 # Notes:
 #   - values found here may be overriden by values found in ~/.zprofile
-#   - this zprofile should be loaded BEFORE your own zprofile...
+#   - this zprofile SHOULD be loaded BEFORE your own zprofile...
 #
 
 #########
@@ -10,13 +10,13 @@
 #########
 #
 # index:
-#   - (this should be set first, do not sort) <HOMEBREW_ROOT>/bin
-#   - (this should be set first, do not sort) <HOMEBREW_ROOT>/sbin
-#   - (this should be set first, do not sort) <MISE_DATA_DIR>/shims
+#   - (this SHOULD be set first, do not sort) <HOMEBREW_ROOT>/bin
+#   - (this SHOULD be set first, do not sort) <HOMEBREW_ROOT>/sbin
+#   - (this SHOULD be set first, do not sort) <MISE_DATA_DIR>/shims
 #   -                                         <PHPENV_ROOT>/bin
 #   -                                         <PYENV_ROOT>/bin
-#   - (this should be set last, do not sort)  <HOME>/.dotfiles-public/bin
-#   - (this should be set last, do not sort)  <HOME>/.local/bin
+#   - (this SHOULD be set last, do not sort)  <HOME>/.dotfiles-public/bin
+#   - (this SHOULD be set last, do not sort)  <HOME>/.local/bin
 #
 
 if [ -d "${HOMEBREW_ROOT:=/opt/homebrew}"/bin ]; then
