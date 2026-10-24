@@ -25,22 +25,6 @@ this::completion_zsh() {
         } >> "${HOME:?}"/.local/share/zsh/site-functions/_az
       fi
       ;;
-    git-completion.bash)
-      rm -f "${HOME:?}"/.local/share/zsh/site-functions/git-completion.bash
-      if [ -f /Library/Developer/CommandLineTools/usr/share/git-core/git-completion.bash ]; then
-        functions::stdout "creating '${HOME:?}/.local/share/zsh/site-functions/git-completion.bash'..."
-        ln -s /Library/Developer/CommandLineTools/usr/share/git-core/git-completion.bash \
-          "${HOME:?}"/.local/share/zsh/site-functions/git-completion.bash
-      fi
-      ;;
-    git-completion.zsh)
-      rm -f "${HOME:?}"/.local/share/zsh/site-functions/git-completion.zsh
-      if [ -f /Library/Developer/CommandLineTools/usr/share/git-core/git-completion.zsh ]; then
-        functions::stdout "creating '${HOME:?}/.local/share/zsh/site-functions/git-completion.zsh'..."
-        ln -s /Library/Developer/CommandLineTools/usr/share/git-core/git-completion.zsh \
-          "${HOME:?}"/.local/share/zsh/site-functions/git-completion.zsh
-      fi
-      ;;
     oci)
       rm -f "${HOME:?}"/.local/share/zsh/site-functions/_oci
       if [ -x "$(command -v oci)" ]; then
@@ -133,7 +117,7 @@ main() {
   local getopts_args
   local getopts_version
   getopts_args=''
-  getopts_version='v20261023'
+  getopts_version='v20261024'
   trap 'functions::catch_all ${?}' ERR
   trap 'functions::catch_all 129 SIGHUP' SIGHUP
   trap 'functions::catch_all 130 SIGINT' SIGINT
@@ -161,8 +145,6 @@ main() {
   mkdir -p "${HOME:?}"/.local/share/zsh/site-functions
   this::completion_zsh az
   this::completion_zsh docker
-  this::completion_zsh git-completion.bash
-  this::completion_zsh git-completion.zsh
   this::completion_zsh helm
   this::completion_zsh kubectl
   this::completion_zsh kustomize
