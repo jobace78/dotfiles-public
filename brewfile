@@ -7,7 +7,6 @@ brew "gnu-tar"
 # dependencies
 
 brew "libffi" # used by: pyenv | used in: CPPFLAGS, LDFLAGS, PKG_CONFIG_PATH
-brew "libyaml" # used by: rbenv
-brew "openssl@3" # used by: pyenv, rbenv | used in: CPPFLAGS, LDFLAGS, PKG_CONFIG_PATH
-brew "readline" # used by: pyenv, rbenv
+brew "openssl@3" # used by: pyenv | used in: CPPFLAGS, LDFLAGS, PKG_CONFIG_PATH
+brew "readline" # used by: pyenv
 brew "sqlite" # used by: pyenv | used in: CPPFLAGS, LDFLAGS, PKG_CONFIG_PATH

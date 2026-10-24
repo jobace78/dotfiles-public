@@ -15,7 +15,6 @@
 #   - (this should be set first, do not sort) <MISE_DATA_DIR>/shims
 #   -                                         <PHPENV_ROOT>/bin
 #   -                                         <PYENV_ROOT>/bin
-#   -                                         <RBENV_ROOT>/bin
 #   - (this should be set last, do not sort)  <HOME>/.dotfiles-public/bin
 #   - (this should be set last, do not sort)  <HOME>/.local/bin
 #
@@ -42,10 +41,6 @@ fi
 
 if [ "${commands[pyenv]}" ]; then
   eval "$(pyenv init --path)"
-fi
-
-if [ -d "${RBENV_ROOT:=${HOME:?}/.rbenv}"/bin ]; then
-  path=("${RBENV_ROOT}"/bin ${path})
 fi
 
 if [ -d "${HOME:?}"/.dotfiles-public/bin ]; then

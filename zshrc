@@ -22,7 +22,6 @@ alias ls='ls -G'
 #
 # index:
 #   -                                        <BREW_PREFIX>/share/zsh/site-functions IF 'brew' is found in PATH...
-#   -                                        <RBENV_ROOT>/completions IF 'rbenv' is found in PATH...
 #   - (this should be set last, do not sort) <HOME>/.dotfiles-public/share/zsh/site-functions
 #   - (this should be set last, do not sort) <HOME>/.local/share/zsh/site-functions
 #
@@ -35,12 +34,6 @@ alias ls='ls -G'
 if [ "${commands[brew]}" ]; then
   if [ -d "${commands[brew]:h:h}"/share/zsh/site-functions ]; then
     fpath=("${commands[brew]:h:h}"/share/zsh/site-functions ${fpath})
-  fi
-fi
-
-if [ "${commands[rbenv]}" ]; then
-  if [ -d "${RBENV_ROOT}"/completions ]; then
-    fpath=("${RBENV_ROOT}"/completions ${fpath})
   fi
 fi
 
@@ -151,12 +144,6 @@ fi
 if [ "${commands[pyenv]}" ]; then
   eval "$(pyenv init -)"
   eval "$(pyenv virtualenv-init -)"
-fi
-
-# rbenv
-#
-if [ "${commands[rbenv]}" ]; then
-  eval "$(rbenv init - --no-rehash zsh)"
 fi
 
 # ruff
