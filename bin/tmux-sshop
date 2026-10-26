@@ -128,9 +128,9 @@ this::tmux() {
       tmux split-window -t :"${TMUX_SSH_WINDOW_NAME}" "ssh ${arg}"
       tmux select-layout tiled
     fi
-    tmux select-pane -t :.+
     tmux set-window-option -t :"${TMUX_SSH_WINDOW_NAME}" synchronize-panes on
   done
+  tmux select-pane -t :"${TMUX_SSH_WINDOW_NAME}.{top-left}"
   tmux select-window -t "${TMUX_SSH_SESSION_NAME}":"${TMUX_SSH_WINDOW_NAME}"
   tmux attach-session -t "${TMUX_SSH_SESSION_NAME}"
 }
@@ -178,7 +178,7 @@ main() {
   getopts_account_file_path=''
   getopts_accounts=()
   getopts_args=''
-  getopts_version='v20261024'
+  getopts_version='v20261026'
   trap 'functions::catch_all ${?}' ERR
   trap 'functions::catch_all 129 SIGHUP' SIGHUP
   trap 'functions::catch_all 130 SIGINT' SIGINT
