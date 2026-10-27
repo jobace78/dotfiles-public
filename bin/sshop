@@ -20,6 +20,7 @@ this::help() {
     -d Debug
     -l List available accounts and exit
     -r Restore default account and exit
+    -s Switch to the given account and exit
 
   Help options:
     -H Show this help message
@@ -91,10 +92,11 @@ this::op() {
 # Run ssh with the 1Password SSH agent config of the given account, then restore the default.
 #
 # Notes:
-#   - exits from shell with -l, -r, -H, -U, -V, an unknown option or on error.
+#   - exits from shell with -l, -r, -s, -H, -U, -V, an unknown option or on error.
 #
 # Globals:
 #   HOME
+#   OPTARG
 #   OPTIND
 #   getopts_debug
 # Arguments:
@@ -125,7 +127,7 @@ main() {
   getopts_account_file_path=''
   getopts_accounts=()
   getopts_args=''
-  getopts_version='v20261024'
+  getopts_version='v20261027'
   trap 'functions::catch_all ${?}' ERR
   trap 'functions::catch_all 129 SIGHUP' SIGHUP
   trap 'functions::catch_all 130 SIGINT' SIGINT
@@ -134,7 +136,7 @@ main() {
   # getopts
   #
   OPTIND=1
-  while getopts 'dlrHUV' getopts_args; do
+  while getopts 'dlrs:HUV' getopts_args; do
     case "${getopts_args}" in
       d)
         getopts_debug='true'
@@ -162,6 +164,11 @@ main() {
       r)
         functions::stdout 'restoring default account...'
         this::op default
+        functions::exit 0
+        ;;
+      s)
+        functions::stdout "switching to '${OPTARG}' account..."
+        this::op "${OPTARG}"
         functions::exit 0
         ;;
       H | U)

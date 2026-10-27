@@ -8,6 +8,7 @@ function _tmux-sshop {
     "-d[Debug]" \
     "-l[List available accounts and exit]" \
     "-r[Restore default account and exit]" \
+    "-s[Switch to the given account and exit]:account:(${_tmux_sshop_list})" \
     "-H[Show this help message]" \
     "-U[Display brief usage]" \
     "-V[Print version]" \
