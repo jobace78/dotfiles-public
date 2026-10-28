@@ -12,9 +12,7 @@
 # shellcheck source=../etc/functions.shconf
 . "$(dirname "${0}")"/../etc/functions.shconf
 
-if [ -x "$(mise which shfmt 2> /dev/null)" ]; then
-  shfmt_path="$(mise which shfmt 2> /dev/null)"
-elif [ -x "${HOMEBREW_ROOT:-"$(brew --prefix 2> /dev/null)"}"/bin/shfmt ]; then
+if [ -x "${HOMEBREW_ROOT:-"$(brew --prefix 2> /dev/null)"}"/bin/shfmt ]; then
   shfmt_path="${HOMEBREW_ROOT:-"$(brew --prefix 2> /dev/null)"}"/bin/shfmt
 else
   shfmt_path=shfmt

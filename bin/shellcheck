@@ -12,9 +12,7 @@
 # shellcheck source=../etc/functions.shconf
 . "$(dirname "${0}")"/../etc/functions.shconf
 
-if [ -x "$(mise which shellcheck 2> /dev/null)" ]; then
-  shellcheck_path="$(mise which shellcheck 2> /dev/null)"
-elif [ -x "${HOMEBREW_ROOT:-"$(brew --prefix 2> /dev/null)"}"/bin/shellcheck ]; then
+if [ -x "${HOMEBREW_ROOT:-"$(brew --prefix 2> /dev/null)"}"/bin/shellcheck ]; then
   shellcheck_path="${HOMEBREW_ROOT:-"$(brew --prefix 2> /dev/null)"}"/bin/shellcheck
 else
   shellcheck_path=shellcheck
