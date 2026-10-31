@@ -93,7 +93,7 @@ this::help() {
 
   Environment variable example:
     [...]
-    KUBECONFIG=":\${HOME:?}/.kube/config"
+    KUBECONFIG="\${HOME:?}/.kube/config"
     KUBECONFIG="\${KUBECONFIG}:/Users/jobace78/.kubeconfig-aks1.yaml"
     KUBECONFIG="\${KUBECONFIG}:/Users/jobace78/.kubeconfig-generic1.yaml"
     KUBECONFIG="\${KUBECONFIG}:/Users/jobace78/.kubeconfig-manual1.yaml"
@@ -576,7 +576,7 @@ main() {
   getopts_args=''
   getopts_kubeconfig=''
   getopts_response=''
-  getopts_version='v20261024'
+  getopts_version='v20261031'
   occ_yaml="${OCC_YAML:-"${HOME:?}"/.occ.yaml}"
   sed='sed'
   trap 'functions::catch_all ${?}' ERR
