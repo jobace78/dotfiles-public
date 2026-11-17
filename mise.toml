@@ -1,0 +1,13 @@
+[tasks.test]
+alias = "t"
+description = "Run every test"
+run = [{ task = "test:bash" }]
+
+[tasks."test:bash"]
+alias = "tb"
+description = "Run the bash tests"
+run = '''
+bats --formatter pretty --timing \
+  "{{ config_root }}"/bin/tests \
+  "{{ config_root }}"/etc/tests
+'''
