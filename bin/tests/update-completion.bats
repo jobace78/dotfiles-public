@@ -56,5 +56,6 @@ setup() {
 
   [ "${status}" -eq 0 ]
   [ "${output}" = '' ]
-  [ ! -e "${HOME}"/.local/share/zsh/site-functions/_tool-missing ]
+  run test -e "${HOME}"/.local/share/zsh/site-functions/_tool-missing
+  [ "${status}" -eq 1 ]
 }

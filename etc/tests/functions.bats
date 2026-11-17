@@ -48,7 +48,7 @@ setup() {
   functions::print_to_stdout_decorated 'abc' 1> "${BATS_TEST_TMPDIR}"/stdout 2> "${BATS_TEST_TMPDIR}"/stderr
 
   cmp <(printf '\n#######\n# abc #\n#######\n\n') "${BATS_TEST_TMPDIR}"/stdout
-  [ ! -s "${BATS_TEST_TMPDIR}"/stderr ]
+  [ "$(wc -c < "${BATS_TEST_TMPDIR}"/stderr)" -eq 0 ]
 }
 
 @test "functions::print_to_stderr_decorated boxes the message with the first DECORATION_CHARACTER" {
@@ -56,7 +56,7 @@ setup() {
     1> "${BATS_TEST_TMPDIR}"/stdout 2> "${BATS_TEST_TMPDIR}"/stderr
 
   cmp <(printf '\n=======\n= abc =\n=======\n\n') "${BATS_TEST_TMPDIR}"/stderr
-  [ ! -s "${BATS_TEST_TMPDIR}"/stdout ]
+  [ "$(wc -c < "${BATS_TEST_TMPDIR}"/stdout)" -eq 0 ]
 }
 
 @test "functions::log_to_stdout prefixes the message with the date" {
