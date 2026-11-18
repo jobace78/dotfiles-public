@@ -2,7 +2,7 @@
 
 # shellcheck disable=SC2154 # set by bats
 setup() {
-  load test_helper
+  load helpers
   isolate_environment
   SCRIPT="${BATS_TEST_DIRNAME}"/../update-completion
 }

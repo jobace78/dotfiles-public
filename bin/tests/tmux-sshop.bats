@@ -2,7 +2,7 @@
 
 # shellcheck disable=SC2154 # set by bats
 setup() {
-  load test_helper
+  load helpers
   isolate_environment
   COMPLETION="${BATS_TEST_DIRNAME}"/../../share/zsh/site-functions/_tmux-sshop
   SCRIPT="${BATS_TEST_DIRNAME}"/../tmux-sshop
